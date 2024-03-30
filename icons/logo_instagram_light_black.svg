@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   fill="#000000"
+   width="800px"
+   height="800px"
+   viewBox="0 0 256 256"
+   id="Flat"
+   version="1.1"
+   sodipodi:docname="logo_instagram_light_black.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.9"
+     inkscape:cx="398.33333"
+     inkscape:cy="399.44444"
+     inkscape:window-width="1895"
+     inkscape:window-height="1347"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Flat" />
+  <path
+     d="m 128,84 a 44,44 0 1 0 44,44 44.04978,44.04978 0 0 0 -44,-44 z m 0,80 a 36,36 0 1 1 36,-36 36.04061,36.04061 0 0 1 -36,36 z M 172,32 H 84 A 52.059,52.059 0 0 0 32,84 v 88 a 52.059,52.059 0 0 0 52,52 h 88 a 52.059,52.059 0 0 0 52,-52 V 84 A 52.059,52.059 0 0 0 172,32 Z m 44,140 a 44.04978,44.04978 0 0 1 -44,44 H 84 A 44.04978,44.04978 0 0 1 40,172 V 84 A 44.04978,44.04978 0 0 1 84,40 h 88 a 44.04978,44.04978 0 0 1 44,44 z M 188,76 a 8,8 0 1 1 -8,-8 8.00917,8.00917 0 0 1 8,8 z"
+     id="path1"
+     style="stroke-width:1" />
+</svg>
