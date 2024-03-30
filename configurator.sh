@@ -68,9 +68,9 @@
         }
         prerequisite_directory () {
 
-            directory_alerts="./alerts/"
-            directory_data_private="../../data/"
-            directory_data_public="./data/"
+            directory_alerts="/media/storage/Streaming/Software/scripts/main/alerts/"
+            directory_data_private="/media/storage/Streaming/Software/data/"
+            directory_data_public="/media/storage/Streaming/Software/scripts/main/data/"
 
         }
         prerequisite_position() {
@@ -888,7 +888,6 @@
         settings_update_scene_quad_input
 
     }
-
     command_source() {
 
         echo_quiet "Source:"
@@ -932,9 +931,9 @@
         operation_application obs
 
         # Mute OBS.
-        operation_sleep 10
-        setting_update_input_obs_restricted_mute uncut
-        setting_update_input_obs_unrestricted_mute uncut
+        operation_sleep 5
+        
+        command_profile u u m m
 
     }
     command_verbose() {
