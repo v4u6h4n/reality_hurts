@@ -1,5 +1,3 @@
-
----
 # Rules
 
 Unless otherwise specified, these rules apply to all streaming, social media and messaging platforms like Twitch, Discord, YouTube, etc.

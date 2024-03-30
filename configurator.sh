@@ -70,9 +70,10 @@
         }
         prerequisite_directory () {
 
-            directory_alerts="/media/storage/Streaming/Software/scripts/main/alerts/"
-            directory_data_private="/media/storage/Streaming/Software/data/"
-            directory_data_public="/media/storage/Streaming/Software/scripts/main/data/"
+            directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+            directory_alerts="$directory_script/alerts/"
+            directory_data_private="$directory_script/../../data/"
+            directory_data_public="$directory_script/data/"
 
         }
         prerequisite_position() {
@@ -186,8 +187,6 @@
     error_kill() {
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
-
-        setting_update_output_device_volume $output_device_speaker_1_name_long $output_device_speaker_2_name_long $output_device_speaker_3_name_long
 
         paplay "${directory_alerts}debug_error.wav"
 
@@ -1193,8 +1192,12 @@
 
             if [[ "$2" == "everyone" || "$2" == "e" ]]; then
                 argument="everyone"
+            elif [[ "$2" == "couchsurfer" || "$2" == "c" ]]; then
+                argument="couchsurfer"
             elif [[ "$2" == "housemate" || "$2" == "h" ]]; then
                 argument="housemate"
+            elif [[ "$2" == "leaseholder" || "$2" == "l" ]]; then
+                argument="leaseholder"
             elif [[ "$2" == "owner" || "$2" == "o" ]]; then
                 argument="owner"
             elif [[ "$2" == "roommate" || "$2" == "r" ]]; then
@@ -2084,6 +2087,15 @@
                 error_kill "Permission: denied."
             fi
 
+        # Leaseholder.
+        elif [[ "$status_current_permission_role" == "leaseholder" ]]; then
+            # Sources.
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+                echo_quiet "leaseholder"
+            else
+                error_kill "Permission: denied."
+            fi
+
         # Roommates.
         elif [[ "$status_current_permission_role" == "roommate" ]]; then
             # Sources.
@@ -2098,6 +2110,15 @@
             # Sources.
             if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
                 echo_quiet "housemate"
+            else
+                error_kill "Permission: denied."
+            fi
+
+        # Couchsurfer.
+        elif [[ "$status_current_permission_role" == "couchsurfer" ]]; then
+            # Sources.
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+                echo_quiet "couchsurfer"
             else
                 error_kill "Permission: denied."
             fi
