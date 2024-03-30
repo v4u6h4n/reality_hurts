@@ -62,15 +62,18 @@
 
                 output_device_headphones_1_name="Headset"
                 output_device_headphones_1_script_name="headphones_1"
-                output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
-                output_device_headphones_1_address="74:2A:8A:40:AD:0E"
+                output_device_headphones_1_node_name="bluez_output.94_DB_56_03_17_D5.1"
+                output_device_headphones_1_address="94:DB:56:03:17:D5"
+                # output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
+                # output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
         }
         prerequisite_directory () {
 
-            directory_alerts="/media/storage/Streaming/Software/scripts/main/alerts/"
-            directory_data_private="/media/storage/Streaming/Software/data/"
-            directory_data_public="/media/storage/Streaming/Software/scripts/main/data/"
+            directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+            directory_alerts="$directory_script/alerts/"
+            directory_data_private="$directory_script/../../data/"
+            directory_data_public="$directory_script/data/"
 
         }
         prerequisite_position() {
@@ -185,8 +188,6 @@
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
 
-        setting_update_output_device_volume $output_device_speaker_1_name_long $output_device_speaker_2_name_long $output_device_speaker_3_name_long
-
         paplay "${directory_alerts}debug_error.wav"
 
         echo "${position_1}Exiting"
@@ -233,13 +234,13 @@
 
         position_right
 
-        argument_translate category $1
+        translate_argument category $1
         argument_current_category="${argument}"
 
-        argument_translate title $2
+        translate_argument title $2
         argument_current_title="${argument}"
 
-        argument_translate channel $3
+        translate_argument channel $3
         argument_current_channel="${argument}"
 
         title_start_list="${directory_data_public}activity_title_${argument_current_category}_${argument_current_title}_start.txt"
@@ -304,13 +305,13 @@
     }
     command_channel() {
 
-        argument_translate platform $1
+        translate_argument platform $1
         argument_current_platform="${argument}"
 
-        argument_translate channel $2
+        translate_argument channel $2
         argument_current_channel="${argument}"
 
-        argument_translate action $3
+        translate_argument action $3
         argument_current_action="${argument}"
 
         # Query.
@@ -320,7 +321,7 @@
 
             position_right
 
-            # argument_translate data $4
+            # translate_argument data $4
             # argument_current_data="${argument}"
 
             # argument_current_data_payload="$5"
@@ -343,12 +344,13 @@
 
             position_right
 
-            argument_translate title $4
-            argument_current_title="${argument}"
-
-            argument_translate category $5
+            translate_argument category $4
             argument_current_category="${argument}"
 
+            translate_argument activity $5
+            argument_current_activity="${argument}"
+
+            setting_update_channel_refresh
             setting_update_channel_update
 
         # Error.
@@ -518,13 +520,13 @@
 
         position_right
 
-        argument_translate light $1
+        translate_argument light $1
         argument_current_light="${argument}"
 
-        argument_translate attribute $2
+        translate_argument attribute $2
         argument_current_atribute="${argument}"
 
-        argument_translate action $3
+        translate_argument action $3
         argument_current_action="${argument}"
 
         # Litra
@@ -628,13 +630,13 @@
 
         position_right
 
-        argument_translate subcommand $2
+        translate_argument subcommand $2
         argument_current_subcommand="${argument}"
 
-        argument_translate action $3
+        translate_argument action $3
         argument_current_action="${argument}"
 
-        argument_translate role $4
+        translate_argument role $4
         argument_current_role="${argument}"
 
         status_check_permission
@@ -652,7 +654,7 @@
 
         position_right
 
-        argument_translate command $1
+        translate_argument command $1
         argument_current_subcommand="${argument}"
 
         status_check_permission
@@ -857,13 +859,13 @@
         # Name 1, Camera 1.
         if [[ -n "$1" && -n "$2" && -n "$3" ]]; then
 
-            argument_translate scene_type $1
+            translate_argument scene_type $1
             argument_current_scene_type="${argument}"
 
-            argument_translate name $2
+            translate_argument name $2
             argument_current_name_1="${argument}"
 
-            argument_translate camera $3
+            translate_argument camera $3
             argument_current_camera_1="${argument}"
 
         else
@@ -873,10 +875,10 @@
         # Name 2, Camera 2.
         if [[ -n "$4" && -n "$5" ]]; then
 
-            argument_translate name $4
+            translate_argument name $4
             argument_current_name_2="${argument}"
 
-            argument_translate camera $5
+            translate_argument camera $5
             argument_current_camera_2="${argument}"
 
         else
@@ -894,7 +896,7 @@
 
         position_right
 
-        argument_translate source $1
+        translate_argument source $1
 
         source="${argument}"
 
@@ -944,7 +946,7 @@
 
 # OPERATION ###################################################################################################################################################################################
 
-    argument_translate() {
+    translate_argument() {
 
         # Arguments: [argument position (1, 2, 3, etc.)] [argument type (execute, mute, source, etc.)] [argument (${1}, ${2}, ${3}, etc.)]
 
@@ -970,7 +972,58 @@
             elif [[ "$2" == "update" || "$2" == "ud" ]]; then
                 argument="update"
             else
-                error_kill "argument_translate, action, invalid argument: ${2}."
+                error_kill "translate_argument, action, invalid argument: ${2}."
+            fi
+
+        # Activity.
+        elif [[ "$1" == "activity" ]]; then
+
+            if [[ "$2" == "admin" || "$2" == "a" ]]; then
+                argument="admin"
+            elif [[ "$2" == "chores" || "$2" == "c" ]]; then
+                argument="chores"
+            elif [[ "$2" == "chilling" || "$2" == "ch" ]]; then
+                argument="chilling"
+            elif [[ "$2" == "coding" || "$2" == "co" ]]; then
+                argument="coding"
+            elif [[ "$2" == "cooking_breakfast" || "$2" == "c_b" ]]; then
+                argument="cooking_breakfast"
+            elif [[ "$2" == "cooking_lunch" || "$2" == "c_l" ]]; then
+                argument="cooking_lunch"
+            elif [[ "$2" == "cooking_dinner" || "$2" == "c_d" ]]; then
+                argument="cooking_dinner"
+            elif [[ "$2" == "crafts" || "$2" == "cr" ]]; then
+                argument="crafts"
+            elif [[ "$2" == "dancing" || "$2" == "d" ]]; then
+                argument="dancing"
+            elif [[ "$2" == "eating_breakfast" || "$2" == "e_b" ]]; then
+                argument="eating_breakfast"
+            elif [[ "$2" == "eating_lunch" || "$2" == "e_l" ]]; then
+                argument="eating_lunch"
+            elif [[ "$2" == "eating_dinner" || "$2" == "e_d" ]]; then
+                argument="eating_dinner"
+            elif [[ "$2" == "fitness" || "$2" == "f" ]]; then
+                argument="fitness"
+            elif [[ "$2" == "morning" || "$2" == "m" ]]; then
+                argument="morning"
+            elif [[ "$2" == "painting" || "$2" == "p" ]]; then
+                argument="painting"
+            elif [[ "$2" == "relationship" || "$2" == "r" ]]; then
+                argument="relationship"
+            elif [[ "$2" == "sewing" || "$2" == "se" ]]; then
+                argument="sewing"
+            elif [[ "$2" == "sleeping" || "$2" == "sl" ]]; then
+                argument="sleeping"
+            elif [[ "$2" == "socialising" || "$2" == "s" ]]; then
+                argument="socialising"
+            elif [[ "$2" == "therapy_formal" || "$2" == "t_f" ]]; then
+                argument="therapy_formal"
+            elif [[ "$2" == "therapy_informal" || "$2" == "t_i" ]]; then
+                argument="therapy_informal"
+            elif [[ "$2" == "waking_up" || "$2" == "w" ]]; then
+                argument="waking_up"
+            else
+                error_kill "translate_argument, title, invalid argument: ${2}."
             fi
 
         # Attribute.
@@ -982,7 +1035,7 @@
                 argument="power"
 
             else
-                error_kill "argument_translate, attribute, invalid argument: ${2}."
+                error_kill "translate_argument, attribute, invalid argument: ${2}."
             fi
 
         # Camera.
@@ -1001,7 +1054,7 @@
             elif [[ "$2" == "studio" || "$2" == "s" ]]; then
                 argument="studio"
             else
-                error_kill "argument_translate, camera, invalid argument: ${2}."
+                error_kill "translate_argument, camera, invalid argument: ${2}."
             fi
 
         # Category.
@@ -1011,7 +1064,7 @@
                 argument="fitness"
             elif [[ "$2" == "passive" || "$2" == "p" ]]; then
                 argument="passive"
-            elif [[ "$2" == "sleeping" || "$2" == "s" ]]; then
+            elif [[ "$2" == "sleeping" || "$2" == "sl" ]]; then
                 argument="sleeping"
             else
                 error_kill "translate_argument, category, invalid argument: ${2}."
@@ -1139,8 +1192,12 @@
 
             if [[ "$2" == "everyone" || "$2" == "e" ]]; then
                 argument="everyone"
+            elif [[ "$2" == "couchsurfer" || "$2" == "c" ]]; then
+                argument="couchsurfer"
             elif [[ "$2" == "housemate" || "$2" == "h" ]]; then
                 argument="housemate"
+            elif [[ "$2" == "leaseholder" || "$2" == "l" ]]; then
+                argument="leaseholder"
             elif [[ "$2" == "owner" || "$2" == "o" ]]; then
                 argument="owner"
             elif [[ "$2" == "roommate" || "$2" == "r" ]]; then
@@ -1212,35 +1269,6 @@
                 error_kill "translate_argument, subcommand, invalid argument: ${2}."
             fi
 
-        # Title.
-        elif [[ "$1" == "title" ]]; then
-
-            if [[ "$2" == "admin" || "$2" == "a" ]]; then
-                argument="admin"
-            elif [[ "$2" == "chores" || "$2" == "ch" ]]; then
-                argument="chores"
-            elif [[ "$2" == "cooking" || "$2" == "co" ]]; then
-                argument="cooking"
-            elif [[ "$2" == "crafts" || "$2" == "cr" ]]; then
-                argument="crafts"
-            elif [[ "$2" == "dancing" || "$2" == "d" ]]; then
-                argument="dancing"
-            elif [[ "$2" == "fitness" || "$2" == "f" ]]; then
-                argument="fitness"
-            elif [[ "$2" == "morning" || "$2" == "m" ]]; then
-                argument="morning"
-            elif [[ "$2" == "relationship" || "$2" == "r" ]]; then
-                argument="relationship"
-            elif [[ "$2" == "therapy_formal" || "$2" == "tf" ]]; then
-                argument="therapy_formal"
-            elif [[ "$2" == "therapy_informal" || "$2" == "ti" ]]; then
-                argument="therapy_informal"
-            elif [[ "$2" == "sleeping" || "$2" == "s" ]]; then
-                argument="sleeping"
-            else
-                error_kill "translate_argument, title, invalid argument: ${2}."
-            fi
-
         # Utility.
         elif [[ "$1" == "utility" ]]; then
 
@@ -1260,7 +1288,20 @@
         position_left
 
     }
+    translate_json() {
+        
+        local result=""
+        while IFS= read -r line; do
+            result="$result\"$line\", "
+        done < "$2"
 
+        result="${result%, }"
+
+        result="${result%,}"
+
+        printf -v "$1" '%s' "$result"
+
+    }
 
 
     operation_application() {
@@ -1320,15 +1361,6 @@
         espeak "${1}"
 
         position_left
-
-    }
-    operation_translate_json() {
-
-        while IFS= read -r line; do
-            tags_json="$tags_json\"$line\", "
-        done < "$tags_list"
-
-        tags_json="${tags_json%, }"
 
     }
 
@@ -2055,6 +2087,15 @@
                 error_kill "Permission: denied."
             fi
 
+        # Leaseholder.
+        elif [[ "$status_current_permission_role" == "leaseholder" ]]; then
+            # Sources.
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+                echo_quiet "leaseholder"
+            else
+                error_kill "Permission: denied."
+            fi
+
         # Roommates.
         elif [[ "$status_current_permission_role" == "roommate" ]]; then
             # Sources.
@@ -2069,6 +2110,15 @@
             # Sources.
             if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
                 echo_quiet "housemate"
+            else
+                error_kill "Permission: denied."
+            fi
+
+        # Couchsurfer.
+        elif [[ "$status_current_permission_role" == "couchsurfer" ]]; then
+            # Sources.
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+                echo_quiet "couchsurfer"
             else
                 error_kill "Permission: denied."
             fi
@@ -2850,20 +2900,20 @@
 
             position_right
 
-            title_start_list="${directory_data_public}activity_title_${argument_current_category}_${argument_current_title}_start.txt"
-            title_end_list="${directory_data_public}activity_title_${argument_current_category}_end.txt"
-            tags_list="${directory_data_public}activity_tags_${argument_current_category}.txt"
+            title_start_list="${directory_data_public}activity_title_start_${argument_current_activity}.txt"
+            title_end_list="${directory_data_public}activity_title_end_all.txt"
+            tag_list="${directory_data_public}activity_tag_${argument_current_category}.txt"
 
             operation_random title_start "$title_start_list"
             operation_random title_end "$title_end_list"
-            operation_translate_json
+            translate_json tag $tag_list
 
             title="$title_start | $title_end"
             category=$(cat "${directory_data_public}activity_category_${argument_current_category}.txt")
             
             echo_quiet "Title: $title"
             echo_quiet "Category: $argument_current_category ($category)"
-            echo_quiet "Tags: $tags_json"
+            echo_quiet "Tags: $tag"
 
             status_check_channel access_token client_id user_id
 
@@ -2871,7 +2921,7 @@
                 -H "Client-ID: $client_id" \
                 -H "Authorization: Bearer $access_token" \
                 -H "Content-Type: application/json" \
-                -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tags_json]}" \
+                -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag]}" \
                 https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
 
             position_left
@@ -3629,7 +3679,7 @@
 
             position_right
 
-            argument_translate device $1
+            translate_argument device $1
             argument_current_device="$argument"
 
             if [[ "$argument_current_device" == "null_sink_1" ]]; then

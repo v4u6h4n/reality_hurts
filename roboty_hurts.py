@@ -18,9 +18,11 @@ class Bot(commands.Bot):
 
         # Define permission levels
         self.permission_levels = {
-            'owner': 3,
+            'owner': 4,
+            'leaseholder': 3,
             'roommate': 2,
-            'housemate': 1
+            'housemate': 1,
+            'couchsurfer': 0
         }
 
         # Load permissions from separate files
@@ -30,7 +32,8 @@ class Bot(commands.Bot):
         log_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', datefmt='%Y-%m-%d | %H:%M:%S')
 
         # Define the log handler with date-based rotation
-        log_handler = TimedRotatingFileHandler(filename=f'../../logs/roboty_hurts/{datetime.now().strftime("%Y-%m-%d")}.log', when='midnight', backupCount=0)
+        log_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'logs', 'roboty_hurts', f'{datetime.now().strftime("%Y-%m-%d")}.log')
+        log_handler = TimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=0)
         log_handler.setFormatter(log_formatter)
 
         # Add the log handler to the root logger
@@ -42,10 +45,12 @@ class Bot(commands.Bot):
         logging.info(message)
 
     def refresh_access_token(self):
-        subprocess.run(["./configurator.sh", "-s", "brh", "-ch", "t", "rbh", "r"])
+        script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configurator.sh')
+        subprocess.run([script_path, "-s", "brh", "-ch", "t", "rbh", "r"])
 
     def get_access_token(self):
-        with open("../../data/channel_twitch_roboty_hurts_access_token.txt", "r") as file:
+        token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
+        with open(token_file, "r") as file:
             return file.read().strip()
 
     async def event_ready(self):
@@ -71,21 +76,22 @@ class Bot(commands.Bot):
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
     async def help(self, ctx: commands.Context):
-        await ctx.send("Commands: https://pastebin.com/ZLDyQeJE")
+        await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/commands")
 
     @commands.command(aliases=['social', 'links', 'link', 'discord'])
     async def socials(self, ctx: commands.Context):
-        await ctx.send("Socials: https://lnk.bio/reality_hurts")
+        await ctx.send("Rules: https://lnk.bio/reality_hurts")
 
     @commands.command(aliases=['r'])
     async def rules(self, ctx: commands.Context):
-        await ctx.send("Rules: https://pastebin.com/MMrR6zzH")
+        await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
 
     @commands.command(aliases=['s'])
     @commands.cooldown(1, 2, commands.Bucket.channel)
     async def scene(self, ctx: commands.Context):
         # Read the permission level string from the text file
-        with open("../../data/permission_scene.txt", "r") as file:
+        permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'permission_scene.txt')
+        with open(permission_file, "r") as file:
             permission_scene = file.read().strip()
 
         # Check permission level
@@ -107,7 +113,7 @@ class Bot(commands.Bot):
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
-        script_path = "./configurator.sh"
+        script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configurator.sh')
         command = [script_path] + arguments
         # Print the constructed command for debugging purposes
         self.log_message("EXECUTE  | " + ' '.join(command))
@@ -120,7 +126,7 @@ class Bot(commands.Bot):
 
         # Iterate over each permission level
         for level, _ in self.permission_levels.items():
-            file_path = f"../../data/role_{level}_list.txt"
+            file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', f'role_{level}_list.txt')
             if os.path.exists(file_path):
                 with open(file_path, "r") as file:
                     for line in file:
