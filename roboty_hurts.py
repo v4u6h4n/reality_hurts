@@ -30,7 +30,7 @@ class Bot(commands.Bot):
         log_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', datefmt='%Y-%m-%d | %H:%M:%S')
 
         # Define the log handler with date-based rotation
-        log_handler = TimedRotatingFileHandler(filename=f'../../logs/roboty_hurts/{datetime.now().strftime("%Y-%m-%d")}.log', when='midnight', backupCount=0)
+        log_handler = TimedRotatingFileHandler(filename=f'/media/storage/Streaming/Software/logs/roboty_hurts/{datetime.now().strftime("%Y-%m-%d")}.log', when='midnight', backupCount=0)
         log_handler.setFormatter(log_formatter)
 
         # Add the log handler to the root logger
@@ -42,10 +42,10 @@ class Bot(commands.Bot):
         logging.info(message)
 
     def refresh_access_token(self):
-        subprocess.run(["./configurator.sh", "-s", "brh", "-ch", "t", "rbh", "r"])
+        subprocess.run(["/media/storage/Streaming/Software/scripts/main/configurator.sh", "-s", "brh", "-ch", "t", "rbh", "r"])
 
     def get_access_token(self):
-        with open("../../data/channel_twitch_roboty_hurts_access_token.txt", "r") as file:
+        with open("/media/storage/Streaming/Software/data/channel_twitch_roboty_hurts_access_token.txt", "r") as file:
             return file.read().strip()
 
     async def event_ready(self):
@@ -120,7 +120,7 @@ class Bot(commands.Bot):
 
         # Iterate over each permission level
         for level, _ in self.permission_levels.items():
-            file_path = f"../../data/role_{level}_list.txt"
+            file_path = f"/media/storage/Streaming/Software/data/role_{level}_list.txt"
             if os.path.exists(file_path):
                 with open(file_path, "r") as file:
                     for line in file:
