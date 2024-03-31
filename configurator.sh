@@ -75,7 +75,7 @@
             directory_alerts="$directory_script/alerts/"
             directory_data_private="$directory_script/../../data/"
             directory_data_public="$directory_script/data/"
-            directory_log="$directory_script/../../log/"
+            directory_log="$directory_script/../../logs/"
 
         }
         prerequisite_permission() {
@@ -151,18 +151,15 @@
 
     log() {
 
-        local log_file="${directory_log}$(date +"%Y-%m-%d").log"
-        echo "$(date +"%Y-%m-%d | %T") | $1" >> "$log_file"
+        echo "$(date +"%Y-%m-%d | %T") | $1" >> "${directory_log}configurator/$(date +"%Y-%m-%d").log"
         
     }
 
     echo_quiet() {
 
-        echo "${position}${1}"
+        echo "$position$1"
 
-        log_message=$(echo "${position}${1}")
-
-        log $log_message
+        log "$position$1"
 
     }
     echo_verbose() {
@@ -170,10 +167,6 @@
         if [[ "$flag_verbose" == "yes" ]]; then
 
             echo_quiet "$1"
-
-            log_message=$(echo_quiet "$1")
-
-            log $log_message
 
         else
             :
@@ -208,9 +201,7 @@
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
 
-        log_message=$(echo -e "${position}Error: \e[1;31m${1}\e[0m")
-
-        log $log_message
+        log "${position}Error: $1"
 
         paplay "${directory_alerts}debug_error.wav"
 
