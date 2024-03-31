@@ -250,23 +250,23 @@
         position_right
 
         translate_argument category $1
-        argument_current_category="${argument}"
+        argument_current_category_1="${argument}"
 
         translate_argument title $2
         argument_current_title="${argument}"
 
         translate_argument channel $3
-        argument_current_channel="${argument}"
+        argument_current_channel_1="${argument}"
 
-        title_start_list="${directory_data_public}activity_title_${argument_current_category}_${argument_current_title}_start.txt"
-        title_end_list="${directory_data_public}activity_title_${argument_current_category}_end.txt"
+        title_start_list="${directory_data_public}activity_title_${argument_current_category_1}_${argument_current_title}_start.txt"
+        title_end_list="${directory_data_public}activity_title_${argument_current_category_1}_end.txt"
 
         operation_random title_start "$title_start_list"
         operation_random title_end "$title_end_list"
 
         title="$title_start | $title_end"
         
-        category=$(cat "${directory_data_public}activity_category_${argument_current_category}.txt")
+        category=$(cat "${directory_data_public}activity_category_${argument_current_category_1}.txt")
         
         setting_update_channel_refresh
 
@@ -292,25 +292,25 @@
 
         # Morning.
         if [[ $current_hour -eq 5 ]]; then
-            :
-            # command_activity passive morning reality_hurts
+            
+            command_permission channel toggle couchsurfer scene select couchsurfer
+
+            command_channel twitch reality_hurts refresh
+
+            command_channel twitch reality_hurts update passive morning
 
         # Sleeping.
         elif [[ $current_hour -eq 21 ]]; then
-            # -s sdba -pe sc t h status_update_permission
 
-            argument_current_subcommand="scene"
-            argument_current_action="select"
-            argument_current_role="owner"
-
-            status_update_permission
+            command_permission channel select owner scene select owner
 
             command_channel twitch reality_hurts refresh
+
             command_channel twitch reality_hurts update sleeping sleeping
 
         # Debug.
-        elif [[ $current_hour -eq 14 ]]; then
-            :
+        # elif [[ $current_hour -eq 14 ]]; then
+        #     :
 
         # Error.
         else
@@ -321,16 +321,16 @@
     command_channel() {
 
         translate_argument platform $1
-        argument_current_platform="${argument}"
+        argument_current_platform_1="${argument}"
 
         translate_argument channel $2
-        argument_current_channel="${argument}"
+        argument_current_channel_1="${argument}"
 
         translate_argument action $3
-        argument_current_action="${argument}"
+        argument_current_action_1="${argument}"
 
         # Query.
-        if [[ "$argument_current_action" == "query" ]]; then
+        if [[ "$argument_current_action_1" == "query" ]]; then
 
             echo_quiet "Channel: query"
 
@@ -344,7 +344,7 @@
             setting_update_channel_query
 
         # Refresh.
-        elif [[ "$argument_current_action" == "refresh" ]]; then
+        elif [[ "$argument_current_action_1" == "refresh" ]]; then
 
             echo_quiet "Channel: refresh"
 
@@ -353,17 +353,17 @@
             setting_update_channel_refresh
             
         # Update.
-        elif [[ "$argument_current_action" == "update" ]]; then
+        elif [[ "$argument_current_action_1" == "update" ]]; then
 
             echo_quiet "Channel: update"
 
             position_right
 
             translate_argument category $4
-            argument_current_category="${argument}"
+            argument_current_category_1="${argument}"
 
             translate_argument activity $5
-            argument_current_activity="${argument}"
+            argument_current_activity_1="${argument}"
 
             setting_update_channel_refresh
             setting_update_channel_update
@@ -542,7 +542,7 @@
         argument_current_atribute="${argument}"
 
         translate_argument action $3
-        argument_current_action="${argument}"
+        argument_current_action_1="${argument}"
 
         # Litra
         if [[ "$argument_current_light" == "litra" ]]; then
@@ -551,25 +551,25 @@
             if [[ "$argument_current_atribute" == "brightness" ]]; then
 
                 # Down.
-                if [[ "$argument_current_action" == "down" ]]; then
+                if [[ "$argument_current_action_1" == "down" ]]; then
                     status_check light_litra_brightness
                     setting_update_light_litra_brightness_down
                     status_update_light_litra_brightness
 
                 # Up.
-                elif [[ "$argument_current_action" == "up" ]]; then
+                elif [[ "$argument_current_action_1" == "up" ]]; then
                     status_check light_litra_brightness
                     setting_update_light_litra_brightness_up
                     status_update_light_litra_brightness
                 else
-                    error_kill "command_light, argument_current_light, argument_current_atribute, brightness, argument_current_action."
+                    error_kill "command_light, argument_current_light, argument_current_atribute, brightness, argument_current_action_1."
                 fi
 
             # Power.
             elif [[ "$argument_current_atribute" == "power" ]]; then
 
                 # Toggle.
-                if [[ "$argument_current_action" == "toggle" ]]; then
+                if [[ "$argument_current_action_1" == "toggle" ]]; then
                     status_check light_litra_power
                     setting_update_light_litra_power_toggle
                     status_update_light_litra_brightness
@@ -577,7 +577,7 @@
 
                 # Error.
                 else
-                    error_kill "command_light, argument_current_light, argument_current_atribute, power, argument_current_action."
+                    error_kill "command_light, argument_current_light, argument_current_atribute, power, argument_current_action_1."
                 fi
             else
                 error_kill "command_light, argument_current_light, argument_current_atribute."
@@ -645,24 +645,24 @@
 
         position_right
 
-        translate_argument subcommand $2
+        translate_argument subcommand $1
         argument_current_subcommand_1="${argument}"
 
-        translate_argument action $3
+        translate_argument action $2
         argument_current_action_1="${argument}"
 
-        translate_argument role $4
+        translate_argument role $3
         argument_current_role_1="${argument}"
 
-        if [[ -n "$5" && -n "$6" && -n "$7" ]]; then
+        if [[ -n "$4" && -n "$5" && -n "$6" ]]; then
 
-            translate_argument subcommand $5
+            translate_argument subcommand $4
             argument_current_subcommand_2="${argument}"
 
-            translate_argument action $6
+            translate_argument action $5
             argument_current_action_2="${argument}"
 
-            translate_argument role $7
+            translate_argument role $6
             argument_current_role_2="${argument}"
 
         else
@@ -2899,9 +2899,9 @@
 
         status_check_channel client_id client_secret refresh_token user_id
 
-        access_token_file="${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_access_token.txt"
+        access_token_file="${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_access_token.txt"
 
-        echo_quiet "Channel: ${argument_current_channel}."
+        echo_quiet "Channel: ${argument_current_channel_1}."
 
         local response=$(curl -s -X POST \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -2927,7 +2927,7 @@
         position_right
 
         # Twitch.
-        if [[ "$argument_current_platform" == "twitch" || "$argument_current_platform" == "all" ]]; then
+        if [[ "$argument_current_platform_1" == "twitch" || "$argument_current_platform_1" == "all" ]]; then
             setting_update_channel_update_twitch
         fi
 
@@ -2936,23 +2936,23 @@
     }
         setting_update_channel_update_twitch() {
 
-            echo_quiet "Twitch: $argument_current_channel"
+            echo_quiet "Twitch: $argument_current_channel_1"
 
             position_right
 
-            title_start_list="${directory_data_public}activity_title_start_${argument_current_activity}.txt"
+            title_start_list="${directory_data_public}activity_title_start_${argument_current_activity_1}.txt"
             title_end_list="${directory_data_public}activity_title_end_all.txt"
-            tag_list="${directory_data_public}activity_tag_${argument_current_activity}.txt"
+            tag_list="${directory_data_public}activity_tag_${argument_current_activity_1}.txt"
 
             operation_random title_start "$title_start_list"
             operation_random title_end "$title_end_list"
             translate_json tag $tag_list
 
             title="$title_start | $title_end"
-            category=$(cat "${directory_data_public}activity_category_${argument_current_category}.txt")
+            category=$(cat "${directory_data_public}activity_category_${argument_current_category_1}.txt")
             
             echo_quiet "Title: $title"
-            echo_quiet "Category: $argument_current_category ($category)"
+            echo_quiet "Category: $argument_current_category_1 ($category)"
             echo_quiet "Tags: $tag"
 
             status_check_channel access_token client_id user_id
@@ -4893,27 +4893,27 @@
     }
         status_check_channel_access_token() {
 
-            access_token=$(cat "${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_access_token.txt")
+            access_token=$(cat "${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_access_token.txt")
 
         }
         status_check_channel_client_ID() {
 
-            client_id=$(cat "${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_client_id.txt")
+            client_id=$(cat "${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_client_id.txt")
 
         }
         status_check_channel_client_secret() {
 
-            client_secret=$(cat "${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_client_secret.txt")
+            client_secret=$(cat "${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_client_secret.txt")
 
         }
         status_check_channel_refresh_token() {
 
-            refresh_token=$(cat "${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_refresh_token.txt")
+            refresh_token=$(cat "${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_refresh_token.txt")
 
         }
         status_check_channel_user_ID() {
 
-            user_id=$(cat "${directory_data_private}channel_${argument_current_platform}_${argument_current_channel}_user_id.txt")
+            user_id=$(cat "${directory_data_private}channel_${argument_current_platform_1}_${argument_current_channel_1}_user_id.txt")
 
         }
 
@@ -5419,7 +5419,7 @@
 
         # Error.
         else
-            error_kill "status_update_permission, argument_current_action, invalid argument: $argument_current_action."
+            error_kill "status_update_permission, argument_current_action_1, invalid argument: $argument_current_action_1."
         fi
 
         status_update_permission_role
@@ -5752,6 +5752,7 @@
                 ;;
             --permission|-pe)
                 command_gatekeeper "$@"
+                shift
                 command_permission "$@"
                 break
                 ;;
