@@ -87,7 +87,7 @@ class Bot(commands.Bot):
         await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
 
     @commands.command(aliases=['a'])
-    @commands.cooldown(1, 30, commands.Bucket.channel)
+    @commands.cooldown(1, 10, commands.Bucket.channel)
     async def activity(self, ctx: commands.Context):
         # Read the permission level string from the text file
         permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'permission_channel.txt')
@@ -97,7 +97,7 @@ class Bot(commands.Bot):
         # Check permission level
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
             if permission_scene == 'owner':
-                    response_message = "Scene command locked."
+                    response_message = "Activity command locked."
                     await ctx.send(response_message)
                     self.log_message(f"RESPONSE | {response_message}")
             if permission_scene != 'owner':
@@ -108,6 +108,19 @@ class Bot(commands.Bot):
 
         # Parse the content of the message to extract arguments
         arguments_chat = shlex.split(ctx.message.content)[1:]
+
+        # Count number of arguments passed.
+        number_arguments_chat = len(arguments_chat)
+
+        # Check number of arguments passed.
+        if number_arguments_chat == 1 and arguments_chat[0] in ["a", "admin", "c", "chores", "ch", "chilling", "co", "coding", "c_b", "cooking_breakfast", "c_l", "cooking_lunch", "c_d", "cooking_dinner", "cr", "crafts", "d", "dancing", "e_b", "eating_breakfast", "e_l", "eating_lunch", "e_d", "eating_dinner", "f", "fitness", "m", "morning", "p", "painting", "r", "relationship", "se", "sewing", "s", "socialising", "t_i", "therapy_informal", "w", "waking_up"]:
+                pass
+        else:
+            response_message = "Invalid command."
+            await ctx.send(response_message)
+            self.log_message(f"RESPONSE | {response_message}")
+            return
+
         # Append custom static arguments to the list
         arguments_scene = ["-s", "rbhu", "-ch", "t", "rh", "ud", "p"]
         # Combine parsed arguments and static arguments
@@ -142,6 +155,21 @@ class Bot(commands.Bot):
 
         # Parse the content of the message to extract arguments
         arguments_chat = shlex.split(ctx.message.content)[1:]
+
+        # Count number of arguments passed.
+        number_arguments_chat = len(arguments_chat)
+
+        # Check number of arguments passed.
+        if number_arguments_chat == 2 and arguments_chat[0] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
+                pass
+        elif number_arguments_chat == 4 and arguments_chat[0] in ["a", "v"] and arguments_chat[2] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"] and arguments_chat[3] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
+                pass
+        else:
+            response_message = "Invalid command."
+            await ctx.send(response_message)
+            self.log_message(f"RESPONSE | {response_message}")
+            return
+
         # Append custom static arguments to the list
         arguments_scene = ["-s", "rbhu", "-sc", "q"]
         # Combine parsed arguments and static arguments
