@@ -27,6 +27,8 @@
 
 The activity command allows you to update the title, category and tags of the stream.
 
+Cooldown: 10 seconds.
+
 <ins>Format:</ins>
 
 ```
@@ -71,6 +73,8 @@ w       waking_up
 <ins>Description:</ins>
 
 This command allows you to change the cameras (and associated microphones) when the stream is in the four quadrant view. Please avoid artistic or creative camera work, just keep it simple and change to cameras that provide a clear view of us.
+
+Cooldown: 2 seconds.
 
 <ins>Format:</ins>
 

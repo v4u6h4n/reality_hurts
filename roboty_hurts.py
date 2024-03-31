@@ -87,7 +87,7 @@ class Bot(commands.Bot):
         await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
 
     @commands.command(aliases=['a'])
-    @commands.cooldown(1, 30, commands.Bucket.channel)
+    @commands.cooldown(1, 10, commands.Bucket.channel)
     async def activity(self, ctx: commands.Context):
         # Read the permission level string from the text file
         permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'permission_channel.txt')
