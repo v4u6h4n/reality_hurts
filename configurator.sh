@@ -2942,7 +2942,7 @@
 
             title_start_list="${directory_data_public}activity_title_start_${argument_current_activity}.txt"
             title_end_list="${directory_data_public}activity_title_end_all.txt"
-            tag_list="${directory_data_public}activity_tag_${argument_current_category}.txt"
+            tag_list="${directory_data_public}activity_tag_${argument_current_activity}.txt"
 
             operation_random title_start "$title_start_list"
             operation_random title_end "$title_end_list"
