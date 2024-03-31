@@ -62,13 +62,13 @@ class Bot(commands.Bot):
             return
 
         if message.content.startswith(self._prefix):
-            log_message = f"COMMAND  | {message.content}"
+            log_message = f"COMMAND  | {message.author.name}: {message.content}"
         else:
-            log_message = f"CHAT     | {message.content}"
+            log_message = f"CHAT     | {message.author.name}: {message.content}"
 
         self.log_message(log_message)
         await self.handle_commands(message)
-
+        
     async def run_refresh_access_token_periodically(self):
         while True:
             await asyncio.sleep(1800)
