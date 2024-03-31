@@ -6,6 +6,7 @@
 
         prerequisite_device
         prerequisite_directory
+        prerequisite_permission
         prerequisite_position
 
     }
@@ -62,10 +63,10 @@
 
                 output_device_headphones_1_name="Headset"
                 output_device_headphones_1_script_name="headphones_1"
-                output_device_headphones_1_node_name="bluez_output.94_DB_56_03_17_D5.1"
-                output_device_headphones_1_address="94:DB:56:03:17:D5"
-                # output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
-                # output_device_headphones_1_address="74:2A:8A:40:AD:0E"
+                # output_device_headphones_1_node_name="bluez_output.94_DB_56_03_17_D5.1"
+                # output_device_headphones_1_address="94:DB:56:03:17:D5"
+                output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
+                output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
         }
         prerequisite_directory () {
@@ -74,6 +75,13 @@
             directory_alerts="$directory_script/alerts/"
             directory_data_private="$directory_script/../../data/"
             directory_data_public="$directory_script/data/"
+            directory_log="$directory_script/../../log/"
+
+        }
+        prerequisite_permission() {
+
+            data_permission_channel="housemate"
+            data_permission_scene="couchsurfer"
 
         }
         prerequisite_position() {
@@ -141,15 +149,32 @@
 
     }
 
+    log() {
+
+        local log_file="${directory_log}$(date +"%Y-%m-%d").log"
+        echo "$(date +"%Y-%m-%d | %T") | $1" >> "$log_file"
+        
+    }
+
     echo_quiet() {
 
         echo "${position}${1}"
+
+        log_message=$(echo "${position}${1}")
+
+        log $log_message
 
     }
     echo_verbose() {
 
         if [[ "$flag_verbose" == "yes" ]]; then
+
             echo_quiet "$1"
+
+            log_message=$(echo_quiet "$1")
+
+            log $log_message
+
         else
             :
         fi
@@ -179,14 +204,13 @@
 
     }
 
-    error() {
-
-        echo -e "${position}Error: \e[1;33m${1}\e[0m" >&2
-
-    }
     error_kill() {
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
+
+        log_message=$(echo -e "${position}Error: \e[1;31m${1}\e[0m")
+
+        log $log_message
 
         paplay "${directory_alerts}debug_error.wav"
 
@@ -438,7 +462,7 @@
         ║     │                              ║
         ║     ├─ a                     admin ║
         ║     ╰─ co                  cooking ║
-        ║        ├─ rbh         roboty_hurts ║
+        ║        ├─ rbhb         roboty_hurts_bot ║
         ║        ╰─ rh         reality_hurts ║
         ╠════════════════════════════════════╣
         │ BOT
@@ -470,7 +494,7 @@
             a, all
 
                 [channel]
-                rbh, roboty_hurst
+                rbhb, roboty_hurst
                 rh, reality_hurts
                 rhu, reality_hurts_uncut
                 a, all
@@ -631,13 +655,28 @@
         position_right
 
         translate_argument subcommand $2
-        argument_current_subcommand="${argument}"
+        argument_current_subcommand_1="${argument}"
 
         translate_argument action $3
-        argument_current_action="${argument}"
+        argument_current_action_1="${argument}"
 
         translate_argument role $4
-        argument_current_role="${argument}"
+        argument_current_role_1="${argument}"
+
+        if [[ -n "$5" && -n "$6" && -n "$7" ]]; then
+
+            translate_argument subcommand $5
+            argument_current_subcommand_2="${argument}"
+
+            translate_argument action $6
+            argument_current_action_2="${argument}"
+
+            translate_argument role $7
+            argument_current_role_2="${argument}"
+
+        else
+            echo_verbose "Only one subcommand argument, skipping."
+        fi
 
         status_check_permission
         status_update_permission
@@ -655,7 +694,7 @@
         position_right
 
         translate_argument command $1
-        argument_current_subcommand="${argument}"
+        argument_current_subcommand_1="${argument}"
 
         status_check_permission
         interpret_source_permission
@@ -1218,8 +1257,10 @@
         # Source.
         elif [[ "$1" == "source" ]]; then
 
-            if [[ "$2" == "bot_roboty_hurts" || "$2" == "brh" ]]; then
-                argument="bot_roboty_hurts"
+            if [[ "$2" == "roboty_hurts_bot" || "$2" == "rbhb" ]]; then
+                argument="roboty_hurts_bot"
+            elif [[ "$2" == "roboty_hurts_user" || "$2" == "rbhu" ]]; then
+                argument="roboty_hurts_user"
             elif [[ "$2" == "streamdeck_bathroom" || "$2" == "sdba" ]]; then
                 argument="streamdeck_bathroom"
             elif [[ "$2" == "streamdeck_bed" || "$2" == "sdbe" ]]; then
@@ -1245,6 +1286,8 @@
                 argument="bot"
             elif [[ "$2" == "censor" || "$2" == "c" ]]; then
                 argument="censor"
+            elif [[ "$2" == "channel" || "$2" == "ch" ]]; then
+                argument="channel"
             elif [[ "$2" == "debug" || "$2" == "d" ]]; then
                 argument="debug"
             elif [[ "$2" == "help" || "$2" == "h" ]]; then
@@ -2054,15 +2097,21 @@
         }
         interpret_alert_permission_toggle() {
 
-            # Locked.
-            if [[ "$status_request_permission_role" == "owner" ]]; then
+            exit_1=0
+
+            for i in {1..10}; do
+                variable="status_request_permission_role_$i"
+                if [[ -n "${!variable}" && "${!variable}" == "owner" ]]; then
+                    :
+                elif [[ -n "${!variable}" && "${!variable}" != "owner" ]]; then
+                    exit_1=1
+                fi
+            done
+
+            if [[ $exit_1 -eq 0 ]]; then
                 alert_request_permission_locked
-
-            # Unlocked.
-            elif [[ "$status_request_permission_role" != "owner" ]]; then
+            elif [[ $exit_1 -eq 1 ]]; then
                 alert_request_permission_unlocked
-
-            # Error.
             else
                 error_kill "interpret_alert_permission_toggle."
             fi
@@ -2078,9 +2127,9 @@
         position_right
 
         # Owner.
-        if [[ "$status_current_permission_role" == "owner" ]]; then
+        if [[ "$status_current_permission_role_1" == "owner" ]]; then
             # Sources.
-            if [[ "$source" == "service" || "$source" == "terminal" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" ]]; then
+            if [[ "$source" == "service" || "$source" == "terminal" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "owner"
                 status_current_source_permission="owner"
             else
@@ -2088,45 +2137,45 @@
             fi
 
         # Leaseholder.
-        elif [[ "$status_current_permission_role" == "leaseholder" ]]; then
+        elif [[ "$status_current_permission_role_1" == "leaseholder" ]]; then
             # Sources.
-            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_user" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "leaseholder"
             else
                 error_kill "Permission: denied."
             fi
 
         # Roommates.
-        elif [[ "$status_current_permission_role" == "roommate" ]]; then
+        elif [[ "$status_current_permission_role_1" == "roommate" ]]; then
             # Sources.
-            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_user" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "roommate"
             else
                 error_kill "Permission: denied."
             fi
 
         # Housemates.
-        elif [[ "$status_current_permission_role" == "housemate" ]]; then
+        elif [[ "$status_current_permission_role_1" == "housemate" ]]; then
             # Sources.
-            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_user" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "housemate"
             else
                 error_kill "Permission: denied."
             fi
 
         # Couchsurfer.
-        elif [[ "$status_current_permission_role" == "couchsurfer" ]]; then
+        elif [[ "$status_current_permission_role_1" == "couchsurfer" ]]; then
             # Sources.
-            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_user" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "couchsurfer"
             else
                 error_kill "Permission: denied."
             fi
 
         # Everyone.
-        elif [[ "$status_current_permission_role" == "everyone" ]]; then
+        elif [[ "$status_current_permission_role_1" == "everyone" ]]; then
             # Sources.
-            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "bot_roboty_hurts" ]]; then
+            if [[ "$source" == "terminal" || "$source" == "service" || "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" || "$source" == "roboty_hurts_user" || "$source" == "roboty_hurts_bot" ]]; then
                 echo_quiet "everyone"
             else
                 error_kill "Permission: denied."
@@ -2700,7 +2749,7 @@
                     elif [[ "$argument_current_camera_2" == "studio" ]]; then
                         setting_update_scene_quad_anja_studio
                     else
-                        error "interpret_settings_scene, argument_current_camera_2, anja."
+                        echo_verbose "interpret_settings_scene, argument_current_camera_2, anja."
                     fi
 
                 # Vaughan.
@@ -2720,10 +2769,10 @@
                     elif [[ "$argument_current_camera_2" == "studio" ]]; then
                         setting_update_scene_quad_vaughan_studio
                     else
-                        error "interpret_settings_scene, argument_current_camera_2, vaughan."
+                        echo_verbose "interpret_settings_scene, argument_current_camera_2, vaughan."
                     fi
                 else
-                    error "interpret_settings_scene, argument_current_name_1"
+                    echo_verbose "interpret_settings_scene, argument_current_name_1"
                 fi
 
             else
@@ -3904,7 +3953,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_1_name_echo}: linked."
                 else
-                    error "${output_device_speaker_1_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_1_name_echo}: failed."
                 fi
 
             }
@@ -3918,7 +3967,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_2_name_echo}: linked."
                 else
-                    error "${output_device_speaker_2_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_2_name_echo}: failed."
                 fi
 
             }
@@ -3932,7 +3981,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_3_name_echo}: linked."
                 else
-                    error "${output_device_speaker_3_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_3_name_echo}: failed."
                 fi
 
             }
@@ -3971,7 +4020,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_1_name_echo}: unlinked."
                 else
-                    error "${output_device_speaker_1_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_1_name_echo}: failed."
                 fi
 
             }
@@ -3985,7 +4034,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_2_name_echo}: unlinked."
                 else
-                    error "${output_device_speaker_2_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_2_name_echo}: failed."
                 fi
 
             }
@@ -3999,7 +4048,7 @@
                 if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_3_name_echo}: unlinked."
                 else
-                    error "${output_device_speaker_3_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_3_name_echo}: failed."
                 fi
 
             }
@@ -4043,7 +4092,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "Null sink: unmuted."
                 else
-                    error "Null sink: failed."
+                    echo_verbose "Null sink: failed."
                 fi
 
             }
@@ -4055,7 +4104,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_1_name_echo}: unmuted."
                 else
-                    error "${output_device_speaker_1_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_1_name_echo}: failed."
                 fi
 
             }
@@ -4067,7 +4116,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_2_name_echo}: unmuted."
                 else
-                    error "${output_device_speaker_2_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_2_name_echo}: failed."
                 fi
 
             }
@@ -4079,7 +4128,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_3_name_echo}: unmuted."
                 else
-                    error "${output_device_speaker_3_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_3_name_echo}: failed."
                 fi
 
             }
@@ -4148,7 +4197,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "Null sink: volume 1.0."
                 else
-                    error "Null sink: failed."
+                    echo_verbose "Null sink: failed."
                 fi
 
             }
@@ -4160,7 +4209,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_1_name_echo}: volume ${output_device_speaker_1_volume_default}."
                 else
-                    error "${output_device_speaker_1_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_1_name_echo}: failed."
                 fi
 
             }
@@ -4172,7 +4221,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_2_name_echo}: volume ${output_device_speaker_2_volume_default}."
                 else
-                    error "${output_device_speaker_2_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_2_name_echo}: failed."
                 fi
 
             }
@@ -4184,7 +4233,7 @@
                 if [[ $exit_1 -eq 0 ]]; then
                     echo_quiet "${output_device_speaker_3_name_echo}: volume ${output_device_speaker_3_volume_default}."
                 else
-                    error "${output_device_speaker_3_name_echo}: failed."
+                    echo_verbose "${output_device_speaker_3_name_echo}: failed."
                 fi
 
             }
@@ -5138,9 +5187,19 @@
 
         position_right
 
-        status_current_permission_role=$(cat "${directory_data_private}permission_${argument_current_subcommand}.txt")
+        status_current_permission_role_1=$(cat "${directory_data_private}permission_${argument_current_subcommand_1}.txt")
 
-        echo_verbose "${status_current_permission_role}"
+        echo_verbose "${status_current_permission_role_1}"
+
+        if [[ -n "$argument_current_subcommand_2" ]]; then
+
+                    status_current_permission_role_2=$(cat "${directory_data_private}permission_${argument_current_subcommand_2}.txt")
+
+                    echo_verbose "${status_current_permission_role_2}"
+
+        else
+            echo_verbose "Only one subcommand, skipping second status check."
+        fi
 
         position_left
 
@@ -5321,34 +5380,61 @@
         position_right
 
         # Select.
-        if [[ "$argument_current_action" == "select" ]]; then
-            status_request_permission_role="${argument_current_role}"
+        if [[ "$argument_current_action_1" == "select" ]]; then
+            status_request_permission_role_1="${argument_current_role_1}"
+
+            if [[ -n "$argument_current_role_2" ]]; then
+
+                status_request_permission_role_2="${argument_current_role_2}"
+
+            else
+                echo_verbose "No second subcommand, skipping."
+            fi
 
         # Toggle.
-        elif [[ "$argument_current_action" == "toggle" ]]; then
+        elif [[ "$argument_current_action_1" == "toggle" ]]; then
 
             # Owner.
-            if [[ "$status_current_permission_role" == "owner" ]]; then
-                status_request_permission_role="${argument_current_role}"
+            if [[ "$status_current_permission_role_1" == "owner" ]]; then
+                status_request_permission_role_1="${argument_current_role_1}"
 
             # Not owner.
-            elif [[ "$status_current_permission_role" != "owner" ]]; then
-                status_request_permission_role="owner"
+            elif [[ "$status_current_permission_role_1" != "owner" ]]; then
+                status_request_permission_role_1="owner"
 
             # Error.
             else
                 error_kill "status_update_permission, status_request_permission_value, status_request_permission_value_toggle."
             fi
 
+                if [[ -n "$argument_current_role_2" ]]; then
+
+                    # Owner.
+                    if [[ "$status_current_permission_role_2" == "owner" ]]; then
+                        status_request_permission_role_2="${argument_current_role_2}"
+
+                    # Not owner.
+                    elif [[ "$status_current_permission_role_2" != "owner" ]]; then
+                        status_request_permission_role_2="owner"
+
+                    # Error.
+                    else
+                        error_kill "status_update_permission, status_request_permission_value, status_request_permission_value_toggle."
+                    fi
+
+                else
+                    echo_verbose "No second subcommand, skipping."
+                fi
+
         # Error.
         else
-            error_kill "status_update_permission, argument_current_action, invalid argument."
+            error_kill "status_update_permission, argument_current_action, invalid argument: $argument_current_action."
         fi
 
         status_update_permission_role
 
         if [[ $exit_1 -eq 0 ]]; then
-            echo_quiet "${status_request_permission_role}"
+            echo_quiet "${status_request_permission_role_1}"
         elif [[ $exit_1 -ne 0 ]]; then
             error_kill "status_update_permission."
         fi
@@ -5358,12 +5444,27 @@
     }
         status_update_permission_role() {
 
-            echo "$status_request_permission_role" > "${directory_data_private}permission_${argument_current_subcommand}.txt"
+            echo "$status_request_permission_role_1" > "${directory_data_private}permission_${argument_current_subcommand_1}.txt"
             exit_1=$?
 
+            if [[ -n "$argument_current_role_2" ]]; then
+
+                echo "$status_request_permission_role_2" > "${directory_data_private}permission_${argument_current_subcommand_2}.txt"
+                exit_2=$?
+
+            else
+                echo_verbose "No second subcommand, skipping."
+            fi
+
             if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "$argument_current_role"
+                echo_quiet "$argument_current_role_1"
             elif [[ $exit_1 -ne 0 ]]; then
+                error_kill "status_update_permission_role."
+            fi
+
+            if [[ $exit_2 -eq 0 ]]; then
+                echo_quiet "$argument_current_role_2"
+            elif [[ $exit_2 -ne 0 ]]; then
                 error_kill "status_update_permission_role."
             fi
 
