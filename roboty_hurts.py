@@ -46,7 +46,7 @@ class Bot(commands.Bot):
 
     def refresh_access_token(self):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configurator.sh')
-        subprocess.run([script_path, "-s", "brh", "-ch", "t", "rbh", "r"])
+        subprocess.run([script_path, "-s", "rbhb", "-ch", "t", "rbh", "r"])
 
     def get_access_token(self):
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
@@ -76,7 +76,7 @@ class Bot(commands.Bot):
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
     async def help(self, ctx: commands.Context):
-        await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/commands")
+        await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/chat_commands")
 
     @commands.command(aliases=['social', 'links', 'link', 'discord'])
     async def socials(self, ctx: commands.Context):
@@ -85,6 +85,40 @@ class Bot(commands.Bot):
     @commands.command(aliases=['r'])
     async def rules(self, ctx: commands.Context):
         await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
+
+    @commands.command(aliases=['a'])
+    @commands.cooldown(1, 30, commands.Bucket.channel)
+    async def activity(self, ctx: commands.Context):
+        # Read the permission level string from the text file
+        permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'permission_channel.txt')
+        with open(permission_file, "r") as file:
+            permission_scene = file.read().strip()
+
+        # Check permission level
+        if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
+            if permission_scene == 'owner':
+                    response_message = "Scene command locked."
+                    await ctx.send(response_message)
+                    self.log_message(f"RESPONSE | {response_message}")
+            if permission_scene != 'owner':
+                response_message = "Permission denied."
+                await ctx.send(response_message)
+                self.log_message(f"RESPONSE | {response_message}")
+            return
+
+        # Parse the content of the message to extract arguments
+        arguments_chat = shlex.split(ctx.message.content)[1:]
+        # Append custom static arguments to the list
+        arguments_scene = ["-s", "rbhu", "-ch", "t", "rh", "ud", "p"]
+        # Combine parsed arguments and static arguments
+        arguments = arguments_scene + arguments_chat
+        # Construct the command to run the script with combined arguments
+        script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configurator.sh')
+        command = [script_path] + arguments
+        # Print the constructed command for debugging purposes
+        self.log_message("EXECUTE  | " + ' '.join(command))
+        # Execute the command
+        subprocess.run(command)
 
     @commands.command(aliases=['s'])
     @commands.cooldown(1, 2, commands.Bucket.channel)
@@ -109,7 +143,7 @@ class Bot(commands.Bot):
         # Parse the content of the message to extract arguments
         arguments_chat = shlex.split(ctx.message.content)[1:]
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "brh", "-sc", "q"]
+        arguments_scene = ["-s", "rbhu", "-sc", "q"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
