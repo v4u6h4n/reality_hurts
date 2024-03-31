@@ -1,5 +1,5 @@
 
 # reality_hurts
 
-[Commands](commands.md)<br>
+[Commands](chat_commands.md)<br>
 [Rules](rules.md)
