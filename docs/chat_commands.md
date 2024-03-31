@@ -1,16 +1,19 @@
 # Everyone
 
 ### Help
+
 ```
 !h      !help
 ```
 
 ### Rules
+
 ```
 !r      !rules
 ```
 
 ### Social Media
+
 ```
 !s      !socials
 ```
@@ -44,6 +47,7 @@ d       desk
 k       kitchen
 s       studio
 ```
+
 <ins>Examples:</ins>
 
 `!scene anja desk` or `!s a d`<br>
