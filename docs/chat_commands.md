@@ -21,45 +21,7 @@
 
 # Couchsurfers
 
-### Scene
-
-<ins>Description:</ins>
-
-This command allows you to change the cameras (and associated microphones) when the stream is in the four quadrant view. Please avoid artistic or creative camera work, just keep it simple and change to cameras that provide a clear view of us.
-
-<ins>Format:</ins>
-
-```
-<command> [name] [scene]
-```
-
-<ins>Commands:</ins>
-
-```
-!s     !scene
-
-a       anja
-v       vaughan
-
-ba      bathroom
-be      bed
-d       desk
-k       kitchen
-s       studio
-```
-
-<ins>Examples:</ins>
-
-`!scene anja desk` or `!s a d`<br>
-`!scene anja kitchen` or `!s a k`<br>
-`!scene vaughan bathroom` or `!s v ba`<br>
-`!scene anja studio vaughan bed` or `!s a s v be`
-
-<br>
-
-# Housemates
-
-### Activity
+## Activity
 
 <ins>Description:</ins>
 
@@ -104,8 +66,38 @@ w       waking_up
 `!activity coding` or `!a co`<br>
 `!activity morning` or `!a m`
 
+## Scene
+
+<ins>Description:</ins>
+
+This command allows you to change the cameras (and associated microphones) when the stream is in the four quadrant view. Please avoid artistic or creative camera work, just keep it simple and change to cameras that provide a clear view of us.
+
+<ins>Format:</ins>
+
+```
+<command> [name] [scene]
+```
+
+<ins>Commands:</ins>
+
+```
+!s     !scene
+
+a       anja
+v       vaughan
+
+ba      bathroom
+be      bed
+d       desk
+k       kitchen
+s       studio
+```
+
+<ins>Examples:</ins>
+
+`!scene anja desk` or `!s a d`<br>
+`!scene anja kitchen` or `!s a k`<br>
+`!scene vaughan bathroom` or `!s v ba`<br>
+`!scene anja studio vaughan bed` or `!s a s v be`
+
 <br>
-
-# Roommates
-
-TBA
