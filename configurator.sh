@@ -322,7 +322,7 @@
 
             command_scene anja bed vaughan studio
 
-            command_profile u u m m
+            command_profile uc ur m m
 
         # Debug.
         # elif [[ $current_hour -eq 14 ]]; then
@@ -930,7 +930,7 @@
         # Mute OBS.
         operation_sleep 5
         
-        command_profile u u m m
+        command_profile uc ur m m
         command_scene anja studio vaughan desk
 
     }
@@ -5476,7 +5476,7 @@
 
         status_check_playback() {
 
-            if [[ "$flag_status_check_playback" == "checked" ]]; then
+            if [[ "$flag_status_check_playback" != "checked" ]]; then
                 
                 echo_verbose "Playback status:"
 
