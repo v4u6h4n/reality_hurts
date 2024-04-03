@@ -200,6 +200,10 @@
     }
     lock_remove() {
 
+        if [[ "$flag_script_obs_cli" == "executed" ]]; then
+            deactivate
+        fi
+
         rm /tmp/configurator.lock
         if [[ $? -eq 0 ]]; then
         echo_verbose "Lock file: removed."
@@ -286,7 +290,7 @@
         if [[ "$status_current_source_permission" == "owner" && "$source" != "service" ]]; then
             alert_request activity ${argument_current_title}
             alert_play
-            interpret_settings restriction input output
+            interpret_settings input output
 
         # Other.
         else
@@ -590,7 +594,7 @@
 
             setting_update_output_device_default_cycle
 
-            interpret_settings restriction input output
+            interpret_settings input output
 
             position_left
 
@@ -615,7 +619,7 @@
                 alert_request_output_link_reset
                 alert_play
 
-                interpret_settings restriction input output
+                interpret_settings input output
 
             # Error.
             else
@@ -660,7 +664,7 @@
         status_update_permission
         interpret_alert_all pe_l
         alert_play
-        interpret_settings restriction input output
+        interpret_settings input output
 
         position_left
 
@@ -700,13 +704,13 @@
 
             # Monitor.
             if [[ "$argument_current_action_1" == "monitor" ]]; then
-                interpret_settings restriction input output
+                interpret_settings input output
 
 
             # Toggle.
             elif [[ "$argument_current_action_1" == "toggle" ]]; then
                 setting_update_playback_playback_toggle
-                interpret_settings restriction input output
+                interpret_settings input output
 
             # Error.
             else
@@ -2222,14 +2226,6 @@
 
         position_right
 
-        # Censor.
-        if [[ "$1" == "censor" || "$2" == "c" || "$3" == "c" || "$4" == "c" ]]; then
-            interpret_settings_censor
-        fi
-        # Restriction.
-        if [[ "$1" == "restriction" || "$2" == "restriction" || "$3" == "restriction" || "$4" == "restriction" ]]; then
-            interpret_settings_restriction
-        fi
         # Input.
         if [[ "$1" == "input" || "$2" == "input" || "$3" == "input" || "$4" == "input" ]]; then
             interpret_settings_input
@@ -2238,7 +2234,7 @@
         if [[ "$1" == "output" || "$2" == "output" || "$3" == "output" || "$4" == "output" ]]; then
             interpret_settings_output
         fi
-        # Output.
+        # Scene quad.
         if [[ "$1" == "scene_quad" || "$2" == "scene_quad" || "$3" == "scene_quad" || "$4" == "scene_quad" ]]; then
             interpret_settings_scene_quad
         fi
@@ -2251,7 +2247,7 @@
             status_check_playback
             status_check_output_device all
 
-            status_check_profile_input input
+            status_check_profile restriction input
 
             # Muted, unmuted.
             if [[ "$argument_current_input_1" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
@@ -4019,11 +4015,14 @@
 
         status_check_obs_websocket $1
 
-        (
+        if [[ "$flag_script_obs_cli" != "executed" ]]; then
+
+            flag_script_obs_cli="executed"
             source ~/.venvs/bin/activate
-            python "${directory_script}obs_cli.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
-            deactivate
-        )
+
+        fi
+
+        python "${directory_script}obs_cli.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
 
     }
 
