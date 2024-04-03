@@ -41,8 +41,8 @@
                 # Null sink.
 
                 output_device_null_sink_1_name_echo="Null Sink"
-                output_device_speaker_1_name_short="n1"
-                output_device_speaker_1_name_long="null_sink_1"
+                output_device_null_sink_1_name_short="n1"
+                output_device_null_sink_1_name_long="null_sink_1"
 
                 # OBS.
 
@@ -705,7 +705,6 @@
             # Monitor.
             if [[ "$argument_current_action_1" == "monitor" ]]; then
                 interpret_settings input output
-
 
             # Toggle.
             elif [[ "$argument_current_action_1" == "toggle" ]]; then
@@ -4101,15 +4100,15 @@
             setting_update_output_device_default_null_sink_1() {
 
                 # Unchanged.
-                if [[ "$status_current_output_device_default" == "$output_device_null_sink_1_script_name" ]]; then
+                if [[ "$status_current_output_device_default" == "$output_device_null_sink_1_name_long" ]]; then
                     status_previous_output_device_default="$status_current_output_device_default"
                     echo_verbose "${output_device_null_sink_1_name_echo} (unchanged)."
 
                 # Changed.
-                elif [[ "$status_current_output_device_default" != "$output_device_null_sink_1_script_name" ]]; then
+                elif [[ "$status_current_output_device_default" != "$output_device_null_sink_1_name_long" ]]; then
                     wpctl set-default $output_device_null_sink_1_ID
                     status_previous_output_device_default="$status_current_output_device_default"
-                    status_current_output_device_default="$output_device_null_sink_1_script_name"
+                    status_current_output_device_default="$output_device_null_sink_1_name_long"
                     echo_verbose "$output_device_null_sink_1_name_echo."
 
                 # Error.
@@ -5369,7 +5368,7 @@
             output_device_default_ID=$(wpctl inspect @DEFAULT_AUDIO_SINK@ | awk '/^id [0-9]+,/ {gsub("[^0-9]", "", $arg_2); print $arg_2}')
 
             if [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" ]]; then
-                status_current_output_device_default="${output_device_null_sink_1_script_name}"
+                status_current_output_device_default="${output_device_null_sink_1_name_long}"
                 echo_verbose "Default output: ${output_null_sink_1_name}."
             elif [[ "$output_device_default_ID" == "$output_device_headphones_1_ID" ]]; then
                 status_current_output_device_default="${output_device_headphones_1_script_name}"
