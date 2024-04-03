@@ -1,0 +1,10 @@
+[Unit]
+Description=Playback Monitor
+
+[Service]
+ExecStart=/bin/bash /media/storage/Streaming/Software/scripts/main/services/playback_monitor.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
