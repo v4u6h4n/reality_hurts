@@ -61,7 +61,7 @@ sl      sleeping
 <ins>Activity:</ins>
 
 ```
-!a     !activity
+-a     --activity
 
 a       admin
 c       chores
@@ -129,27 +129,30 @@ e       everyone
 <ins>Format:</ins>
 
 ```
-<command> [option] [scene] [name] [scene]
+<command> <attribute> <action>
 ```
 
 <ins>Command:</ins>
 
 ```
-!pl    !playback
+-pl    --playback
 ```
 
 <ins>Attribute:</ins>
 
 ```
+pl      playback
 se      seek
 sk      skip
-t       toggle
 v       volume
 ```
 
 <ins>Action:</ins>
 
 ```
+m       monitor
+t       toggle
+
 b       back
 f       forward
 
@@ -158,6 +161,37 @@ p       previous
 
 d       down
 u       up
+```
+
+# Restriction
+
+<ins>Format:</ins>
+
+```
+<command> <profile> <camera>
+```
+
+<ins>Command:</ins>
+
+```
+-r     --restriction
+```
+
+<ins>Profile:</ins>
+
+```
+r       restricted
+u       unrestricted
+```
+
+<ins>Scene:</ins>
+
+```
+a       all
+ba      bathroom
+be      bed
+d       desk
+s       studio
 ```
 
 # Scene
