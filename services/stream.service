@@ -1,0 +1,9 @@
+[Unit]
+Description=Stream
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/media/storage/Streaming/Software/scripts/main/configurator.sh -s s -au'
+
+[Install]
+WantedBy=default.target
