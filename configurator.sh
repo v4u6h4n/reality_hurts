@@ -707,7 +707,7 @@
 
             # Toggle.
             elif [[ "$argument_current_action_1" == "toggle" ]]; then
-                setting_update_playback_playback_toggle
+                setting_update_playback_playback toggle
                 setting_update input output
 
             # Error.
@@ -1456,12 +1456,12 @@
 
                         # Restricted.
                         if [[ "$status_check_profile_restriction" == "restricted" ]]; then
-                            setting_update_playback_pause
+                            setting_update_playback_playback pause
                             setting_update_output_obs_restricted_mute
 
                         # Unrestricted.
                         elif [[ "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            setting_update_playback_pause
+                            setting_update_playback_playback pause
                             setting_update_output_obs_restricted_mute
                             setting_update_output_obs_unrestricted_mute
                         else
@@ -1473,12 +1473,12 @@
 
                         # Restricted.
                         if [[ "$status_check_profile_restriction" == "restricted" ]]; then
-                            setting_update_playback_pause
+                            setting_update_playback_playback pause
                             setting_update_input_obs_restricted_mute
 
                         # Unrestricted.
                         elif [[ "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            setting_update_playback_pause
+                            setting_update_playback_playback pause
                             setting_update_input_obs_restricted_mute
                             setting_update_input_obs_unrestricted_mute
                         else
@@ -1511,10 +1511,10 @@
                 # Playing
                 if [[ "$current_status_playback" == "Playing" ]]; then
                     if [[ "$status_check_profile_restriction" == "restricted" ]]; then
-                        setting_update_playback_pause
+                        setting_update_playback_playback pause
                         setting_update_output_obs_restricted_mute
                     elif [[ "$status_check_profile_restriction" == "unrestricted" ]]; then
-                        setting_update_playback_pause
+                        setting_update_playback_playback pause
                         setting_update_output_obs_restricted_mute
                         setting_update_output_obs_unrestricted_mute
                     else
@@ -1542,7 +1542,7 @@
 
                 # Playing
                 if [[ "$current_status_playback" == "Playing" ]]; then
-                    setting_update_playback_pause
+                    setting_update_playback_playback pause
 
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
@@ -2212,7 +2212,7 @@
 
     }
 
-# SETTING UPDATE  ################################################################################################################################################################################
+# SETTING UPDATE ################################################################################################################################################################################
 
     setting_update() {
 
@@ -2498,46 +2498,42 @@
 
             # Muted, unmuted.
             if [[ "$argument_current_output_1" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
-
                 echo_verbose "Muted, unmuted."
-
                 setting_update_output_obs_restricted_mute
                 setting_update_output_obs_unrestricted_mute
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-                    
                     echo_verbose "Playing."
 
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" ]]; then
+                        setting_update_playback_playback play
+                    else
+                        echo_verbose "No alert played, skipping playback resume."
+                    fi
                 fi
 
             # Unmuted, muted.
             elif [[ "$argument_current_output_1" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
-
                 echo_verbose "Unmuted, muted."
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-
                     echo_verbose "Playing."
 
                     # Null sink 1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
                         echo_verbose "$status_current_output_device_default."
 
                         # Restricted.
                         if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
-                            
                             echo_verbose "Restricted."
-                            
                             setting_update_output_obs_restricted_unmute
 
                         # Unrestricted.
                         elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            
                             echo_verbose "Unrestricted."
-                            
                             setting_update_output_obs_restricted_unmute
                             setting_update_output_obs_unrestricted_unmute
                         
@@ -2546,6 +2542,13 @@
                             error_kill "argument_current_restriction_1, status_check_profile_restriction."
                         fi
 
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" ]]; then
+                            setting_update_playback_playback play
+                        else
+                            echo_quiet "No alert played, skipping playback resume."
+                        fi
+                        
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
                         
@@ -2609,6 +2612,13 @@
                     
                     echo_verbose "Playing."
 
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" ]]; then
+                        setting_update_playback_playback play
+                    else
+                        echo_verbose "No alert played, skipping playback resume."
+                    fi
+                    
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
                     
@@ -2638,17 +2648,13 @@
                         if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
 
                             # Restricted.
-                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
-
+                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") &&  "$status_check_profile_restriction" == "restricted" ]]; then
                                 echo_verbose "Restricted."
-
                                 setting_update_output_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                
                                 echo_verbose "Unrestricted."
-                                
                                 setting_update_output_obs_restricted_unmute
                                 setting_update_output_obs_unrestricted_unmute
                             
@@ -2656,7 +2662,14 @@
                             else
                                 error_kill "argument_current_restriction_1, status_check_profile_restriction."
                             fi
-                        
+
+                            # Alert played.
+                            if [[ "$flag_alert_played" == "yes" ]]; then
+                                setting_update_playback_playback play
+                            else
+                                echo_verbose "No alert played, skipping playback resume."
+                            fi
+                            
                         # Error.
                         else
                             echo_verbose "flag_alert_played, argument_current_action_1."
@@ -2673,18 +2686,31 @@
 
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
-                    
                     echo_verbose "Paused."
 
                     # Output cycle: yes.
                     if [[ "$flag_setting_update_output_device_default_cycle" == "yes" ]]; then
-                        
                         echo_verbose "Output cycle: yes."
 
-                    # Output cycle: no.
-                    elif [[ -z "$flag_setting_update_output_device_default_cycle" ]]; then
+                    # Playback monitor.
+                    elif [[ "$argument_current_action_1" == "monitor" ]]; then
+                        echo_verbose "Playback monitor."
 
-                        echo_verbose "Output cycle: no."
+                        # Restricted.
+                        if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
+                            echo_verbose "Restricted."
+                            setting_update_output_obs_restricted_mute
+
+                        # Unrestricted.
+                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            echo_verbose "Unrestricted."
+                            setting_update_output_obs_restricted_mute
+                            setting_update_output_obs_unrestricted_mute
+                        
+                        # Error.
+                        else
+                            error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                        fi
 
                     # Error.
                     else
@@ -3869,7 +3895,7 @@
                 fi
 
             }
-            setting_update_input_obs_restricted_unmute_microphone_2() {
+            setting_update_input_obs_restrisettingcted_unmute_microphone_2() {
 
                 script_obs_cli restricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
@@ -4737,35 +4763,50 @@
 
     # Playback.
 
-    setting_update_playback_play() {
+    setting_update_playback_playback() {
 
-        playerctl --player playerctld play
-        echo_quiet "Playback: resumed."
+        echo_quiet "Playback: ${1}"
+
+        position_right
+
+        systemctl --user stop playback_monitor
+        echo_quiet "playback_monitor stopped."
+
+        temp_setting_update_playback_playback="setting_update_playback_playback_${1}"
+
+        ${!temp_setting_update_playback_playback}
+
+        systemctl --user start playback_monitor
+        echo_quiet "playback_monitor started."
+
+        position_left
 
     }
-    setting_update_playback_pause() {
+        setting_update_playback_playback_play() {
 
-        status_check_playback
+            playerctl --player playerctld play
+            exit_1=$?
 
-        if [[ "$current_status_playback" == "Playing" ]]; then
+            error_check 1 quiet "Resumed."
+
+        }
+        setting_update_playback_playback_pause() {
+
             playerctl --player playerctld pause
-            echo_quiet "Playback: paused."
-        elif [[ "$current_status_playback" != "Playing" ]]; then
-            echo_quiet "Playback: already paused."
-        else
-            error_kill "setting_update_playback_pause."
-        fi
+            exit_1=$?
 
-        #while true; do
-        #    loop_status=$(playerctl --player playerctld status)
-        #    if [ "$loop_status" = "Paused" ]; then
-        #        break
-        #    else
-        #        sleep 0.01
-        #    fi
-        #done
+            error_check 1 quiet "Paused."
 
-    }
+        }
+        setting_update_playback_playback_toggle() {
+
+            playerctl --player playerctld play-pause
+            exit_1=$?
+
+            error_check 1 quiet "Toggled."
+
+        }
+
     setting_update_playback_seek_back() {
 
         playerctl --player playerctld position 10-
@@ -4788,14 +4829,6 @@
 
         playerctl --player playerctld next
         echo_quiet "Skip to next track."
-
-    }
-    setting_update_playback_playback_toggle() {
-
-        playerctl --player playerctld play-pause
-        exit_1=$?
-
-        error_check 1 quiet "Toggle."
 
     }
 
