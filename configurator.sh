@@ -877,7 +877,6 @@
         fi
 
         setting_update scene
-        status_check scene_${argument_current_scene_type}
         setting_update_scene_quad_input
 
     }
@@ -2229,7 +2228,6 @@
         position_left
 
     }
-        # Input.
         setting_update_input() {
 
             status_check_playback
@@ -2491,7 +2489,6 @@
             fi
 
         }
-        # Output.
         setting_update_output() {
 
             status_check_playback
@@ -2705,7 +2702,6 @@
             fi
 
         }
-        # Censor.
         setting_update_censor() {
 
             echo_quiet "Censor:"
@@ -2929,7 +2925,6 @@
                     fi
 
                 }
-        # Restriction
         setting_update_restriction() {
 
             echo_quiet "Restriction:"
@@ -3154,7 +3149,6 @@
                     fi
 
                 }
-        # Scene.
         setting_update_scene() {
 
             # Quad.
@@ -3275,283 +3269,60 @@
             fi
 
         }
+            setting_update_scene_quad() {
 
-                # Quad 1.
-                setting_update_scene_quad() {
+                status_check scene_quad
+
+                temp_status_current_scene_quad="status_current_scene_quad_${1}"
+
+                # Scene is already current.
+                if [[ "${!temp_status_current_scene_quad}" == "$2" ]]; then
+
+                    echo_quiet "${2}: already switched, skipping."
+
+                # Scene is not current.
+                elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
+                
+                    script_obs_cli unrestricted item show "${2}" --scene "quad_${1}"
+                    script_obs_cli unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
+
+                    status_update_scene_quad $2 $1
+
+                # Error.
+                else
+                    error_kill "setting_update_scene_quad."
+                fi
+
+            }
+                setting_update_scene_quad_input() {
 
                     status_check scene_quad
 
-                    temp_status_current_scene_quad="status_current_scene_quad_${1}"
-
-                    # Scene is already current.
-                    if [[ "${!temp_status_current_scene_quad}" == "$2" ]]; then
-
-                        echo_quiet "${2}: already switched, skipping."
-
-                    # Scene is not current.
-                    elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
-                    
-                        script_obs_cli unrestricted item show "${2}" --scene "quad_${1}"
-                        script_obs_cli unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
-
-                        status_update_scene_quad $2 $1
-
-                    # Error.
+                    # Bathroom.
+                    if [[ "$status_current_scene_quad_1" == "bathroom" ||  "$status_current_scene_quad_2" == "bathroom" ||  "$status_current_scene_quad_3" == "bathroom" ||  "$status_current_scene_quad_4" == "bathroom" ]]; then
+                        setting_update_input_device_unmute 4
+                    elif [[ "$status_current_scene_quad_1" != "bathroom" ||  "$status_current_scene_quad_2" != "bathroom" ||  "$status_current_scene_quad_3" != "bathroom" ||  "$status_current_scene_quad_4" != "bathroom" ]]; then
+                        setting_update_input_device_mute 4
                     else
-                        error_kill "setting_update_scene_quad."
+                        error_kill "setting_update_scene_quad_input, bathroom."
                     fi
 
-                }
-                setting_update_scene_quad_1_bathroom() {
-
-                    script_obs_cli unrestricted item show "bathroom" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad bathroom 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 bathroom."
+                    # Bed.
+                    if [[ "$status_current_scene_quad_1" == "bed_overhead" ||  "$status_current_scene_quad_2" == "bed_overhead" ||  "$status_current_scene_quad_3" == "bed_overhead" ||  "$status_current_scene_quad_4" == "bed_overhead" || "$status_current_scene_quad_1" == "crafts" ||  "$status_current_scene_quad_2" == "crafts" ||  "$status_current_scene_quad_3" == "crafts" ||  "$status_current_scene_quad_4" == "crafts" || "$status_current_scene_quad_1" == "desk_anja" ||  "$status_current_scene_quad_2" == "desk_anja" ||  "$status_current_scene_quad_3" == "desk_anja" ||  "$status_current_scene_quad_4" == "desk_anja" || "$status_current_scene_quad_1" == "desk_vaughan" ||  "$status_current_scene_quad_2" == "desk_vaughan" ||  "$status_current_scene_quad_3" == "desk_vaughan" ||  "$status_current_scene_quad_4" == "desk_vaughan" || "$status_current_scene_quad_1" == "studio" ||  "$status_current_scene_quad_2" == "studio" ||  "$status_current_scene_quad_3" == "studio" ||  "$status_current_scene_quad_4" == "studio" ]]; then
+                        setting_update_input_device_unmute 2
+                    elif [[ "$status_current_scene_quad_1" != "bed_overhead" ||  "$status_current_scene_quad_2" != "bed_overhead" ||  "$status_current_scene_quad_3" != "bed_overhead" ||  "$status_current_scene_quad_4" != "bed_overhead" || "$status_current_scene_quad_1" != "crafts" ||  "$status_current_scene_quad_2" != "crafts" ||  "$status_current_scene_quad_3" != "crafts" ||  "$status_current_scene_quad_4" != "crafts" || "$status_current_scene_quad_1" != "desk" ||  "$status_current_scene_quad_2" != "desk" ||  "$status_current_scene_quad_3" != "desk" ||  "$status_current_scene_quad_4" != "desk" || "$status_current_scene_quad_1" != "studio" ||  "$status_current_scene_quad_2" != "studio" ||  "$status_current_scene_quad_3" != "studio" ||  "$status_current_scene_quad_4" != "studio" ]]; then
+                        setting_update_input_device_mute 2
                     else
-                        error_kill "setting_update_scene_quad_2_bathroom"
+                        error_kill "setting_update_scene_quad_input, bed_overhead, crafts, desk, studio."
                     fi
 
-                }
-                setting_update_scene_quad_1_bed_overhead() {
-
-                    script_obs_cli unrestricted item show "bed_overhead" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad bed_overhead 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 bed_overhead."
+                    # Kitchen.
+                    if [[ "$status_current_scene_quad_1" == "kitchen" ||  "$status_current_scene_quad_2" == "kitchen" ||  "$status_current_scene_quad_3" == "kitchen" ||  "$status_current_scene_quad_4" == "kitchen" ]]; then
+                        setting_update_input_device_unmute 3
+                    elif [[ "$status_current_scene_quad_1" != "kitchen" ||  "$status_current_scene_quad_2" != "kitchen" ||  "$status_current_scene_quad_3" != "kitchen" ||  "$status_current_scene_quad_4" != "kitchen" ]]; then
+                        setting_update_input_device_mute 3
                     else
-                        error_kill "setting_update_scene_quad_1_bed_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_1_crafts() {
-
-                    script_obs_cli unrestricted item show "crafts" --scene "Quad 1"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 crafts."
-                    else
-                        error_kill "setting_update_scene_quad_1_crafts."
-                    fi
-
-                }
-                setting_update_scene_quad_1_desk_vaughan() {
-
-                    script_obs_cli unrestricted item show "desk_vaughan" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad desk_vaughan 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 desk (Vaughan)."
-                    else
-                        error_kill "setting_update_scene_quad_1_desk_vaughan."
-                    fi
-
-                }
-                setting_update_scene_quad_1_kitchen() {
-
-                    script_obs_cli unrestricted item show "kitchen" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 kitchen."
-                    else
-                        error_kill "setting_update_scene_quad_1_kitchen."
-                    fi
-
-                }
-                setting_update_scene_quad_1_studio() {
-
-                    script_obs_cli unrestricted item show "studio" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad studio 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 studio."
-                    else
-                        error_kill "setting_update_scene_quad_1_studio."
-                    fi
-
-                }
-                # Quad 2.
-                setting_update_scene_quad_2_bathroom() {
-
-                    script_obs_cli unrestricted item show "bathroom" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad bathroom 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 bathroom."
-                    else
-                        error_kill "setting_update_scene_quad_2_bathroom."
-                    fi
-
-                }
-                setting_update_scene_quad_2_crafts() {
-
-                    script_obs_cli unrestricted item show "crafts" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 crafts."
-                    else
-                        error_kill "setting_update_scene_quad_2_crafts."
-                    fi
-
-                }
-                setting_update_scene_quad_2_bed_overhead() {
-
-                    script_obs_cli unrestricted item show "bed_overhead" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad bed_overhead 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 bed_overhead."
-                    else
-                        error_kill "setting_update_scene_quad_2_bed_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_2_desk_anja() {
-
-                    script_obs_cli unrestricted item show "desk_anja" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad desk_anja 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 desk_anja."
-                    else
-                        error_kill "setting_update_scene_quad_2_desk_anja."
-                    fi
-
-                }
-                setting_update_scene_quad_2_kitchen() {
-
-                    script_obs_cli unrestricted item show "kitchen" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 kitchen."
-                    else
-                        error_kill "setting_update_scene_quad_2_kitchen."
-                    fi
-
-                }
-                setting_update_scene_quad_2_studio() {
-
-                    script_obs_cli unrestricted item show "studio" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad studio 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 studio."
-                    else
-                        error_kill "setting_update_scene_quad_2_studio."
-                    fi
-
-                }
-                # Quad 3.
-                setting_update_scene_quad_3_crafts_overhead() {
-
-                    script_obs_cli unrestricted item show "crafts_overhead" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts_overhead 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 crafts (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_3_crafts_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_3_desktop_dp1() {
-
-                    script_obs_cli unrestricted item show "desktop_dp1" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad desktop_dp1 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 desktop DP-1."
-                    else
-                        error_kill "setting_update_scene_quad_3_desktop_dp1."
-                    fi
-
-                }
-                setting_update_scene_quad_3_kitchen_overhead() {
-
-                    script_obs_cli unrestricted item show "kitchen_overhead" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen_overhead 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 kitchen (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_3_kitchen_overhead."
-                    fi
-
-                }
-                # Quad 4.
-                setting_update_scene_quad_4_crafts_overhead() {
-
-                    script_obs_cli unrestricted item show "crafts_overhead" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts_overhead 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 crafts (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_2_crafts_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_4_kitchen_overhead() {
-
-                    script_obs_cli unrestricted item show "kitchen_overhead" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen_overhead 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 kitchen (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_4_kitchen_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_4_window() {
-
-                    script_obs_cli unrestricted item show "window" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad window 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 window."
-                    else
-                        error_kill "setting_update_scene_quad_4_window."
+                        error_kill "setting_update_scene_quad_input, kitchen."
                     fi
 
                 }
@@ -5102,37 +4873,6 @@
     # Scene.
 
         # Input.
-
-        setting_update_scene_quad_input() {
-
-            # Bathroom.
-            if [[ "$status_current_scene_quad_1" == "bathroom" ||  "$status_current_scene_quad_2" == "bathroom" ||  "$status_current_scene_quad_3" == "bathroom" ||  "$status_current_scene_quad_4" == "bathroom" ]]; then
-                setting_update_input_device_unmute 4
-            elif [[ "$status_current_scene_quad_1" != "bathroom" ||  "$status_current_scene_quad_2" != "bathroom" ||  "$status_current_scene_quad_3" != "bathroom" ||  "$status_current_scene_quad_4" != "bathroom" ]]; then
-                setting_update_input_device_mute 4
-            else
-                error_kill "setting_update_scene_quad_input, bathroom."
-            fi
-
-            # Bed.
-            if [[ "$status_current_scene_quad_1" == "bed_overhead" ||  "$status_current_scene_quad_2" == "bed_overhead" ||  "$status_current_scene_quad_3" == "bed_overhead" ||  "$status_current_scene_quad_4" == "bed_overhead" || "$status_current_scene_quad_1" == "crafts" ||  "$status_current_scene_quad_2" == "crafts" ||  "$status_current_scene_quad_3" == "crafts" ||  "$status_current_scene_quad_4" == "crafts" || "$status_current_scene_quad_1" == "desk_anja" ||  "$status_current_scene_quad_2" == "desk_anja" ||  "$status_current_scene_quad_3" == "desk_anja" ||  "$status_current_scene_quad_4" == "desk_anja" || "$status_current_scene_quad_1" == "desk_vaughan" ||  "$status_current_scene_quad_2" == "desk_vaughan" ||  "$status_current_scene_quad_3" == "desk_vaughan" ||  "$status_current_scene_quad_4" == "desk_vaughan" || "$status_current_scene_quad_1" == "studio" ||  "$status_current_scene_quad_2" == "studio" ||  "$status_current_scene_quad_3" == "studio" ||  "$status_current_scene_quad_4" == "studio" ]]; then
-                setting_update_input_device_unmute 2
-            elif [[ "$status_current_scene_quad_1" != "bed_overhead" ||  "$status_current_scene_quad_2" != "bed_overhead" ||  "$status_current_scene_quad_3" != "bed_overhead" ||  "$status_current_scene_quad_4" != "bed_overhead" || "$status_current_scene_quad_1" != "crafts" ||  "$status_current_scene_quad_2" != "crafts" ||  "$status_current_scene_quad_3" != "crafts" ||  "$status_current_scene_quad_4" != "crafts" || "$status_current_scene_quad_1" != "desk" ||  "$status_current_scene_quad_2" != "desk" ||  "$status_current_scene_quad_3" != "desk" ||  "$status_current_scene_quad_4" != "desk" || "$status_current_scene_quad_1" != "studio" ||  "$status_current_scene_quad_2" != "studio" ||  "$status_current_scene_quad_3" != "studio" ||  "$status_current_scene_quad_4" != "studio" ]]; then
-                setting_update_input_device_mute 2
-            else
-                error_kill "setting_update_scene_quad_input, bed_overhead, crafts, desk, studio."
-            fi
-
-            # Kitchen.
-            if [[ "$status_current_scene_quad_1" == "kitchen" ||  "$status_current_scene_quad_2" == "kitchen" ||  "$status_current_scene_quad_3" == "kitchen" ||  "$status_current_scene_quad_4" == "kitchen" ]]; then
-                setting_update_input_device_unmute 3
-            elif [[ "$status_current_scene_quad_1" != "kitchen" ||  "$status_current_scene_quad_2" != "kitchen" ||  "$status_current_scene_quad_3" != "kitchen" ||  "$status_current_scene_quad_4" != "kitchen" ]]; then
-                setting_update_input_device_mute 3
-            else
-                error_kill "setting_update_scene_quad_input, kitchen."
-            fi
-
-        }
 
     # Streamdeck.
 
