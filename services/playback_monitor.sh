@@ -4,7 +4,7 @@ dbus-monitor "type=signal,interface='org.freedesktop.DBus.Properties',member='Pr
 while read -r line; do
     if [[ "$line" =~ "PlaybackStatus" ]]; then
 
-        bash "/media/storage/Streaming/Software/scripts/dev/configurator.sh" -s s -pl pl m
+        bash "/media/storage/Streaming/Software/scripts/dev/configurator.sh" -s s -v -pl pl m
 
     fi
 done
