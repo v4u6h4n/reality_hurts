@@ -215,7 +215,7 @@
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
 
-        log "${position}Error: $1"
+        log "${position}ERROR: $1"
 
         paplay "${directory_alerts}debug_error.wav"
 
@@ -2361,7 +2361,6 @@
 
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-
                         echo_verbose "Output device default: ${status_current_output_device_default}."
 
                         # Alert played, or playback toggled.
@@ -2369,16 +2368,12 @@
 
                             # Restricted.
                             if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
-                                
                                 echo_verbose "Restricted."
-
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                
                                 echo_verbose "Unrestricted."
-                                
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
 
@@ -2399,12 +2394,10 @@
 
             # Paused.
             elif [[ "$current_status_playback" != "Playing" ]]; then
-
                     echo_verbose "Paused."
 
                     # Null sink 1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                    
                         echo_verbose "Output device default: ${status_current_output_device_default}."
 
                         # Alert played.
@@ -2414,16 +2407,12 @@
 
                             # Restricted.
                             if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
-                                
                                 echo_verbose "Restricted."
-                                
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                
                                 echo_verbose "Unrestricted."
-                                
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
                             
@@ -2437,24 +2426,23 @@
                             echo_verbose "flag_alert_played, argument_current_action_1."
                         fi
 
+                    
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        
                         echo_verbose "Output device default: ${status_current_output_device_default}."
 
                         # Alert played.
                         if [[ "$flag_alert_played" == "yes" ]]; then
-
-                            echo_verbose "INFO: flag_alert_played, yes."
+                            echo_verbose "DEBUG: flag_alert_played, yes."
 
                             # Restricted.
                             if [[ "$argument_current_restriction_1" == "restricted" || (-z "$argument_current_restriction_1"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                                echo_verbose "INFO: Restricted."
+                                echo_verbose "DEBUG: Restricted."
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ "$argument_current_restriction_1" == "unrestricted" || (-z "$argument_current_restriction_1" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                echo_verbose "INFO: Unrestricted."
+                                echo_verbose "DEBUG: Unrestricted."
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
 
@@ -2465,7 +2453,7 @@
                         
                         # Error.
                         else
-                            echo_verbose "INFO: flag_alert_played, no."
+                            echo_verbose "DEBUG: flag_alert_played, no."
                         fi
                     
                     # Error.
@@ -2547,7 +2535,6 @@
                         
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        
                         echo "$status_current_output_device_default."
                     
                     # Error.
@@ -2557,12 +2544,10 @@
 
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
-
                     echo_verbose "Paused."
 
                     # Input unmuted.
                     if [[ "$argument_current_input_1" == "unmuted" ]]; then
-                        
                         echo_verbose "Output: muted (unchanged) (1E)."
 
                     # Input muted.
@@ -2570,16 +2555,12 @@
                         
                         # Restricted.
                         if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
-                            
                             echo_verbose "Restricted."
-                            
                             setting_update_output_obs_restricted_unmute
                         
                         # Unrestricted.
                         elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            
                             echo_verbose "Unrestricted."
-                            
                             setting_update_output_obs_restricted_unmute
                             setting_update_output_obs_unrestricted_unmute
                         
@@ -2600,12 +2581,10 @@
 
             # Muted, muted.
             elif [[ ("$argument_current_output_1" == "muted" || -z "$argument_current_output_1" ) && "$status_check_profile_output" == "muted" ]]; then
-
                 echo_verbose "Muted, muted."
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-                    
                     echo_verbose "Playing."
 
                     # Alert played.
@@ -2617,7 +2596,6 @@
                     
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
-                    
                     echo_verbose "Paused."
                 
                 # Error.
@@ -2627,17 +2605,14 @@
 
             # Unmuted, unmuted.
             elif [[ ("$argument_current_output_1" == "unmuted" || -z "$argument_current_output_1") && "$status_check_profile_output" == "unmuted" ]]; then
-
                 echo_verbose "Unmuted, unmuted."
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-                    
                     echo_verbose "Playing."
 
                     # Null sink 1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
                         echo_verbose "Null Sink 1."
 
                         # Restore pre alert settings.
@@ -2710,7 +2685,7 @@
 
                     # Error.
                     else
-                        error_kill "flag_setting_update_output_device_default_cycle."
+                        error_verbose "DEBUG: flag_setting_update_output_device_default_cycle, no."
                     fi
                 
                 # Error.
