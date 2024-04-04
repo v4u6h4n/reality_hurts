@@ -290,7 +290,7 @@
         if [[ "$status_current_source_permission" == "owner" && "$source" != "service" ]]; then
             alert_request activity ${argument_current_title}
             alert_play
-            interpret_settings input output
+            setting_update input output
 
         # Other.
         else
@@ -594,7 +594,7 @@
 
             setting_update_output_device_default_cycle
 
-            interpret_settings input output
+            setting_update input output
 
             position_left
 
@@ -619,7 +619,7 @@
                 alert_request_output_link_reset
                 alert_play
 
-                interpret_settings input output
+                setting_update input output
 
             # Error.
             else
@@ -664,7 +664,7 @@
         status_update_permission
         interpret_alert_all pe_l
         alert_play
-        interpret_settings input output
+        setting_update input output
 
         position_left
 
@@ -701,21 +701,19 @@
         # Playback.
         if [[ "$argument_current_attribute_1" == "playback" ]]; then
 
-
             # Monitor.
             if [[ "$argument_current_action_1" == "monitor" ]]; then
-                interpret_settings input output
+                setting_update input output
 
             # Toggle.
             elif [[ "$argument_current_action_1" == "toggle" ]]; then
                 setting_update_playback_playback_toggle
-                interpret_settings input output
+                setting_update input output
 
             # Error.
             else
                 error_kill "command_playback, playback."
             fi
-
 
         # Volume.
         elif [[ "$argument_current_attribute_1" == "volume" ]]; then
@@ -817,9 +815,7 @@
         interpret_alert_all censor restriction input
         alert_play
 
-        setting_update censor restriction
-
-        interpret_settings input output
+        setting_update censor restriction input output
 
         status_update censor restriction input output
 
@@ -880,7 +876,7 @@
             echo_verbose "Only one scene change requested, skipping."
         fi
 
-        interpret_settings scene_${argument_current_scene_type}
+        setting_update scene
         status_check scene_${argument_current_scene_type}
         settings_update_scene_quad_input
 
@@ -1479,13 +1475,13 @@
                         # Restricted.
                         if [[ "$status_check_profile_restriction" == "restricted" ]]; then
                             setting_update_playback_pause
-                            setting_update_input_obs_restricted_mute uncut
+                            setting_update_input_obs_restricted_mute
 
                         # Unrestricted.
                         elif [[ "$status_check_profile_restriction" == "unrestricted" ]]; then
                             setting_update_playback_pause
-                            setting_update_input_obs_restricted_mute uncut
-                            setting_update_input_obs_unrestricted_mute uncut
+                            setting_update_input_obs_restricted_mute
+                            setting_update_input_obs_unrestricted_mute
                         else
                             error_kill "Invalid 'status_check_profile_restriction'."
                         fi
@@ -1497,10 +1493,10 @@
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
                     if [[ "$status_check_profile_restriction" == "restricted" ]]; then
-                        setting_update_input_obs_restricted_mute uncut
+                        setting_update_input_obs_restricted_mute
                     elif [[ "$status_check_profile_restriction" == "unrestricted" ]]; then
-                        setting_update_input_obs_restricted_mute uncut
-                        setting_update_input_obs_unrestricted_mute uncut
+                        setting_update_input_obs_restricted_mute
+                        setting_update_input_obs_unrestricted_mute
                     else
                         error_kill "Invalid 'status_check_profile_restriction'."
                     fi
@@ -2225,14 +2221,6 @@
 
         position_right
 
-        # Input.
-        if [[ "$1" == "input" || "$2" == "input" || "$3" == "input" || "$4" == "input" ]]; then
-            interpret_settings_input
-        fi
-        # Output.
-        if [[ "$1" == "output" || "$2" == "output" || "$3" == "output" || "$4" == "output" ]]; then
-            interpret_settings_output
-        fi
         # Scene quad.
         if [[ "$1" == "scene_quad" || "$2" == "scene_quad" || "$3" == "scene_quad" || "$4" == "scene_quad" ]]; then
             interpret_settings_scene_quad
@@ -2241,362 +2229,6 @@
         position_left
 
     }
-        interpret_settings_input() {
-
-            status_check_playback
-            status_check_output_device all
-
-            status_check_profile restriction input
-
-            # Muted, unmuted.
-            if [[ "$argument_current_input_1" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
-                #setting_update_input_obs_restricted_mute uncut
-                #setting_update_input_obs_unrestricted_mute uncut
-                :
-
-            # Unmuted, muted.
-            elif [[ "$argument_current_input_1" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
-
-                # Playing.
-                if [[ ("$current_status_playback" == "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing") ]]; then
-
-                    # Null_sink_1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_verbose "Input: playing on null sink 1 (unchanged)."
-
-                    # Headphones
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-
-                        # Restricted.
-                        if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                            setting_update_input_obs_restricted_unmute uncut
-
-                        # Unrestricted.
-                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            setting_update_input_obs_restricted_unmute uncut
-                            setting_update_input_obs_unrestricted_unmute
-                        else
-                            error_kill "Input: failed (1B)."
-                        fi
-
-                    else
-                        error_kill "Input: failed (1C)."
-                    fi
-
-                # Paused.
-                elif [[ ("$current_status_playback" != "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Playing" && "$status_check_playback_toggle" == "Paused") ]]; then
-
-                    # Restricted.
-                    if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                        setting_update_input_obs_restricted_unmute uncut
-
-                    # Unrestricted.
-                    elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                        setting_update_input_obs_restricted_unmute uncut
-                        setting_update_input_obs_unrestricted_unmute
-                    else
-                        error_kill "Input: failed (1D)."
-                    fi
-                else
-                    error_kill "Input: failed (1E)."
-                fi
-
-            # Muted, muted.
-            elif [[ ("$argument_current_input_1" == "muted" || "$argument_current_input_1" == "") && "$status_check_profile_input" == "muted" ]]; then
-                echo_verbose "Input: muted (unchanged)."
-
-            # Unmuted, unmuted.
-            elif [[ ("$argument_current_input_1" == "unmuted" || "$argument_current_input_1" == "") && "$status_check_profile_input" == "unmuted" ]]; then
-
-                # Playing.
-                if [[ ("$current_status_playback" == "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing") ]]; then
-                    echo_verbose "Input: unmuted (unchanged)."
-
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-                            echo_verbose "Input: nothing to do."
-                        fi
-
-                        # Playback toggle.
-                        if [[ "$flag_setting_update_output_device_default_cycle" == "yes" ]]; then
-
-                            # Restricted.
-                            if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                                setting_update_input_obs_restricted_mute uncut
-
-                            # Unrestricted.
-                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                setting_update_input_obs_restricted_mute uncut
-                                setting_update_input_obs_unrestricted_mute uncut
-                            else
-                                error_kill "Input: failed (A)."
-                            fi
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-
-                        # Alert played, or playback toggled.
-                        if [[ "$flag_alert_played" == "yes" || -n "$status_check_playback_toggle" ]]; then
-
-                            # Restricted.
-                            if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                                setting_update_input_obs_restricted_unmute uncut
-
-                            # Unrestricted.
-                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                setting_update_input_obs_restricted_unmute uncut
-                                setting_update_input_obs_unrestricted_unmute
-                            else
-                                error_kill "Input: failed (B)."
-                            fi
-                        fi
-                    else
-                        error_kill "Input: failed (1G)."
-                    fi
-
-            # Paused.
-            elif [[ ("$current_status_playback" != "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Playing" && "$status_check_playback_toggle" == "Paused") ]]; then
-
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                    echo_verbose "Output device default: ${status_current_output_device_default}."
-
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-
-                            # Restricted.
-                            if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                                setting_update_input_obs_restricted_unmute uncut
-
-                            # Unrestricted.
-                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                setting_update_input_obs_restricted_unmute uncut
-                                setting_update_input_obs_unrestricted_unmute
-                            else
-                                error_kill "Input: failed (C)."
-                            fi
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                    echo_verbose "Output device default: ${status_current_output_device_default}."
-
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-
-                            echo "$argument_current_restriction_1 $status_check_profile_restriction"
-
-                            # Restricted.
-                            if [[ "$argument_current_restriction_1" == "restricted" || (-z "$argument_current_restriction_1"  && "$status_check_profile_restriction" == "restricted") ]]; then
-
-                                setting_update_input_obs_restricted_unmute
-
-                            # Unrestricted.
-                            elif [[ "$argument_current_restriction_1" == "unrestricted" || (-z "$argument_current_restriction_1" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-
-                                setting_update_input_obs_restricted_unmute
-                                setting_update_input_obs_unrestricted_unmute
-                            else
-                                error_kill "Input: failed (D)."
-                            fi
-                        fi
-                    else
-                        error_kill "output default: ${status_current_output_device_default}."
-                    fi
-                else
-                    error_kill "Input: failed (1I)."
-                fi
-            fi
-
-        }
-        interpret_settings_output() {
-
-            status_check_playback
-            status_check_output_device all
-
-            status_check_profile_output output
-
-            # Muted, unmuted.
-            if [[ "$argument_current_output_1" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
-                setting_update_output_obs_restricted_mute
-                setting_update_output_obs_unrestricted_mute
-
-                # Playing.
-                if [[ ("$current_status_playback" == "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing") ]]; then
-                    setting_update_playback_play
-                fi
-
-            # Unmuted, muted.
-            elif [[ "$argument_current_output_1" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
-
-                # Playing.
-                if [[ ("$current_status_playback" == "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing") ]]; then
-
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
-                        # Restricted.
-                        if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                            setting_update_output_obs_restricted_unmute
-
-                        # Unrestricted.
-                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            setting_update_output_obs_restricted_unmute
-                            setting_update_output_obs_unrestricted_unmute
-                        else
-                            error_kill "Invalid 'argument_current_restriction_1'."
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
-                    else
-                        error_kill "Invalid 'output_default'."
-                    fi
-                    setting_update_playback_play
-
-                # Paused.
-                elif [[ ("$current_status_playback" != "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Playing" && "$status_check_playback_toggle" == "Paused") ]]; then
-
-                    # Input unmuted.
-                    if [[ "$argument_current_input_1" == "unmuted" ]]; then
-                        
-                        echo_verbose "Output: muted (unchanged) (1E)."
-
-                    # Input muted.
-                    elif [[ "$argument_current_input_1" == "muted" ]]; then
-                        
-                        # Restricted.
-                        if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "restricted" ]]; then
-                            setting_update_output_obs_restricted_unmute
-                        
-                        # Unrestricted.
-                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                            setting_update_output_obs_restricted_unmute
-                            setting_update_output_obs_unrestricted_unmute
-                        
-                        # Error.
-                        else
-                            error_kill "Invalid 'argument_current_restriction_1'."
-                        fi
-                    else
-                        error_kill "Invalid 'argument_current_input_1'."
-                    fi
-                else
-                    error_kill "Invalid 'status_check_playback'."
-                fi
-
-            # Muted, muted.
-            elif [[ ("$argument_current_output_1" == "muted" || "$argument_current_output_1" == "") && "$status_check_profile_output" == "muted" ]]; then
-
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" && -z "$status_check_playback_toggle" || "$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing" ]]; then
-                    setting_update_playback_play
-                    echo_verbose "Output: muted (unchanged) (1C)."
-
-                # Paused.
-                elif [[ ("$current_status_playback" != "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Playing" && "$status_check_playback_toggle" == "Paused") ]]; then
-                    echo_verbose "Output: muted (unchanged) (1D)."
-                else
-                    error_kill "Invalid playback status (1D)."
-                fi
-
-            # Unmuted, unmuted.
-            elif [[ ("$argument_current_output_1" == "unmuted" || "$argument_current_output_1" == "") && "$status_check_profile_output" == "unmuted" ]]; then
-
-                # Playing.
-                if [[ ("$current_status_playback" == "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Paused" && "$status_check_playback_toggle" == "Playing") ]]; then
-                    setting_update_playback_play
-
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
-                        # Restore pre alert settings.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-
-                            # Restricted.
-                            if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
-                                setting_update_output_obs_restricted_unmute
-
-                            # Unrestricted.
-                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                                setting_update_output_obs_restricted_unmute
-                                setting_update_output_obs_unrestricted_unmute
-                            else
-                                error_kill "Output: failed. 2"
-                            fi
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_verbose "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
-                    else
-                        error_kill "Invalid 'output_default'."
-                    fi
-
-                # Paused.
-                elif [[ ("$current_status_playback" != "Playing" && -z "$status_check_playback_toggle") || ("$current_status_playback" == "Playing" && "$status_check_playback_toggle" == "Paused") ]]; then
-                    echo_verbose "Output: unmuted (unchanged)."
-
-                    # # Playback toggle.
-                    # if [[ "$flag_playback_toggle" == "yes" ]]; then
-
-                    #         :
-                    #         # # Restricted.
-                    #         # if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
-                    #         #     setting_update_output_obs_restricted_mute
-
-                    #         # # Unrestricted.
-                    #         # elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                    #         #     setting_update_output_obs_restricted_mute
-                    #         #     setting_update_output_obs_unrestricted_mute
-                    #         # else
-                    #         #     error_kill "Output: failed. 2"
-                    #         # fi
-
-                    # Output cycle: yes.
-                    if [[ "$flag_setting_update_output_device_default_cycle" == "yes" ]]; then
-                        
-                        :
-
-                    # Output cycle: no.
-                    elif [[ -z "$flag_setting_update_output_device_default_cycle" ]]; then
-
-                        :
-                        # # Alert played.
-                        # if [[ "$flag_alert_played" == "yes" ]]; then
-                            
-                        #     # Restricted.
-                        #     if [[ ("$argument_current_restriction_1" == "restricted" || "$argument_current_restriction_1" == "") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
-                        #         setting_update_output_obs_restricted_unmute
-
-                        #     # Unrestricted.
-                        #     elif [[ ("$argument_current_restriction_1" == "unrestricted" || "$argument_current_restriction_1" == "") &&  "$status_check_profile_restriction" == "unrestricted"  ]]; then
-                        #         setting_update_output_obs_restricted_unmute
-                        #         setting_update_output_obs_unrestricted_unmute
-
-                        #     # Error.
-                        #     else
-                        #         error_kill "interpret_settings_output, Output: failed. 3"
-                        #     fi
-                        # fi
-
-                    # Error.
-                    else
-                        error_kill "Invalid 'argument_current_input_1'."
-                    fi
-                else
-                    error_kill "Invalid playback status (1E)."
-                fi
-            else
-                error_kill "Output: failed. 4"
-            fi
-
-        }
         interpret_settings_scene_quad() {
 
             # Anja.
@@ -2710,6 +2342,483 @@
         position_left
 
     }
+        # Input.
+        setting_update_input() {
+
+            status_check_playback
+            status_check_output_device all
+
+            status_check_profile restriction input
+
+            # Muted, unmuted.
+            if [[ "$argument_current_input_1" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
+
+                echo_verbose "Muted, unmuted."
+
+            # Unmuted, muted.
+            elif [[ "$argument_current_input_1" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
+
+                echo_verbose "Unmuted, muted."
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+
+                    echo_verbose "Playing."
+
+                    # Null_sink_1.
+                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                        
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                    # Headphones
+                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                        # Restricted.
+                        if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            setting_update_input_obs_restricted_unmute
+
+                        # Unrestricted.
+                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            setting_update_input_obs_restricted_unmute
+                            setting_update_input_obs_unrestricted_unmute
+                        
+                        # Error.
+                        else
+                            error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                        fi
+
+                    # Error.
+                    else
+                        error_kill "status_current_output_device_default."
+                    fi
+
+                # Paused.
+                elif [[ "$current_status_playback" != "Playing" ]]; then
+
+                    # Restricted.
+                    if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                        setting_update_input_obs_restricted_unmute
+
+                    # Unrestricted.
+                    elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                        setting_update_input_obs_restricted_unmute
+                        setting_update_input_obs_unrestricted_unmute
+                    
+                    # Error.
+                    else
+                        error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                    fi
+                
+                # Error.
+                else
+                    error_kill "current_status_playback."
+                fi
+
+            # Muted, muted.
+            elif [[ ("$argument_current_input_1" == "muted" || -z "$argument_current_input_1") && "$status_check_profile_input" == "muted" ]]; then
+                
+                echo_verbose "Input: muted (unchanged)."
+
+            # Unmuted, unmuted.
+            elif [[ ("$argument_current_input_1" == "unmuted" || -z "$argument_current_input_1") && "$status_check_profile_input" == "unmuted" ]]; then
+
+                echo_verbose "Unmuted, unmuted."
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+
+                    echo_verbose "Playing."
+
+                    # Null sink 1.
+                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" ]]; then
+                            
+                            echo_verbose "Alert played."
+
+                            echo_quiet "Input: muted (unchanged)."
+
+                        fi
+
+                        # Playback toggle.
+                        if [[ "$flag_setting_update_output_device_default_cycle" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
+
+                            echo_verbose "Output cycle or playback monitor."
+
+                            # Restricted.
+                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                                
+                                echo_verbose "Restricted."
+
+                                setting_update_input_obs_restricted_mute
+
+                            # Unrestricted.
+                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                
+                                echo_verbose "Unrestricted."
+                                
+                                setting_update_input_obs_restricted_mute
+                                setting_update_input_obs_unrestricted_mute
+
+                            # Error.
+                            else
+                                error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                            fi
+                        
+                        # Error.
+                        else
+                            echo_verbose "flag_setting_update_output_device_default_cycle, argument_current_action_1."
+                        fi
+
+                    # Headphones.
+                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                        # Alert played, or playback toggled.
+                        if [[ "$flag_alert_played" == "yes" || -n "$status_check_playback_toggle" ]]; then
+
+                            # Restricted.
+                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                                
+                                echo_verbose "Restricted."
+
+                                setting_update_input_obs_restricted_unmute
+
+                            # Unrestricted.
+                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                
+                                echo_verbose "Unrestricted."
+                                
+                                setting_update_input_obs_restricted_unmute
+                                setting_update_input_obs_unrestricted_unmute
+
+                            # Error.
+                            else
+                                error_kill "restriction."
+                            fi
+                        
+                        # Error.
+                        else
+                            echo_verbose "flag_alert_played, status_check_playback_toggle."
+                        fi
+                    
+                    # Error.
+                    else
+                        error_kill "status_current_output_device_default."
+                    fi
+
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+
+                    echo_verbose "Paused."
+
+                    # Null sink 1.
+                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
+
+                            echo_verbose "alert played or playback monitor."
+
+                            # Restricted.
+                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                                
+                                echo_verbose "Restricted."
+                                
+                                setting_update_input_obs_restricted_unmute
+
+                            # Unrestricted.
+                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                
+                                echo_verbose "Unrestricted."
+                                
+                                setting_update_input_obs_restricted_unmute
+                                setting_update_input_obs_unrestricted_unmute
+                            
+                            # Error.
+                            else
+                                error_kill "restriction."
+                            fi
+                        
+                        # Error.
+                        else
+                            echo_verbose "flag_alert_played, argument_current_action_1."
+                        fi
+
+                    # Headphones.
+                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                        
+                        echo_verbose "Output device default: ${status_current_output_device_default}."
+
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" ]]; then
+
+                            echo "$argument_current_restriction_1 $status_check_profile_restriction"
+
+                            # Restricted.
+                            if [[ "$argument_current_restriction_1" == "restricted" || (-z "$argument_current_restriction_1"  && "$status_check_profile_restriction" == "restricted") ]]; then
+
+                                echo_verbose "Restricted."
+                                
+                                setting_update_input_obs_restricted_unmute
+
+                            # Unrestricted.
+                            elif [[ "$argument_current_restriction_1" == "unrestricted" || (-z "$argument_current_restriction_1" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+
+                                echo_verbose "Unrestricted."
+                                
+                                setting_update_input_obs_restricted_unmute
+                                setting_update_input_obs_unrestricted_unmute
+
+                            # Error.
+                            else
+                                error_kill "restriction."
+                            fi
+                        
+                        # Error.
+                        else
+                            error_kill "flag_alert_played."
+                        fi
+                    
+                    # Error.
+                    else
+                        error_kill "output device default."
+                    fi
+                
+                # Error.
+                else
+                    error_kill "playback status."
+                fi
+            
+            # Error.
+            else
+                error_kill "setting_update_input."
+            fi
+
+        }
+        # Output.
+        setting_update_output() {
+
+            status_check_playback
+            status_check_output_device all
+
+            status_check_profile output
+
+            # Muted, unmuted.
+            if [[ "$argument_current_output_1" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
+
+                echo_verbose "Muted, unmuted."
+
+                setting_update_output_obs_restricted_mute
+                setting_update_output_obs_unrestricted_mute
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+                    
+                    echo_verbose "Playing."
+
+                fi
+
+            # Unmuted, muted.
+            elif [[ "$argument_current_output_1" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
+
+                echo_verbose "Unmuted, muted."
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+
+                    echo_verbose "Playing."
+
+                    # Null sink 1.
+                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+
+                        echo_verbose "$status_current_output_device_default."
+
+                        # Restricted.
+                        if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            
+                            echo_verbose "Restricted."
+                            
+                            setting_update_output_obs_restricted_unmute
+
+                        # Unrestricted.
+                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            
+                            echo_verbose "Unrestricted."
+                            
+                            setting_update_output_obs_restricted_unmute
+                            setting_update_output_obs_unrestricted_unmute
+                        
+                        # Error.
+                        else
+                            error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                        fi
+
+                    # Headphones.
+                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                        
+                        echo "$status_current_output_device_default."
+                    
+                    # Error.
+                    else
+                        error_kill "status_current_output_device_default."
+                    fi
+
+                # Paused.
+                elif [[ "$current_status_playback" != "Playing" ]]; then
+
+                    echo_verbose "Paused."
+
+                    # Input unmuted.
+                    if [[ "$argument_current_input_1" == "unmuted" ]]; then
+                        
+                        echo_verbose "Output: muted (unchanged) (1E)."
+
+                    # Input muted.
+                    elif [[ "$argument_current_input_1" == "muted" ]]; then
+                        
+                        # Restricted.
+                        if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            
+                            echo_verbose "Restricted."
+                            
+                            setting_update_output_obs_restricted_unmute
+                        
+                        # Unrestricted.
+                        elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            
+                            echo_verbose "Unrestricted."
+                            
+                            setting_update_output_obs_restricted_unmute
+                            setting_update_output_obs_unrestricted_unmute
+                        
+                        # Error.
+                        else
+                            error_kill "Invalid 'argument_current_restriction_1'."
+                        fi
+                    
+                    # Error.
+                    else
+                        error_kill "Invalid 'argument_current_input_1'."
+                    fi
+                
+                # Error.
+                else
+                    error_kill "Invalid 'status_check_playback'."
+                fi
+
+            # Muted, muted.
+            elif [[ ("$argument_current_output_1" == "muted" || -z "$argument_current_output_1" ) && "$status_check_profile_output" == "muted" ]]; then
+
+                echo_verbose "Muted, muted."
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+                    
+                    echo_verbose "Playing."
+
+                # Paused.
+                elif [[ "$current_status_playback" != "Playing" ]]; then
+                    
+                    echo_verbose "Paused."
+                
+                # Error.
+                else
+                    error_kill "current_status_playback."
+                fi
+
+            # Unmuted, unmuted.
+            elif [[ ("$argument_current_output_1" == "unmuted" || -z "$argument_current_output_1") && "$status_check_profile_output" == "unmuted" ]]; then
+
+                echo_verbose "Unmuted, unmuted."
+
+                # Playing.
+                if [[ "$current_status_playback" == "Playing" ]]; then
+                    
+                    echo_verbose "Playing."
+
+                    # Null sink 1.
+                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+
+                        echo_verbose "Null Sink 1."
+
+                        # Restore pre alert settings.
+                        if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
+
+                            # Restricted.
+                            if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
+
+                                echo_verbose "Restricted."
+
+                                setting_update_output_obs_restricted_unmute
+
+                            # Unrestricted.
+                            elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                
+                                echo_verbose "Unrestricted."
+                                
+                                setting_update_output_obs_restricted_unmute
+                                setting_update_output_obs_unrestricted_unmute
+                            
+                            # Error.
+                            else
+                                error_kill "argument_current_restriction_1, status_check_profile_restriction."
+                            fi
+                        
+                        # Error.
+                        else
+                            echo_verbose "flag_alert_played, argument_current_action_1."
+                        fi
+
+                    # Headphones.
+                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                        echo_verbose "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
+                    
+                    # Error.
+                    else
+                        error_kill "status_current_output_device_default."
+                    fi
+
+                # Paused.
+                elif [[ "$current_status_playback" != "Playing" ]]; then
+                    
+                    echo_verbose "Paused."
+
+                    # Output cycle: yes.
+                    if [[ "$flag_setting_update_output_device_default_cycle" == "yes" ]]; then
+                        
+                        echo_verbose "Output cycle: yes."
+
+                    # Output cycle: no.
+                    elif [[ -z "$flag_setting_update_output_device_default_cycle" ]]; then
+
+                        echo_verbose "Output cycle: no."
+
+                    # Error.
+                    else
+                        error_kill "flag_setting_update_output_device_default_cycle."
+                    fi
+                
+                # Error.
+                else
+                    error_kill "current_status_playback."
+                fi
+
+            # Error.
+            else
+                error_kill "setting_update_output."
+            fi
+
+        }
+        # Censor.
         setting_update_censor() {
 
             echo_quiet "Censor:"
@@ -2933,6 +3042,7 @@
                     fi
 
                 }
+        # Restriction
         setting_update_restriction() {
 
             echo_quiet "Restriction:"
@@ -3154,6 +3264,437 @@
                         alert_request_restriction="studio"
                     else
                         error_kill "setting_update_restriction_studio_unrestricted."
+                    fi
+
+                }
+        # Scene.
+        setting_update_scene() {
+
+            # Quad.
+            if [[ "$argument_current_scene_type" == "quad" ]]; then
+
+                # Anja.
+                if [[ "$argument_current_name_1" == "anja" ]]; then
+
+                    # Location.
+                    if [[ "$argument_current_camera_1" == "bathroom" ]]; then
+                        setting_update_scene_quad_anja_bathroom
+                    elif [[ "$argument_current_camera_1" == "bed" ]]; then
+                        setting_update_scene_quad_anja_bed
+                    #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
+                    #    setting_update_scene_quad_anja_crafts
+                    elif [[ "$argument_current_camera_1" == "desk" ]]; then
+                        setting_update_scene_quad_anja_desk
+                    elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
+                        setting_update_scene_quad_anja_kitchen
+                    elif [[ "$argument_current_camera_1" == "studio" ]]; then
+                        setting_update_scene_quad_anja_studio
+                    else
+                        error_kill "interpret_settings_scene, argument_current_camera_1, anja."
+                    fi
+
+                # Vaughan.
+                elif [[ "$argument_current_name_1" == "vaughan" ]]; then
+
+                    # Location.
+                    if [[ "$argument_current_camera_1" == "bathroom" ]]; then
+                        setting_update_scene_quad_vaughan_bathroom
+                    elif [[ "$argument_current_camera_1" == "bed" ]]; then
+                        setting_update_scene_quad_vaughan_bed
+                    #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
+                    #    setting_update_scene_quad_vaughan_crafts
+                    elif [[ "$argument_current_camera_1" == "desk" ]]; then
+                        setting_update_scene_quad_vaughan_desk
+                    elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
+                        setting_update_scene_quad_vaughan_kitchen
+                    elif [[ "$argument_current_camera_1" == "studio" ]]; then
+                        setting_update_scene_quad_vaughan_studio
+                    else
+                        error_kill "interpret_settings_scene, argument_current_camera_1, vaughan."
+                    fi
+
+                else
+                    error_kill "interpret_settings_scene, argument_current_camera_1."
+                fi
+
+                # Second name.
+                if [[ -n "$argument_current_name_2" ]]; then
+
+                    # Anja.
+                    if [[ "$argument_current_name_2" == "anja" ]]; then
+
+                        # Location 2.
+                        if [[ "$argument_current_camera_2" == "bathroom" ]]; then
+                            setting_update_scene_quad_anja_bathroom
+                        elif [[ "$argument_current_camera_2" == "bed" ]]; then
+                            setting_update_scene_quad_anja_bed
+                        #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
+                        #    setting_update_scene_quad_anja_crafts
+                        elif [[ "$argument_current_camera_2" == "desk" ]]; then
+                            setting_update_scene_quad_anja_desk
+                        elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
+                            setting_update_scene_quad_anja_kitchen
+                        elif [[ "$argument_current_camera_2" == "studio" ]]; then
+                            setting_update_scene_quad_anja_studio
+                        else
+                            echo_verbose "interpret_settings_scene, argument_current_camera_2, anja."
+                        fi
+
+                    # Vaughan.
+                    elif [[ "$argument_current_name_2" == "vaughan" ]]; then
+
+                        # Location 2.
+                        if [[ "$argument_current_camera_2" == "bathroom" ]]; then
+                            setting_update_scene_quad_vaughan_bathroom
+                        elif [[ "$argument_current_camera_2" == "bed" ]]; then
+                            setting_update_scene_quad_vaughan_bed
+                        #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
+                        #    setting_update_scene_quad_vaughan_crafts
+                        elif [[ "$argument_current_camera_2" == "desk" ]]; then
+                            setting_update_scene_quad_vaughan_desk
+                        elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
+                            setting_update_scene_quad_vaughan_kitchen
+                        elif [[ "$argument_current_camera_2" == "studio" ]]; then
+                            setting_update_scene_quad_vaughan_studio
+                        else
+                            echo_verbose "interpret_settings_scene, argument_current_camera_2, vaughan."
+                        fi
+
+                    # Echo.
+                    else
+                        echo_verbose "interpret_settings_scene, argument_current_name_2."
+                    fi
+
+                # Echo.
+                else
+                    echo_quiet "Scene 2: no change requested."
+                fi
+
+            # Error.
+            else
+                error_kill "setting_update_scene, argument_current_scene_type."
+            fi
+
+        }
+            # Quad Anja.
+            setting_update_scene_quad_anja_bathroom() {
+
+                setting_update_scene_quad_2_bathroom
+                setting_update_scene_quad_4_window
+
+            }
+            setting_update_scene_quad_anja_bed() {
+
+                setting_update_scene_quad_2_bed_overhead
+                setting_update_scene_quad_4_window
+
+            }
+            setting_update_scene_quad_anja_crafts() {
+
+                setting_update_scene_quad_2_crafts
+                setting_update_scene_quad_4_crafts_overhead
+
+            }
+            setting_update_scene_quad_anja_desk() {
+
+                setting_update_scene_quad_2_desk_anja
+                setting_update_scene_quad_4_window
+
+            }
+            setting_update_scene_quad_anja_kitchen() {
+
+                setting_update_scene_quad_2_kitchen
+                setting_update_scene_quad_4_kitchen_overhead
+
+            }
+            setting_update_scene_quad_anja_studio() {
+
+                setting_update_scene_quad_2_studio
+                setting_update_scene_quad_4_window
+
+            }
+            # Quad Vaughan.
+            setting_update_scene_quad_vaughan_bathroom() {
+
+                setting_update_scene_quad_1_bathroom
+                setting_update_scene_quad_3_desktop_dp1
+
+            }
+            setting_update_scene_quad_vaughan_bed() {
+
+                setting_update_scene_quad_1_bed_overhead
+                setting_update_scene_quad_3_desktop_dp1
+
+            }
+            setting_update_scene_quad_vaughan_desk() {
+
+                setting_update_scene_quad_1_desk_vaughan
+                setting_update_scene_quad_3_desktop_dp1
+
+            }
+            setting_update_scene_quad_vaughan_kitchen() {
+
+                setting_update_scene_quad_1_kitchen
+                setting_update_scene_quad_3_kitchen_overhead
+
+            }
+            setting_update_scene_quad_vaughan_studio() {
+
+                setting_update_scene_quad_1_studio
+                setting_update_scene_quad_3_desktop_dp1
+
+            }
+                # Quad 1.
+                setting_update_scene_quad_1_bathroom() {
+
+                    script_obs_cli unrestricted item hide "Bathroom" --scene "Quad 1"
+                    exit_1=$?
+
+                    status_update_scene_quad bathroom 1
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 bathroom."
+                    else
+                        error_kill "setting_update_scene_quad_2_bathroom"
+                    fi
+
+                }
+                setting_update_scene_quad_1_bed_overhead() {
+
+                    script_obs_cli unrestricted item show "Bed \(Overhead\)" --scene "Quad 1"
+                    exit_1=$?
+
+                    status_update_scene_quad bed 1
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 bed (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_1_bed_overhead."
+                    fi
+
+                }
+                setting_update_scene_quad_1_crafts() {
+
+                    script_obs_cli unrestricted item show "Crafts" --scene "Quad 1"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 crafts."
+                    else
+                        error_kill "setting_update_scene_quad_1_crafts."
+                    fi
+
+                }
+                setting_update_scene_quad_1_desk_vaughan() {
+
+                    script_obs_cli unrestricted item show "Desk \(Vaughan\)" --scene "Quad 1"
+                    exit_1=$?
+
+                    status_update_scene_quad desk 1
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 desk (Vaughan)."
+                    else
+                        error_kill "setting_update_scene_quad_1_desk_vaughan."
+                    fi
+
+                }
+                setting_update_scene_quad_1_kitchen() {
+
+                    script_obs_cli unrestricted item show "Kitchen" --scene "Quad 1"
+                    exit_1=$?
+
+                    status_update_scene_quad kitchen 1
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 kitchen."
+                    else
+                        error_kill "setting_update_scene_quad_1_kitchen."
+                    fi
+
+                }
+                setting_update_scene_quad_1_studio() {
+
+                    script_obs_cli unrestricted item show "Studio" --scene "Quad 1"
+                    exit_1=$?
+
+                    status_update_scene_quad studio 1
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 1 studio."
+                    else
+                        error_kill "setting_update_scene_quad_1_studio."
+                    fi
+
+                }
+                # Quad 2.
+                setting_update_scene_quad_2_bathroom() {
+
+                    script_obs_cli unrestricted item show "Bathroom" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad bathroom 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 bathroom."
+                    else
+                        error_kill "setting_update_scene_quad_2_bathroom."
+                    fi
+
+                }
+                setting_update_scene_quad_2_crafts() {
+
+                    script_obs_cli unrestricted item show "Crafts" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad crafts 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 crafts."
+                    else
+                        error_kill "setting_update_scene_quad_2_crafts."
+                    fi
+
+                }
+                setting_update_scene_quad_2_bed_overhead() {
+
+                    script_obs_cli unrestricted item show "Bed \(Overhead\)" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad bed 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 bed (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_2_bed_overhead."
+                    fi
+
+                }
+                setting_update_scene_quad_2_desk_anja() {
+
+                    script_obs_cli unrestricted item show "Desk \(Anja\)" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad desk 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 desk (Anja)."
+                    else
+                        error_kill "setting_update_scene_quad_2_desk_anja."
+                    fi
+
+                }
+                setting_update_scene_quad_2_kitchen() {
+
+                    script_obs_cli unrestricted item show "Kitchen" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad kitchen 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 kitchen."
+                    else
+                        error_kill "setting_update_scene_quad_2_kitchen."
+                    fi
+
+                }
+                setting_update_scene_quad_2_studio() {
+
+                    script_obs_cli unrestricted item show "Studio" --scene "Quad 2"
+                    exit_1=$?
+
+                    status_update_scene_quad studio 2
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 2 studio."
+                    else
+                        error_kill "setting_update_scene_quad_2_studio."
+                    fi
+
+                }
+                # Quad 3.
+                setting_update_scene_quad_3_crafts_overhead() {
+
+                    script_obs_cli unrestricted item show "Crafts \(Overhead\)" --scene "Quad 3"
+                    exit_1=$?
+
+                    status_update_scene_quad crafts 3
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 3 crafts (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_3_crafts_overhead."
+                    fi
+
+                }
+                setting_update_scene_quad_3_desktop_dp1() {
+
+                    script_obs_cli unrestricted item show "Desktop \(DP-1\)" --scene "Quad 3"
+                    exit_1=$?
+
+                    status_update_scene_quad screen 3
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 3 desktop DP-1."
+                    else
+                        error_kill "setting_update_scene_quad_3_desktop_dp1."
+                    fi
+
+                }
+                setting_update_scene_quad_3_kitchen_overhead() {
+
+                    script_obs_cli unrestricted item show "Kitchen \(Overhead\)" --scene "Quad 3"
+                    exit_1=$?
+
+                    status_update_scene_quad kitchen 3
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 3 kitchen (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_3_kitchen_overhead."
+                    fi
+
+                }
+                # Quad 4.
+                setting_update_scene_quad_4_crafts_overhead() {
+
+                    script_obs_cli unrestricted item show "Crafts \(Overhead\)" --scene "Quad 4"
+                    exit_1=$?
+
+                    status_update_scene_quad crafts 4
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 4 crafts (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_2_crafts_overhead."
+                    fi
+
+                }
+                setting_update_scene_quad_4_kitchen_overhead() {
+
+                    script_obs_cli unrestricted item show "Kitchen \(Overhead\)" --scene "Quad 4"
+                    exit_1=$?
+
+                    status_update_scene_quad kitchen 4
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 4 kitchen (overhead)."
+                    else
+                        error_kill "setting_update_scene_quad_4_kitchen_overhead."
+                    fi
+
+                }
+                setting_update_scene_quad_4_window() {
+
+                    script_obs_cli unrestricted item show "Window" --scene "Quad 4"
+                    exit_1=$?
+
+                    status_update_scene_quad window 4
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Quad 4 window."
+                    else
+                        error_kill "setting_update_scene_quad_4_window."
                     fi
 
                 }
@@ -4012,7 +4553,7 @@
 
     script_obs_cli() {
 
-        status_check_obs_websocket $1
+        status_check_obs_websocket ${1}
 
         if [[ "$flag_script_obs_cli" != "executed" ]]; then
 
@@ -4514,7 +5055,7 @@
         }
 
 
-        setting_update_output_obs_unrestricted_unmute() {
+        setting_update_output_obs_unrestricted_unmute_obs_cli() {
 
             echo_quiet "Output OBS unrestricted unmute:"
 
@@ -4620,22 +5161,82 @@
     }
     setting_update_playback_playback_toggle() {
 
-        status_check_playback
+        playerctl --player playerctld play-pause
+        exit_1=$?
 
-        position_right
+        error_check 1 quiet "Toggle."
 
-        if [[ "$current_status_playback" == "Playing" ]]; then
-            status_check_playback_toggle="Paused"
-            echo_quiet "Request: pause."
-            setting_update_playback_pause
-        elif [[ "$current_status_playback" == "Paused" ]]; then
-            status_check_playback_toggle="Playing"
-            echo_quiet "Request: play."
+    }
+
+    error_check() {
+
+        # One check.
+        if [[ $1 -eq 1 ]]; then
+
+            if [[ $exit_1 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Two checks.
+        elif [[ $1 -eq 2 ]]; then
+            
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Three checks.
+        elif [[ $1 -eq 3 ]]; then
+            
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Four checks.
+        elif [[ $1 -eq 4 ]]; then
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 && $exit_4 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Error.
         else
-            error_kill "setting_update_playback_playback_toggle."
+            error_kill "error_check, invalid check amount."
         fi
 
-        position_left
+        # Check complete.
+        if [[ $exit_1 -eq 0 ]]; then
+
+            # Quiet.
+            if [[ "$2" == "quiet" ]]; then
+
+                echo_quiet "${3}."
+
+            # Verbose.
+            elif [[ "$2" == "verbose" ]]; then
+
+                echo_verbose "${3}."
+
+            # Error.
+            else
+                error_kill "error_check, invalid argument."
+            fi
+
+        # Error, check failed.
+        elif [[ $exit_1 -eq 1 ]]; then
+            error_kill "error_check, check failed: ${3}."
+        
+        # Error.
+        else
+            error_kill "error_check, uknown."
+        fi
 
     }
 
@@ -4673,358 +5274,6 @@
             else
                 error_kill "settings_update_scene_quad_input, kitchen."
             fi
-
-        }
-
-        # Quad 1.
-
-        setting_update_scene_quad_1_bathroom() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item hide "Bathroom" --scene "Quad 1"
-            exit_1=$?
-
-            status_update_scene_quad bathroom 1
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 bathroom."
-            else
-                error_kill "setting_update_scene_quad_2_bathroom"
-            fi
-
-        }
-        setting_update_scene_quad_1_bed_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Bed \(Overhead\)" --scene "Quad 1"
-            exit_1=$?
-
-            status_update_scene_quad bed 1
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 bed (overhead)."
-            else
-                error_kill "setting_update_scene_quad_1_bed_overhead."
-            fi
-
-        }
-        setting_update_scene_quad_1_crafts() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Crafts" --scene "Quad 1"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 crafts."
-            else
-                error_kill "setting_update_scene_quad_1_crafts."
-            fi
-
-        }
-        setting_update_scene_quad_1_desk_vaughan() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Desk \(Vaughan\)" --scene "Quad 1"
-            exit_1=$?
-
-            status_update_scene_quad desk 1
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 desk (Vaughan)."
-            else
-                error_kill "setting_update_scene_quad_1_desk_vaughan."
-            fi
-
-        }
-        setting_update_scene_quad_1_kitchen() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Kitchen" --scene "Quad 1"
-            exit_1=$?
-
-            status_update_scene_quad kitchen 1
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 kitchen."
-            else
-                error_kill "setting_update_scene_quad_1_kitchen."
-            fi
-
-        }
-        setting_update_scene_quad_1_studio() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Studio" --scene "Quad 1"
-            exit_1=$?
-
-            status_update_scene_quad studio 1
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 1 studio."
-            else
-                error_kill "setting_update_scene_quad_1_studio."
-            fi
-
-        }
-
-        # Quad 2.
-
-        setting_update_scene_quad_2_bathroom() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Bathroom" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad bathroom 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 bathroom."
-            else
-                error_kill "setting_update_scene_quad_2_bathroom."
-            fi
-
-        }
-        setting_update_scene_quad_2_crafts() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Crafts" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad crafts 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 crafts."
-            else
-                error_kill "setting_update_scene_quad_2_crafts."
-            fi
-
-        }
-        setting_update_scene_quad_2_bed_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Bed \(Overhead\)" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad bed 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 bed (overhead)."
-            else
-                error_kill "setting_update_scene_quad_2_bed_overhead."
-            fi
-
-        }
-        setting_update_scene_quad_2_desk_anja() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Desk \(Anja\)" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad desk 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 desk (Anja)."
-            else
-                error_kill "setting_update_scene_quad_2_desk_anja."
-            fi
-
-        }
-        setting_update_scene_quad_2_kitchen() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Kitchen" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad kitchen 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 kitchen."
-            else
-                error_kill "setting_update_scene_quad_2_kitchen."
-            fi
-
-        }
-        setting_update_scene_quad_2_studio() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Studio" --scene "Quad 2"
-            exit_1=$?
-
-            status_update_scene_quad studio 2
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 2 studio."
-            else
-                error_kill "setting_update_scene_quad_2_studio."
-            fi
-
-        }
-
-        # Quad 3.
-
-        setting_update_scene_quad_3_crafts_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Crafts \(Overhead\)" --scene "Quad 3"
-            exit_1=$?
-
-            status_update_scene_quad crafts 3
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 3 crafts (overhead)."
-            else
-                error_kill "setting_update_scene_quad_3_crafts_overhead."
-            fi
-
-        }
-        setting_update_scene_quad_3_desktop_dp1() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Desktop \(DP-1\)" --scene "Quad 3"
-            exit_1=$?
-
-            status_update_scene_quad screen 3
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 3 desktop DP-1."
-            else
-                error_kill "setting_update_scene_quad_3_desktop_dp1."
-            fi
-
-        }
-        setting_update_scene_quad_3_kitchen_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Kitchen \(Overhead\)" --scene "Quad 3"
-            exit_1=$?
-
-            status_update_scene_quad kitchen 3
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 3 kitchen (overhead)."
-            else
-                error_kill "setting_update_scene_quad_3_kitchen_overhead."
-            fi
-
-        }
-
-        # Quad 4.
-
-        setting_update_scene_quad_4_crafts_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Crafts \(Overhead\)" --scene "Quad 4"
-            exit_1=$?
-
-            status_update_scene_quad crafts 4
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 4 crafts (overhead)."
-            else
-                error_kill "setting_update_scene_quad_2_crafts_overhead."
-            fi
-
-        }
-        setting_update_scene_quad_4_kitchen_overhead() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Kitchen \(Overhead\)" --scene "Quad 4"
-            exit_1=$?
-
-            status_update_scene_quad kitchen 4
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 4 kitchen (overhead)."
-            else
-                error_kill "setting_update_scene_quad_4_kitchen_overhead."
-            fi
-
-        }
-        setting_update_scene_quad_4_window() {
-
-            obs_profile="unrestricted"
-            script_obs_cli item show "Window" --scene "Quad 4"
-            exit_1=$?
-
-            status_update_scene_quad window 4
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_quiet "Quad 4 window."
-            else
-                error_kill "setting_update_scene_quad_4_window."
-            fi
-
-        }
-
-        # Quad Anja.
-
-        setting_update_scene_quad_anja_bathroom() {
-
-            setting_update_scene_quad_2_bathroom
-            setting_update_scene_quad_4_window
-
-        }
-        setting_update_scene_quad_anja_bed() {
-
-            setting_update_scene_quad_2_bed_overhead
-            setting_update_scene_quad_4_window
-
-        }
-        setting_update_scene_quad_anja_crafts() {
-
-            setting_update_scene_quad_2_crafts
-            setting_update_scene_quad_4_crafts_overhead
-
-        }
-        setting_update_scene_quad_anja_desk() {
-
-            setting_update_scene_quad_2_desk_anja
-            setting_update_scene_quad_4_window
-
-        }
-        setting_update_scene_quad_anja_kitchen() {
-
-            setting_update_scene_quad_2_kitchen
-            setting_update_scene_quad_4_kitchen_overhead
-
-        }
-        setting_update_scene_quad_anja_studio() {
-
-            setting_update_scene_quad_2_studio
-            setting_update_scene_quad_4_window
-
-        }
-
-        # Quad Vaughan.
-
-        setting_update_scene_quad_vaughan_bathroom() {
-
-            setting_update_scene_quad_1_bathroom
-            setting_update_scene_quad_3_desktop_dp1
-
-        }
-        setting_update_scene_quad_vaughan_bed() {
-
-            setting_update_scene_quad_1_bed_overhead
-            setting_update_scene_quad_3_desktop_dp1
-
-        }
-        setting_update_scene_quad_vaughan_desk() {
-
-            setting_update_scene_quad_1_desk_vaughan
-            setting_update_scene_quad_3_desktop_dp1
-
-        }
-        setting_update_scene_quad_vaughan_kitchen() {
-
-            setting_update_scene_quad_1_kitchen
-            setting_update_scene_quad_3_kitchen_overhead
-
-        }
-        setting_update_scene_quad_vaughan_studio() {
-
-            setting_update_scene_quad_1_studio
-            setting_update_scene_quad_3_desktop_dp1
 
         }
 
@@ -5312,7 +5561,7 @@
     
     status_check_output_device() {
 
-        echo_verbose "Output device check:"
+        echo_verbose "Output device:"
 
         position_right
 
@@ -5361,7 +5610,7 @@
     }
         status_check_output_device_default() {
 
-            echo_verbose "Output default check:"
+            echo_verbose "Output device default:"
 
             position_right
 
@@ -5369,7 +5618,7 @@
 
             if [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" ]]; then
                 status_current_output_device_default="${output_device_null_sink_1_name_long}"
-                echo_verbose "Default output: ${output_null_sink_1_name}."
+                echo_verbose "Default output: ${output_device_null_sink_1_name_echo}."
             elif [[ "$output_device_default_ID" == "$output_device_headphones_1_ID" ]]; then
                 status_current_output_device_default="${output_device_headphones_1_script_name}"
                 echo_verbose "Default output: ${output_device_headphones_1_name}."
