@@ -2445,20 +2445,16 @@
                         # Alert played.
                         if [[ "$flag_alert_played" == "yes" ]]; then
 
-                            echo "$argument_current_restriction_1 $status_check_profile_restriction"
+                            echo_verbose "INFO: flag_alert_played, yes."
 
                             # Restricted.
                             if [[ "$argument_current_restriction_1" == "restricted" || (-z "$argument_current_restriction_1"  && "$status_check_profile_restriction" == "restricted") ]]; then
-
-                                echo_verbose "Restricted."
-                                
+                                echo_verbose "INFO: Restricted."
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ "$argument_current_restriction_1" == "unrestricted" || (-z "$argument_current_restriction_1" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-
-                                echo_verbose "Unrestricted."
-                                
+                                echo_verbose "INFO: Unrestricted."
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
 
@@ -2469,7 +2465,7 @@
                         
                         # Error.
                         else
-                            error_kill "flag_alert_played."
+                            echo_verbose "INFO: flag_alert_played, no."
                         fi
                     
                     # Error.
