@@ -401,10 +401,10 @@
         translate_argument profile $1
         argument_current_censor_1="${argument}"
 
-        translate_argument camera $2
-        argument_current_camera_1="${argument}"
+        translate_argument scene $2
+        argument_current_scene_1="${argument}"
 
-        echo_quiet "Censor: ${argument_current_censor_1} ${argument_current_camera_1}:"
+        echo_quiet "Censor: ${argument_current_censor_1} ${argument_current_scene_1}:"
 
         position_right
 
@@ -829,10 +829,10 @@
         translate_argument profile $1
         argument_current_restriction_1="${argument}"
 
-        translate_argument camera $2
-        argument_current_camera_1="${argument}"
+        translate_argument scene $2
+        argument_current_scene_1="${argument}"
 
-        request_status_restriction="${argument_current_restriction_1}_${argument_current_camera_1}"
+        request_status_restriction="${argument_current_restriction_1}_${argument_current_scene_1}"
 
         echo_quiet "Restriction: ${request_status_restriction}:"
 
@@ -856,8 +856,8 @@
             translate_argument name $2
             argument_current_name_1="${argument}"
 
-            translate_argument camera $3
-            argument_current_camera_1="${argument}"
+            translate_argument scene $3
+            argument_current_scene_1="${argument}"
 
         else
             error_kill "command_scene, invalid arguments: ${1} ${2} ${3}."
@@ -869,16 +869,15 @@
             translate_argument name $4
             argument_current_name_2="${argument}"
 
-            translate_argument camera $5
-            argument_current_camera_2="${argument}"
+            translate_argument scene $5
+            argument_current_scene_2="${argument}"
 
         else
             echo_verbose "Only one scene change requested, skipping."
         fi
 
         setting_update scene
-        status_check scene_${argument_current_scene_type}
-        settings_update_scene_quad_input
+        setting_update_scene_quad_input
 
     }
     command_source() {
@@ -1040,27 +1039,6 @@
                 argument="volume"
             else
                 error_kill "translate_argument, attribute, invalid argument: ${2}."
-            fi
-
-        # Camera.
-        elif [[ "$1" == "camera" ]]; then
-
-            if [[ "$2" == "all" || "$2" == "a" ]]; then
-                argument="all"
-            elif [[ "$2" == "bathroom" || "$2" == "ba" ]]; then
-                argument="bathroom"
-            elif [[ "$2" == "bed" || "$2" == "be" ]]; then
-                argument="bed"
-            elif [[ "$2" == "crafts" || "$2" == "c" ]]; then
-                argument="crafts"
-            elif [[ "$2" == "desk" || "$2" == "d" ]]; then
-                argument="desk"
-            elif [[ "$2" == "kitchen" || "$2" == "k" ]]; then
-                argument="kitchen"
-            elif [[ "$2" == "studio" || "$2" == "s" ]]; then
-                argument="studio"
-            else
-                error_kill "translate_argument, camera, invalid argument: ${2}."
             fi
 
         # Category.
@@ -1230,7 +1208,28 @@
             else
                 error_kill "translate_argument, role, invalid argument: ${2}."
             fi
-        
+
+        # Scene.
+        elif [[ "$1" == "scene" ]]; then
+
+            if [[ "$2" == "all" || "$2" == "a" ]]; then
+                argument="all"
+            elif [[ "$2" == "bathroom" || "$2" == "ba" ]]; then
+                argument="bathroom"
+            elif [[ "$2" == "bed" || "$2" == "be" ]]; then
+                argument="bed"
+            elif [[ "$2" == "crafts" || "$2" == "c" ]]; then
+                argument="crafts"
+            elif [[ "$2" == "desk" || "$2" == "d" ]]; then
+                argument="desk"
+            elif [[ "$2" == "kitchen" || "$2" == "k" ]]; then
+                argument="kitchen"
+            elif [[ "$2" == "studio" || "$2" == "s" ]]; then
+                argument="studio"
+            else
+                error_kill "translate_argument, camera, invalid argument: ${2}."
+            fi
+
         # Scene type.
         elif [[ "$1" == "scene_type" ]]; then
 
@@ -1732,8 +1731,8 @@
 
     alert_request_censor() {
 
-        alert_request_censor="${argument_current_censor_1}_${argument_current_camera_1}"
-        echo_quiet "Censor: ${argument_current_camera_1} ${argument_current_censor_1}."
+        alert_request_censor="${argument_current_censor_1}_${argument_current_scene_1}"
+        echo_quiet "Censor: ${argument_current_scene_1} ${argument_current_censor_1}."
 
     }
 
@@ -1772,8 +1771,8 @@
 
     alert_request_restriction() {
 
-        alert_request_restriction="${argument_current_restriction_1}_${argument_current_camera_1}"
-        echo_quiet "Restriction: ${argument_current_camera_1} ${argument_current_restriction_1}."
+        alert_request_restriction="${argument_current_restriction_1}_${argument_current_scene_1}"
+        echo_quiet "Restriction: ${argument_current_scene_1} ${argument_current_restriction_1}."
 
     }
 
@@ -1947,23 +1946,23 @@
             
 
             # All censored.
-            if [[ "$argument_current_camera_1" == "all" ]]; then
+            if [[ "$argument_current_scene_1" == "all" ]]; then
                 alert_request_censor_censored_all
 
             # Bathroom censored.
-            elif [[ "$argument_current_camera_1" == "bathroom" ]]; then
+            elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
                 alert_request_censor_censored_bathroom
 
             # Bed censored.
-            elif [[ "$argument_current_camera_1" == "bed" ]]; then
+            elif [[ "$argument_current_scene_1" == "bed" ]]; then
                 alert_request_censor_censored_bed
 
             # Desk censored.
-            elif [[ "$argument_current_camera_1" == "desk" ]]; then
+            elif [[ "$argument_current_scene_1" == "desk" ]]; then
                 alert_request_censor_censored_desk
 
             # Studio censored.
-            elif [[ "$argument_current_camera_1" == "studio" ]]; then
+            elif [[ "$argument_current_scene_1" == "studio" ]]; then
                 alert_request_censor_censored_studio
             else
                 error_kill "interpret_alert_censor."
@@ -2213,119 +2212,6 @@
 
     }
 
-    # Profile.
-
-    interpret_settings() {
-
-        echo_quiet "Interpreting Settings:"
-
-        position_right
-
-        # Scene quad.
-        if [[ "$1" == "scene_quad" || "$2" == "scene_quad" || "$3" == "scene_quad" || "$4" == "scene_quad" ]]; then
-            interpret_settings_scene_quad
-        fi
-
-        position_left
-
-    }
-        interpret_settings_scene_quad() {
-
-            # Anja.
-            if [[ "$argument_current_name_1" == "anja" ]]; then
-
-                # Location.
-                if [[ "$argument_current_camera_1" == "bathroom" ]]; then
-                    setting_update_scene_quad_anja_bathroom
-                elif [[ "$argument_current_camera_1" == "bed" ]]; then
-                    setting_update_scene_quad_anja_bed
-                #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
-                #    setting_update_scene_quad_anja_crafts
-                elif [[ "$argument_current_camera_1" == "desk" ]]; then
-                    setting_update_scene_quad_anja_desk
-                elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
-                    setting_update_scene_quad_anja_kitchen
-                elif [[ "$argument_current_camera_1" == "studio" ]]; then
-                    setting_update_scene_quad_anja_studio
-                else
-                    error_kill "interpret_settings_scene, argument_current_camera_1, anja."
-                fi
-
-            # Vaughan.
-            elif [[ "$argument_current_name_1" == "vaughan" ]]; then
-
-                # Location.
-                if [[ "$argument_current_camera_1" == "bathroom" ]]; then
-                    setting_update_scene_quad_vaughan_bathroom
-                elif [[ "$argument_current_camera_1" == "bed" ]]; then
-                    setting_update_scene_quad_vaughan_bed
-                #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
-                #    setting_update_scene_quad_vaughan_crafts
-                elif [[ "$argument_current_camera_1" == "desk" ]]; then
-                    setting_update_scene_quad_vaughan_desk
-                elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
-                    setting_update_scene_quad_vaughan_kitchen
-                elif [[ "$argument_current_camera_1" == "studio" ]]; then
-                    setting_update_scene_quad_vaughan_studio
-                else
-                    error_kill "interpret_settings_scene, argument_current_camera_1, vaughan."
-                fi
-
-            else
-                error_kill "interpret_settings_scene, argument_current_camera_1."
-            fi
-
-            if [[ -n "$argument_current_name_2" ]]; then
-
-                # Anja.
-                if [[ "$argument_current_name_2" == "anja" ]]; then
-
-                    # Location 2.
-                    if [[ "$argument_current_camera_2" == "bathroom" ]]; then
-                        setting_update_scene_quad_anja_bathroom
-                    elif [[ "$argument_current_camera_2" == "bed" ]]; then
-                        setting_update_scene_quad_anja_bed
-                    #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
-                    #    setting_update_scene_quad_anja_crafts
-                    elif [[ "$argument_current_camera_2" == "desk" ]]; then
-                        setting_update_scene_quad_anja_desk
-                    elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
-                        setting_update_scene_quad_anja_kitchen
-                    elif [[ "$argument_current_camera_2" == "studio" ]]; then
-                        setting_update_scene_quad_anja_studio
-                    else
-                        echo_verbose "interpret_settings_scene, argument_current_camera_2, anja."
-                    fi
-
-                # Vaughan.
-                elif [[ "$argument_current_name_2" == "vaughan" ]]; then
-
-                    # Location 2.
-                    if [[ "$argument_current_camera_2" == "bathroom" ]]; then
-                        setting_update_scene_quad_vaughan_bathroom
-                    elif [[ "$argument_current_camera_2" == "bed" ]]; then
-                        setting_update_scene_quad_vaughan_bed
-                    #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
-                    #    setting_update_scene_quad_vaughan_crafts
-                    elif [[ "$argument_current_camera_2" == "desk" ]]; then
-                        setting_update_scene_quad_vaughan_desk
-                    elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
-                        setting_update_scene_quad_vaughan_kitchen
-                    elif [[ "$argument_current_camera_2" == "studio" ]]; then
-                        setting_update_scene_quad_vaughan_studio
-                    else
-                        echo_verbose "interpret_settings_scene, argument_current_camera_2, vaughan."
-                    fi
-                else
-                    echo_verbose "interpret_settings_scene, argument_current_name_1"
-                fi
-
-            else
-                echo_quiet "Scene 2: no change requested."
-            fi
-
-        }
-
 # SETTING UPDATE  ################################################################################################################################################################################
 
     setting_update() {
@@ -2342,7 +2228,6 @@
         position_left
 
     }
-        # Input.
         setting_update_input() {
 
             status_check_playback
@@ -2604,7 +2489,6 @@
             fi
 
         }
-        # Output.
         setting_update_output() {
 
             status_check_playback
@@ -2818,7 +2702,6 @@
             fi
 
         }
-        # Censor.
         setting_update_censor() {
 
             echo_quiet "Censor:"
@@ -2828,7 +2711,7 @@
             if [[ "$argument_current_censor_1" == "censored" ]]; then
 
                 # All, profile.
-                if [[ -z "$argument_current_camera_1" ]]; then
+                if [[ -z "$argument_current_scene_1" ]]; then
 
                     # Censored.
                     if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
@@ -2851,12 +2734,12 @@
                     fi
 
                 # All, censor.
-                elif [[ "$argument_current_camera_1" == "all" ]]; then
+                elif [[ "$argument_current_scene_1" == "all" ]]; then
 
                     setting_update_censor_all_censored
 
                 # Bathroom.
-                elif [[ "$argument_current_camera_1" == "bathroom" ]]; then
+                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
 
                     setting_update_censor_bathroom_censored
 
@@ -2865,7 +2748,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Bed.
-                elif [[ "$argument_current_camera_1" == "bed" ]]; then
+                elif [[ "$argument_current_scene_1" == "bed" ]]; then
 
                     setting_update_censor_bed_censored
 
@@ -2874,7 +2757,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Desk.
-                elif [[ "$argument_current_camera_1" == "desk" ]]; then
+                elif [[ "$argument_current_scene_1" == "desk" ]]; then
 
                     setting_update_censor_desk_censored
 
@@ -2883,7 +2766,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Studio.
-                elif [[ "$argument_current_camera_1" == "studio" ]]; then
+                elif [[ "$argument_current_scene_1" == "studio" ]]; then
 
                     setting_update_censor_studio_censored
 
@@ -2898,7 +2781,7 @@
             # Uncensored.
             elif [[ "$argument_current_censor_1" == "uncensored" ]]; then
 
-                if [[ "$argument_current_camera_1" == "all" || -z "$argument_current_camera_1" ]]; then
+                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
 
                     setting_update_censor_all_uncensored
 
@@ -3042,7 +2925,6 @@
                     fi
 
                 }
-        # Restriction
         setting_update_restriction() {
 
             echo_quiet "Restriction:"
@@ -3053,7 +2935,7 @@
             if [[ "$argument_current_restriction_1" == "restricted" ]]; then
 
                 # All, profile.
-                if [[ -z "$argument_current_camera_1" ]]; then
+                if [[ -z "$argument_current_scene_1" ]]; then
 
                     # Restricted.
                     if [[ "$argument_current_restriction_1" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
@@ -3076,12 +2958,12 @@
                     fi
 
                 # Restriction, restricted.
-                elif [[ "$argument_current_camera_1" == "all" ]]; then
+                elif [[ "$argument_current_scene_1" == "all" ]]; then
 
                     setting_update_restriction_all_restricted
 
                 # Bathroom.
-                elif [[ "$argument_current_camera_1" == "bathroom" ]]; then
+                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
 
                     setting_update_restriction_bathroom_restricted
 
@@ -3090,7 +2972,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Bed.
-                elif [[ "$argument_current_camera_1" == "bed" ]]; then
+                elif [[ "$argument_current_scene_1" == "bed" ]]; then
 
                     setting_update_restriction_bed_restricted
 
@@ -3099,7 +2981,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Desk.
-                elif [[ "$argument_current_camera_1" == "desk" ]]; then
+                elif [[ "$argument_current_scene_1" == "desk" ]]; then
 
                     setting_update_restriction_desk_restricted
 
@@ -3108,7 +2990,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Studio.
-                elif [[ "$argument_current_camera_1" == "studio" ]]; then
+                elif [[ "$argument_current_scene_1" == "studio" ]]; then
 
                     setting_update_restriction_studio_restricted
 
@@ -3124,7 +3006,7 @@
             elif [[ "$argument_current_restriction_1" == "unrestricted" ]]; then
 
 
-                if [[ "$argument_current_camera_1" == "all" || -z "$argument_current_camera_1" ]]; then
+                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
 
                     setting_update_restriction_all_unrestricted
 
@@ -3267,434 +3149,180 @@
                     fi
 
                 }
-        # Scene.
         setting_update_scene() {
 
             # Quad.
             if [[ "$argument_current_scene_type" == "quad" ]]; then
 
                 # Anja.
-                if [[ "$argument_current_name_1" == "anja" ]]; then
+                if [[ "$argument_current_name_1" == "anja" || "$argument_current_name_2" == "anja" ]]; then
 
-                    # Location.
-                    if [[ "$argument_current_camera_1" == "bathroom" ]]; then
-                        setting_update_scene_quad_anja_bathroom
-                    elif [[ "$argument_current_camera_1" == "bed" ]]; then
-                        setting_update_scene_quad_anja_bed
-                    #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
-                    #    setting_update_scene_quad_anja_crafts
-                    elif [[ "$argument_current_camera_1" == "desk" ]]; then
-                        setting_update_scene_quad_anja_desk
-                    elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
-                        setting_update_scene_quad_anja_kitchen
-                    elif [[ "$argument_current_camera_1" == "studio" ]]; then
-                        setting_update_scene_quad_anja_studio
+                    # Name 1.
+                    if [[ "$argument_current_name_1" == "anja" ]]; then
+                        temp_argument_current_scene="argument_current_scene_1"
+
+                    # Name 2.
+                    elif [[ "$argument_current_name_2" == "anja" ]]; then
+                        temp_argument_current_scene="argument_current_scene_2"
+
+                    # Error.
                     else
-                        error_kill "interpret_settings_scene, argument_current_camera_1, anja."
+                        error_kill "setting_update_scene, anja, temp_argument_current_scene."
+                    fi
+
+                    # Bathroom.
+                    if [[ "${!temp_argument_current_scene}" == "bathroom" ]]; then
+                        setting_update_scene_quad 2 bathroom
+                        setting_update_scene_quad 4 window
+
+                    # Bed.
+                    elif [[ "${!temp_argument_current_scene}" == "bed" ]]; then
+                        setting_update_scene_quad 2 bed_overhead
+                        setting_update_scene_quad 4 window
+
+                    # Crafts.
+                    elif [[ "${!temp_argument_current_scene}" == "crafts" ]]; then
+                        error_kill "setting_update_scene, crafts scene disabled."
+                        # setting_update_scene_quad 2 crafts
+                        # setting_update_scene_quad 4 crafts_overhead
+
+                    # Desk.
+                    elif [[ "${!temp_argument_current_scene}" == "desk" ]]; then
+                        setting_update_scene_quad 2 desk_anja
+                        setting_update_scene_quad 4 window
+
+                    # Kitchen.
+                    elif [[ "${!temp_argument_current_scene}" == "kitchen" ]]; then
+                        setting_update_scene_quad 2 kitchen
+                        setting_update_scene_quad 4 kitchen_overhead
+
+                    # Studio.
+                    elif [[ "${!temp_argument_current_scene}" == "studio" ]]; then
+                        setting_update_scene_quad 2 studio
+                        setting_update_scene_quad 4 window
+
+                    # Error.
+                    else
+                        error_kill "setting_update_scene, anja, scene."
                     fi
 
                 # Vaughan.
-                elif [[ "$argument_current_name_1" == "vaughan" ]]; then
+                elif [[ "$argument_current_name_1" == "vaughan" || "$argument_current_name_2" == "vaughan" ]]; then
 
-                    # Location.
-                    if [[ "$argument_current_camera_1" == "bathroom" ]]; then
-                        setting_update_scene_quad_vaughan_bathroom
-                    elif [[ "$argument_current_camera_1" == "bed" ]]; then
-                        setting_update_scene_quad_vaughan_bed
-                    #elif [[ "$argument_current_camera_1" == "crafts" ]]; then
-                    #    setting_update_scene_quad_vaughan_crafts
-                    elif [[ "$argument_current_camera_1" == "desk" ]]; then
-                        setting_update_scene_quad_vaughan_desk
-                    elif [[ "$argument_current_camera_1" == "kitchen" ]]; then
-                        setting_update_scene_quad_vaughan_kitchen
-                    elif [[ "$argument_current_camera_1" == "studio" ]]; then
-                        setting_update_scene_quad_vaughan_studio
-                    else
-                        error_kill "interpret_settings_scene, argument_current_camera_1, vaughan."
-                    fi
+                    # Name 1.
+                    if [[ "$argument_current_name_1" == "vaughan" ]]; then
+                        temp_argument_current_scene="argument_current_scene_1"
 
-                else
-                    error_kill "interpret_settings_scene, argument_current_camera_1."
-                fi
-
-                # Second name.
-                if [[ -n "$argument_current_name_2" ]]; then
-
-                    # Anja.
-                    if [[ "$argument_current_name_2" == "anja" ]]; then
-
-                        # Location 2.
-                        if [[ "$argument_current_camera_2" == "bathroom" ]]; then
-                            setting_update_scene_quad_anja_bathroom
-                        elif [[ "$argument_current_camera_2" == "bed" ]]; then
-                            setting_update_scene_quad_anja_bed
-                        #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
-                        #    setting_update_scene_quad_anja_crafts
-                        elif [[ "$argument_current_camera_2" == "desk" ]]; then
-                            setting_update_scene_quad_anja_desk
-                        elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
-                            setting_update_scene_quad_anja_kitchen
-                        elif [[ "$argument_current_camera_2" == "studio" ]]; then
-                            setting_update_scene_quad_anja_studio
-                        else
-                            echo_verbose "interpret_settings_scene, argument_current_camera_2, anja."
-                        fi
-
-                    # Vaughan.
+                    # Name 2.
                     elif [[ "$argument_current_name_2" == "vaughan" ]]; then
+                        temp_argument_current_scene="argument_current_scene_2"
 
-                        # Location 2.
-                        if [[ "$argument_current_camera_2" == "bathroom" ]]; then
-                            setting_update_scene_quad_vaughan_bathroom
-                        elif [[ "$argument_current_camera_2" == "bed" ]]; then
-                            setting_update_scene_quad_vaughan_bed
-                        #elif [[ "$argument_current_camera_2" == "crafts" ]]; then
-                        #    setting_update_scene_quad_vaughan_crafts
-                        elif [[ "$argument_current_camera_2" == "desk" ]]; then
-                            setting_update_scene_quad_vaughan_desk
-                        elif [[ "$argument_current_camera_2" == "kitchen" ]]; then
-                            setting_update_scene_quad_vaughan_kitchen
-                        elif [[ "$argument_current_camera_2" == "studio" ]]; then
-                            setting_update_scene_quad_vaughan_studio
-                        else
-                            echo_verbose "interpret_settings_scene, argument_current_camera_2, vaughan."
-                        fi
-
-                    # Echo.
+                    # Error.
                     else
-                        echo_verbose "interpret_settings_scene, argument_current_name_2."
+                        error_kill "setting_update_scene, vaughan, temp_argument_current_scene."
                     fi
 
-                # Echo.
+                    # Bathroom.
+                    if [[ "${!temp_argument_current_scene}" == "bathroom" ]]; then
+                        setting_update_scene_quad 1 bathroom
+                        setting_update_scene_quad 3 desktop_dp1
+
+                    # Bed.
+                    elif [[ "${!temp_argument_current_scene}" == "bed" ]]; then
+                        setting_update_scene_quad 1 bed_overhead
+                        setting_update_scene_quad 3 desktop_dp1
+
+                    # Crafts.
+                    elif [[ "${!temp_argument_current_scene}" == "crafts" ]]; then
+                        error_kill "setting_update_scene, crafts scene disabled."
+                        # setting_update_scene_quad 1 crafts
+                        # setting_update_scene_quad 3 crafts_overhead
+
+                    # Desk.
+                    elif [[ "${!temp_argument_current_scene}" == "desk" ]]; then
+                        setting_update_scene_quad 1 desk_vaughan
+                        setting_update_scene_quad 3 desktop_dp1
+
+                    # Kitchen.
+                    elif [[ "${!temp_argument_current_scene}" == "kitchen" ]]; then
+                        setting_update_scene_quad 1 kitchen
+                        setting_update_scene_quad 3 kitchen_overhead
+
+                    # Studio.
+                    elif [[ "${!temp_argument_current_scene}" == "studio" ]]; then
+                        setting_update_scene_quad 1 studio
+                        setting_update_scene_quad 3 desktop_dp1
+
+                    # Error.
+                    else
+                        error_kill "setting_update_scene, argument_current_scene_1, vaughan, ${!temp_argument_current_scene}."
+                    fi
+
+                # Error.
                 else
-                    echo_quiet "Scene 2: no change requested."
+                    error_kill "setting_update_scene, argument_current_scene_1."
                 fi
 
             # Error.
             else
-                error_kill "setting_update_scene, argument_current_scene_type."
+                error_kill "setting_update_scene."
             fi
 
         }
-            # Quad Anja.
-            setting_update_scene_quad_anja_bathroom() {
+            setting_update_scene_quad() {
 
-                setting_update_scene_quad_2_bathroom
-                setting_update_scene_quad_4_window
+                status_check scene_quad
 
-            }
-            setting_update_scene_quad_anja_bed() {
+                temp_status_current_scene_quad="status_current_scene_quad_${1}"
 
-                setting_update_scene_quad_2_bed_overhead
-                setting_update_scene_quad_4_window
+                # Scene is already current.
+                if [[ "${!temp_status_current_scene_quad}" == "$2" ]]; then
 
-            }
-            setting_update_scene_quad_anja_crafts() {
+                    echo_quiet "${2}: already switched, skipping."
 
-                setting_update_scene_quad_2_crafts
-                setting_update_scene_quad_4_crafts_overhead
+                # Scene is not current.
+                elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
+                
+                    script_obs_cli unrestricted item show "${2}" --scene "quad_${1}"
+                    script_obs_cli unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
 
-            }
-            setting_update_scene_quad_anja_desk() {
+                    status_update_scene_quad $2 $1
 
-                setting_update_scene_quad_2_desk_anja
-                setting_update_scene_quad_4_window
-
-            }
-            setting_update_scene_quad_anja_kitchen() {
-
-                setting_update_scene_quad_2_kitchen
-                setting_update_scene_quad_4_kitchen_overhead
+                # Error.
+                else
+                    error_kill "setting_update_scene_quad."
+                fi
 
             }
-            setting_update_scene_quad_anja_studio() {
+                setting_update_scene_quad_input() {
 
-                setting_update_scene_quad_2_studio
-                setting_update_scene_quad_4_window
+                    status_check scene_quad
 
-            }
-            # Quad Vaughan.
-            setting_update_scene_quad_vaughan_bathroom() {
-
-                setting_update_scene_quad_1_bathroom
-                setting_update_scene_quad_3_desktop_dp1
-
-            }
-            setting_update_scene_quad_vaughan_bed() {
-
-                setting_update_scene_quad_1_bed_overhead
-                setting_update_scene_quad_3_desktop_dp1
-
-            }
-            setting_update_scene_quad_vaughan_desk() {
-
-                setting_update_scene_quad_1_desk_vaughan
-                setting_update_scene_quad_3_desktop_dp1
-
-            }
-            setting_update_scene_quad_vaughan_kitchen() {
-
-                setting_update_scene_quad_1_kitchen
-                setting_update_scene_quad_3_kitchen_overhead
-
-            }
-            setting_update_scene_quad_vaughan_studio() {
-
-                setting_update_scene_quad_1_studio
-                setting_update_scene_quad_3_desktop_dp1
-
-            }
-                # Quad 1.
-                setting_update_scene_quad_1_bathroom() {
-
-                    script_obs_cli unrestricted item hide "Bathroom" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad bathroom 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 bathroom."
+                    # Bathroom.
+                    if [[ "$status_current_scene_quad_1" == "bathroom" ||  "$status_current_scene_quad_2" == "bathroom" ||  "$status_current_scene_quad_3" == "bathroom" ||  "$status_current_scene_quad_4" == "bathroom" ]]; then
+                        setting_update_input_device_unmute 4
+                    elif [[ "$status_current_scene_quad_1" != "bathroom" ||  "$status_current_scene_quad_2" != "bathroom" ||  "$status_current_scene_quad_3" != "bathroom" ||  "$status_current_scene_quad_4" != "bathroom" ]]; then
+                        setting_update_input_device_mute 4
                     else
-                        error_kill "setting_update_scene_quad_2_bathroom"
+                        error_kill "setting_update_scene_quad_input, bathroom."
                     fi
 
-                }
-                setting_update_scene_quad_1_bed_overhead() {
-
-                    script_obs_cli unrestricted item show "Bed \(Overhead\)" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad bed 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 bed (overhead)."
+                    # Bed.
+                    if [[ "$status_current_scene_quad_1" == "bed_overhead" ||  "$status_current_scene_quad_2" == "bed_overhead" ||  "$status_current_scene_quad_3" == "bed_overhead" ||  "$status_current_scene_quad_4" == "bed_overhead" || "$status_current_scene_quad_1" == "crafts" ||  "$status_current_scene_quad_2" == "crafts" ||  "$status_current_scene_quad_3" == "crafts" ||  "$status_current_scene_quad_4" == "crafts" || "$status_current_scene_quad_1" == "desk_anja" ||  "$status_current_scene_quad_2" == "desk_anja" ||  "$status_current_scene_quad_3" == "desk_anja" ||  "$status_current_scene_quad_4" == "desk_anja" || "$status_current_scene_quad_1" == "desk_vaughan" ||  "$status_current_scene_quad_2" == "desk_vaughan" ||  "$status_current_scene_quad_3" == "desk_vaughan" ||  "$status_current_scene_quad_4" == "desk_vaughan" || "$status_current_scene_quad_1" == "studio" ||  "$status_current_scene_quad_2" == "studio" ||  "$status_current_scene_quad_3" == "studio" ||  "$status_current_scene_quad_4" == "studio" ]]; then
+                        setting_update_input_device_unmute 2
+                    elif [[ "$status_current_scene_quad_1" != "bed_overhead" ||  "$status_current_scene_quad_2" != "bed_overhead" ||  "$status_current_scene_quad_3" != "bed_overhead" ||  "$status_current_scene_quad_4" != "bed_overhead" || "$status_current_scene_quad_1" != "crafts" ||  "$status_current_scene_quad_2" != "crafts" ||  "$status_current_scene_quad_3" != "crafts" ||  "$status_current_scene_quad_4" != "crafts" || "$status_current_scene_quad_1" != "desk" ||  "$status_current_scene_quad_2" != "desk" ||  "$status_current_scene_quad_3" != "desk" ||  "$status_current_scene_quad_4" != "desk" || "$status_current_scene_quad_1" != "studio" ||  "$status_current_scene_quad_2" != "studio" ||  "$status_current_scene_quad_3" != "studio" ||  "$status_current_scene_quad_4" != "studio" ]]; then
+                        setting_update_input_device_mute 2
                     else
-                        error_kill "setting_update_scene_quad_1_bed_overhead."
+                        error_kill "setting_update_scene_quad_input, bed_overhead, crafts, desk, studio."
                     fi
 
-                }
-                setting_update_scene_quad_1_crafts() {
-
-                    script_obs_cli unrestricted item show "Crafts" --scene "Quad 1"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 crafts."
+                    # Kitchen.
+                    if [[ "$status_current_scene_quad_1" == "kitchen" ||  "$status_current_scene_quad_2" == "kitchen" ||  "$status_current_scene_quad_3" == "kitchen" ||  "$status_current_scene_quad_4" == "kitchen" ]]; then
+                        setting_update_input_device_unmute 3
+                    elif [[ "$status_current_scene_quad_1" != "kitchen" ||  "$status_current_scene_quad_2" != "kitchen" ||  "$status_current_scene_quad_3" != "kitchen" ||  "$status_current_scene_quad_4" != "kitchen" ]]; then
+                        setting_update_input_device_mute 3
                     else
-                        error_kill "setting_update_scene_quad_1_crafts."
-                    fi
-
-                }
-                setting_update_scene_quad_1_desk_vaughan() {
-
-                    script_obs_cli unrestricted item show "Desk \(Vaughan\)" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad desk 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 desk (Vaughan)."
-                    else
-                        error_kill "setting_update_scene_quad_1_desk_vaughan."
-                    fi
-
-                }
-                setting_update_scene_quad_1_kitchen() {
-
-                    script_obs_cli unrestricted item show "Kitchen" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 kitchen."
-                    else
-                        error_kill "setting_update_scene_quad_1_kitchen."
-                    fi
-
-                }
-                setting_update_scene_quad_1_studio() {
-
-                    script_obs_cli unrestricted item show "Studio" --scene "Quad 1"
-                    exit_1=$?
-
-                    status_update_scene_quad studio 1
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 1 studio."
-                    else
-                        error_kill "setting_update_scene_quad_1_studio."
-                    fi
-
-                }
-                # Quad 2.
-                setting_update_scene_quad_2_bathroom() {
-
-                    script_obs_cli unrestricted item show "Bathroom" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad bathroom 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 bathroom."
-                    else
-                        error_kill "setting_update_scene_quad_2_bathroom."
-                    fi
-
-                }
-                setting_update_scene_quad_2_crafts() {
-
-                    script_obs_cli unrestricted item show "Crafts" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 crafts."
-                    else
-                        error_kill "setting_update_scene_quad_2_crafts."
-                    fi
-
-                }
-                setting_update_scene_quad_2_bed_overhead() {
-
-                    script_obs_cli unrestricted item show "Bed \(Overhead\)" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad bed 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 bed (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_2_bed_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_2_desk_anja() {
-
-                    script_obs_cli unrestricted item show "Desk \(Anja\)" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad desk 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 desk (Anja)."
-                    else
-                        error_kill "setting_update_scene_quad_2_desk_anja."
-                    fi
-
-                }
-                setting_update_scene_quad_2_kitchen() {
-
-                    script_obs_cli unrestricted item show "Kitchen" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 kitchen."
-                    else
-                        error_kill "setting_update_scene_quad_2_kitchen."
-                    fi
-
-                }
-                setting_update_scene_quad_2_studio() {
-
-                    script_obs_cli unrestricted item show "Studio" --scene "Quad 2"
-                    exit_1=$?
-
-                    status_update_scene_quad studio 2
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 2 studio."
-                    else
-                        error_kill "setting_update_scene_quad_2_studio."
-                    fi
-
-                }
-                # Quad 3.
-                setting_update_scene_quad_3_crafts_overhead() {
-
-                    script_obs_cli unrestricted item show "Crafts \(Overhead\)" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 crafts (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_3_crafts_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_3_desktop_dp1() {
-
-                    script_obs_cli unrestricted item show "Desktop \(DP-1\)" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad screen 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 desktop DP-1."
-                    else
-                        error_kill "setting_update_scene_quad_3_desktop_dp1."
-                    fi
-
-                }
-                setting_update_scene_quad_3_kitchen_overhead() {
-
-                    script_obs_cli unrestricted item show "Kitchen \(Overhead\)" --scene "Quad 3"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 3
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 3 kitchen (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_3_kitchen_overhead."
-                    fi
-
-                }
-                # Quad 4.
-                setting_update_scene_quad_4_crafts_overhead() {
-
-                    script_obs_cli unrestricted item show "Crafts \(Overhead\)" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad crafts 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 crafts (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_2_crafts_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_4_kitchen_overhead() {
-
-                    script_obs_cli unrestricted item show "Kitchen \(Overhead\)" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad kitchen 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 kitchen (overhead)."
-                    else
-                        error_kill "setting_update_scene_quad_4_kitchen_overhead."
-                    fi
-
-                }
-                setting_update_scene_quad_4_window() {
-
-                    script_obs_cli unrestricted item show "Window" --scene "Quad 4"
-                    exit_1=$?
-
-                    status_update_scene_quad window 4
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Quad 4 window."
-                    else
-                        error_kill "setting_update_scene_quad_4_window."
+                        error_kill "setting_update_scene_quad_input, kitchen."
                     fi
 
                 }
@@ -5245,37 +4873,6 @@
     # Scene.
 
         # Input.
-
-        settings_update_scene_quad_input() {
-
-            # Bathroom.
-            if [[ "$status_current_scene_quad_1" == "bathroom" ||  "$status_current_scene_quad_2" == "bathroom" ||  "$status_current_scene_quad_3" == "bathroom" ||  "$status_current_scene_quad_4" == "bathroom" ]]; then
-                setting_update_input_device_unmute 4
-            elif [[ "$status_current_scene_quad_1" != "bathroom" ||  "$status_current_scene_quad_2" != "bathroom" ||  "$status_current_scene_quad_3" != "bathroom" ||  "$status_current_scene_quad_4" != "bathroom" ]]; then
-                setting_update_input_device_mute 4
-            else
-                error_kill "settings_update_scene_quad_input, bathroom."
-            fi
-
-            # Bed.
-            if [[ "$status_current_scene_quad_1" == "bed" ||  "$status_current_scene_quad_2" == "bed" ||  "$status_current_scene_quad_3" == "bed" ||  "$status_current_scene_quad_4" == "bed" || "$status_current_scene_quad_1" == "crafts" ||  "$status_current_scene_quad_2" == "crafts" ||  "$status_current_scene_quad_3" == "crafts" ||  "$status_current_scene_quad_4" == "crafts" || "$status_current_scene_quad_1" == "desk" ||  "$status_current_scene_quad_2" == "desk" ||  "$status_current_scene_quad_3" == "desk" ||  "$status_current_scene_quad_4" == "desk" || "$status_current_scene_quad_1" == "studio" ||  "$status_current_scene_quad_2" == "studio" ||  "$status_current_scene_quad_3" == "studio" ||  "$status_current_scene_quad_4" == "studio" ]]; then
-                setting_update_input_device_unmute 2
-            elif [[ "$status_current_scene_quad_1" != "bed" ||  "$status_current_scene_quad_2" != "bed" ||  "$status_current_scene_quad_3" != "bed" ||  "$status_current_scene_quad_4" != "bed" || "$status_current_scene_quad_1" != "crafts" ||  "$status_current_scene_quad_2" != "crafts" ||  "$status_current_scene_quad_3" != "crafts" ||  "$status_current_scene_quad_4" != "crafts" || "$status_current_scene_quad_1" != "desk" ||  "$status_current_scene_quad_2" != "desk" ||  "$status_current_scene_quad_3" != "desk" ||  "$status_current_scene_quad_4" != "desk" || "$status_current_scene_quad_1" != "studio" ||  "$status_current_scene_quad_2" != "studio" ||  "$status_current_scene_quad_3" != "studio" ||  "$status_current_scene_quad_4" != "studio" ]]; then
-                setting_update_input_device_mute 2
-            else
-                error_kill "settings_update_scene_quad_input, bed, crafts, desk, studio."
-            fi
-
-            # Kitchen.
-            if [[ "$status_current_scene_quad_1" == "kitchen" ||  "$status_current_scene_quad_2" == "kitchen" ||  "$status_current_scene_quad_3" == "kitchen" ||  "$status_current_scene_quad_4" == "kitchen" ]]; then
-                setting_update_input_device_unmute 3
-            elif [[ "$status_current_scene_quad_1" != "kitchen" ||  "$status_current_scene_quad_2" != "kitchen" ||  "$status_current_scene_quad_3" != "kitchen" ||  "$status_current_scene_quad_4" != "kitchen" ]]; then
-                setting_update_input_device_mute 3
-            else
-                error_kill "settings_update_scene_quad_input, kitchen."
-            fi
-
-        }
 
     # Streamdeck.
 
