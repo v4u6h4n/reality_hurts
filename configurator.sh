@@ -165,19 +165,25 @@
         
     }
 
+    echo_break() {
+
+        echo
+        echo
+        log
+        log
+
+    }
     echo_quiet() {
 
-        echo "$position$1"
-
-        log "$position$1"
+        echo "${position}$1"
+        log "${position}$1"
 
     }
     echo_verbose() {
 
         if [[ "$flag_verbose" == "yes" ]]; then
-
-            echo_quiet "$1"
-
+            echo "${position}DEBUG: $1"
+            log "${position}DEBUG: $1"
         else
             :
         fi
@@ -211,6 +217,78 @@
 
     }
 
+
+    error_check() {
+
+        # One check.
+        if [[ $1 -eq 1 ]]; then
+
+            if [[ $exit_1 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Two checks.
+        elif [[ $1 -eq 2 ]]; then
+            
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Three checks.
+        elif [[ $1 -eq 3 ]]; then
+            
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Four checks.
+        elif [[ $1 -eq 4 ]]; then
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 && $exit_4 -eq 0 ]]; then
+                exit_1=0
+            else
+                exit_1=1
+            fi
+
+        # Error.
+        else
+            error_kill "error_check, invalid check amount."
+        fi
+
+        # Check complete.
+        if [[ $exit_1 -eq 0 ]]; then
+
+            # Quiet.
+            if [[ "$2" == "quiet" ]]; then
+
+                echo_quiet "${3}"
+
+            # Verbose.
+            elif [[ "$2" == "verbose" ]]; then
+
+                echo_verbose "${3}"
+
+            # Error.
+            else
+                error_kill "error_check, invalid argument."
+            fi
+
+        # Error, check failed.
+        elif [[ $exit_1 -eq 1 ]]; then
+            error_kill "error_check, check failed: ${3}."
+        
+        # Error.
+        else
+            error_kill "error_check, uknown."
+        fi
+
+    }
     error_kill() {
 
         echo -e "${position}Error: \e[1;31m${1}\e[0m" >&2
@@ -881,6 +959,8 @@
 
     }
     command_source() {
+
+        echo_break
 
         echo_quiet "Source:"
 
@@ -2433,16 +2513,16 @@
 
                         # Alert played.
                         if [[ "$flag_alert_played" == "yes" ]]; then
-                            echo_verbose "DEBUG: flag_alert_played, yes."
+                            echo_verbose "flag_alert_played, yes."
 
                             # Restricted.
                             if [[ "$argument_current_restriction_1" == "restricted" || (-z "$argument_current_restriction_1"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                                echo_verbose "DEBUG: Restricted."
+                                echo_verbose "Restricted."
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
                             elif [[ "$argument_current_restriction_1" == "unrestricted" || (-z "$argument_current_restriction_1" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                echo_verbose "DEBUG: Unrestricted."
+                                echo_verbose "Unrestricted."
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
 
@@ -2453,7 +2533,7 @@
                         
                         # Error.
                         else
-                            echo_verbose "DEBUG: flag_alert_played, no."
+                            echo_verbose "flag_alert_played, no."
                         fi
                     
                     # Error.
@@ -2685,7 +2765,7 @@
 
                     # Error.
                     else
-                        error_verbose "DEBUG: flag_setting_update_output_device_default_cycle, no."
+                        error_verbose "flag_setting_update_output_device_default_cycle, no."
                     fi
                 
                 # Error.
@@ -4736,6 +4816,8 @@
 
     setting_update_playback_playback() {
 
+        echo "$1"
+
         echo_quiet "Playback: ${1}"
 
         position_right
@@ -4743,9 +4825,8 @@
         systemctl --user stop playback_monitor
         echo_quiet "playback_monitor stopped."
 
-        temp_setting_update_playback_playback="setting_update_playback_playback_${1}"
-
-        ${!temp_setting_update_playback_playback}
+        temp_setting_update_playback_playback="setting_update_playback_playback_$1"
+        ${temp_setting_update_playback_playback}
 
         systemctl --user start playback_monitor
         echo_quiet "playback_monitor started."
@@ -4800,78 +4881,6 @@
 
         playerctl --player playerctld next
         echo_quiet "Skip to next track."
-
-    }
-
-    error_check() {
-
-        # One check.
-        if [[ $1 -eq 1 ]]; then
-
-            if [[ $exit_1 -eq 0 ]]; then
-                exit_1=0
-            else
-                exit_1=1
-            fi
-
-        # Two checks.
-        elif [[ $1 -eq 2 ]]; then
-            
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                exit_1=0
-            else
-                exit_1=1
-            fi
-
-        # Three checks.
-        elif [[ $1 -eq 3 ]]; then
-            
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 ]]; then
-                exit_1=0
-            else
-                exit_1=1
-            fi
-
-        # Four checks.
-        elif [[ $1 -eq 4 ]]; then
-
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 && $exit_3 -eq 0 && $exit_4 -eq 0 ]]; then
-                exit_1=0
-            else
-                exit_1=1
-            fi
-
-        # Error.
-        else
-            error_kill "error_check, invalid check amount."
-        fi
-
-        # Check complete.
-        if [[ $exit_1 -eq 0 ]]; then
-
-            # Quiet.
-            if [[ "$2" == "quiet" ]]; then
-
-                echo_quiet "${3}."
-
-            # Verbose.
-            elif [[ "$2" == "verbose" ]]; then
-
-                echo_verbose "${3}."
-
-            # Error.
-            else
-                error_kill "error_check, invalid argument."
-            fi
-
-        # Error, check failed.
-        elif [[ $exit_1 -eq 1 ]]; then
-            error_kill "error_check, check failed: ${3}."
-        
-        # Error.
-        else
-            error_kill "error_check, uknown."
-        fi
 
     }
 
