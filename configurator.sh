@@ -2228,6 +2228,7 @@
         position_left
 
     }
+
         setting_update_input() {
 
             status_check_playback
@@ -2237,27 +2238,22 @@
 
             # Muted, unmuted.
             if [[ "$argument_current_input_1" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
-
                 echo_verbose "Muted, unmuted."
 
             # Unmuted, muted.
             elif [[ "$argument_current_input_1" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
-
                 echo_verbose "Unmuted, muted."
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-
                     echo_verbose "Playing."
 
                     # Null_sink_1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        
                         echo_verbose "Output device default: ${status_current_output_device_default}."
 
                     # Headphones
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-
                         echo_verbose "Output device default: ${status_current_output_device_default}."
 
                         # Restricted.
@@ -2281,13 +2277,16 @@
 
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
+                    echo_verbose "Paused."
 
                     # Restricted.
                     if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "restricted" ]]; then
+                        echo_verbose "Restricted."
                         setting_update_input_obs_restricted_unmute
 
                     # Unrestricted.
                     elif [[ ("$argument_current_restriction_1" == "unrestricted" || -z "$argument_current_restriction_1") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                        echo_verbose "Unrestricted."
                         setting_update_input_obs_restricted_unmute
                         setting_update_input_obs_unrestricted_unmute
                     
@@ -2489,6 +2488,7 @@
             fi
 
         }
+
         setting_update_output() {
 
             status_check_playback
@@ -2702,6 +2702,7 @@
             fi
 
         }
+
         setting_update_censor() {
 
             echo_quiet "Censor:"
@@ -2925,6 +2926,7 @@
                     fi
 
                 }
+
         setting_update_restriction() {
 
             echo_quiet "Restriction:"
@@ -3149,6 +3151,7 @@
                     fi
 
                 }
+
         setting_update_scene() {
 
             # Quad.
