@@ -491,7 +491,7 @@
 
         alert_play
         
-        setting_update_censor
+        setting_update censor input output
 
         position_left
 
@@ -922,7 +922,7 @@
 
         alert_play
 
-        setting_update_restriction
+        setting_update restriction input output
 
     }
     command_scene() {
