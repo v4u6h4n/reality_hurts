@@ -391,7 +391,7 @@
 
             command_channel twitch reality_hurts update passive morning
 
-            command_scene anja studio vaughan desk
+            command_scene quad anja studio vaughan desk
 
         # Sleeping.
         elif [[ $current_hour -eq 21 ]]; then
@@ -402,7 +402,7 @@
 
             command_channel twitch reality_hurts update sleeping sleeping
 
-            command_scene anja bed vaughan studio
+            command_scene quad anja bed vaughan studio
 
             command_profile uc ur m m
 
@@ -660,8 +660,15 @@
     }
     command_output() {
 
+        translate_argument action $1
+        argument_current_action_1="${argument}"
+
+        echo_quiet "Output: $argument_current_action_1"
+
+        position_right
+
         # Cycle.
-        if [[ "$1" == "cycle" || "$1" == "c" ]]; then
+        if [[ "$argument_current_action_1" == "cycle" ]]; then
 
             echo_quiet "Output: cycle."
 
@@ -676,35 +683,29 @@
 
             position_left
 
-        # Link.
-        elif [[ "$1" == "link" || "$1" == "l" ]]; then
+        # Reset.
+        elif [[ "$argument_current_action_1" == "reset" ]]; then
 
-            # Reset.
-            if [[ "$2" == "reset" || "$2" == "r" ]]; then
+            echo_quiet "Output: link reset"
 
-                echo_quiet "Output: link reset"
+            position_right
 
-                position_right
+            status_check_output_device all
 
-                status_check_output_device all
+            setting_update_output_device_unlink all
+            setting_update_output_device_link all
 
-                setting_update_output_device_unlink all
-                setting_update_output_device_link all
+            setting_update_output_device_default speaker_1
+            setting_update_output_device_default null_sink_1
 
-                setting_update_output_device_default speaker_1
-                setting_update_output_device_default null_sink_1
+            alert_request_output_link_reset
+            alert_play
 
-                alert_request_output_link_reset
-                alert_play
+            setting_update input output
 
-                setting_update input output
-
-            # Error.
-            else
-                error_kill "command_output, link, invalid argument."
-            fi
+        # Error.
         else
-            error_kill "command_output, invalid argument."
+            error_kill "command_output, invalid argument: $argument_current_action_1."
         fi
 
     }
@@ -867,7 +868,7 @@
 
         # Error.
         else
-            error_kill "command_playback, invalid argument."
+            error_kill "command_playback, invalid argument: $argument_current_action_1."
         fi
 
     }
@@ -1031,14 +1032,26 @@
         # Action.
         if [[ "$1" == "action" ]]; then
 
-            if [[ "$2" == "down" || "$2" == "d" ]]; then
+            if [[ "$2" == "back" || "$2" == "b" ]]; then
+                argument="back"
+            elif [[ "$2" == "cycle" || "$2" == "c" ]]; then
+                argument="cycle"
+            elif [[ "$2" == "down" || "$2" == "d" ]]; then
                 argument="down"
+            elif [[ "$2" == "forward" || "$2" == "f" ]]; then
+                argument="forward"
             elif [[ "$2" == "monitor" || "$2" == "m" ]]; then
                 argument="monitor"
+            elif [[ "$2" == "next" || "$2" == "n" ]]; then
+                argument="next"
+            elif [[ "$2" == "previous" || "$2" == "p" ]]; then
+                argument="previous"
             elif [[ "$2" == "query" || "$2" == "q" ]]; then
                 argument="query"
-            elif [[ "$2" == "refresh" || "$2" == "r" ]]; then
+            elif [[ "$2" == "refresh" || "$2" == "rf" ]]; then
                 argument="refresh"
+            elif [[ "$2" == "reset" || "$2" == "rs" ]]; then
+                argument="reset"
             elif [[ "$2" == "select" || "$2" == "s" ]]; then
                 argument="select"
             elif [[ "$2" == "toggle" || "$2" == "t" ]]; then
@@ -2309,6 +2322,230 @@
 
     }
 
+        setting_update_censor() {
+
+            echo_quiet "Censor:"
+
+            position_right
+
+            if [[ "$argument_current_censor_1" == "censored" ]]; then
+
+                # All, profile.
+                if [[ -z "$argument_current_scene_1" ]]; then
+
+                    # Censored.
+                    if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
+                        setting_update_censor_all_censored
+
+                    # Uncensored.
+                    elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
+                        setting_update_censor_all_uncensored
+                        
+                    # Uncensored, already uncensored.
+                    elif [[ ("$argument_current_censor_1" == "uncensored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "uncensored" ]]; then
+                        echo_verbose "Censor: uncensored (unchanged)."
+
+                    # Censored, already censored.
+                    elif [[ ("$argument_current_censor_1" == "censored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "censored" ]]; then
+                        echo_verbose "Censor: censored (unchanged)."
+
+                    else
+                        error_kill "setting_update_censor, profile."
+                    fi
+
+                # All, censor.
+                elif [[ "$argument_current_scene_1" == "all" ]]; then
+
+                    setting_update_censor_all_censored
+
+                # Bathroom.
+                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
+
+                    setting_update_censor_bathroom_censored
+
+                    setting_update_censor_bed_uncensored
+                    setting_update_censor_desk_uncensored
+                    setting_update_censor_studio_uncensored
+
+                # Bed.
+                elif [[ "$argument_current_scene_1" == "bed" ]]; then
+
+                    setting_update_censor_bed_censored
+
+                    setting_update_censor_bathroom_uncensored
+                    setting_update_censor_desk_uncensored
+                    setting_update_censor_studio_uncensored
+
+                # Desk.
+                elif [[ "$argument_current_scene_1" == "desk" ]]; then
+
+                    setting_update_censor_desk_censored
+
+                    setting_update_censor_bathroom_uncensored
+                    setting_update_censor_bed_uncensored
+                    setting_update_censor_studio_uncensored
+
+                # Studio.
+                elif [[ "$argument_current_scene_1" == "studio" ]]; then
+
+                    setting_update_censor_studio_censored
+
+                    setting_update_censor_bathroom_uncensored
+                    setting_update_censor_bed_uncensored
+                    setting_update_censor_desk_uncensored
+
+                else
+                    error_kill "setting_update_censor, censored."
+                fi
+
+            # Uncensored.
+            elif [[ "$argument_current_censor_1" == "uncensored" ]]; then
+
+                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
+
+                    setting_update_censor_all_uncensored
+
+                else
+                    error_kill "setting_update_censor, uncensored."
+                fi
+
+            # Error.
+            else
+                error_kill "setting_update_censor."
+            fi
+
+            position_left
+
+        }
+            setting_update_censor_all_censored() {
+
+                setting_update_censor_bathroom_censored
+                setting_update_censor_bed_censored
+                setting_update_censor_desk_censored
+                setting_update_censor_studio_censored
+
+            }
+                setting_update_censor_bathroom_censored() {
+                    
+                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bathroom)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Bathroom: censored."
+                        alert_play="yes"
+                        alert_request_censor="bathroom"
+                    else
+                        error_kill "setting_update_censor_bathroom_censored."
+                    fi
+
+                }
+                setting_update_censor_bed_censored() {
+                    
+                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bed)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Bed: censored."
+                        alert_play="yes"
+                        alert_request_censor="bed"
+                    else
+                        error_kill "setting_update_censor_bed_censored."
+                    fi
+
+                }
+                setting_update_censor_desk_censored() {
+                    
+                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Desk + Kitchen)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Desk: censored."
+                        alert_play="yes"
+                        alert_request_censor="desk"
+                    else
+                        error_kill "setting_update_censor_desk_censored."
+                    fi
+
+                }
+                setting_update_censor_studio_censored() {
+                    
+                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Studio)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Studio: censored."
+                        alert_play="yes"
+                        alert_request_censor="studio"
+                    else
+                        error_kill "setting_update_censor_studio_censored."
+                    fi
+
+                }
+            setting_update_censor_all_uncensored() {
+
+                setting_update_censor_bathroom_uncensored
+                setting_update_censor_bed_uncensored
+                setting_update_censor_desk_uncensored
+                setting_update_censor_studio_uncensored
+
+            }
+                setting_update_censor_bathroom_uncensored() {
+                    
+                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bathroom)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Bathroom: uncensored."
+                        alert_play="yes"
+                        alert_request_censor="bathroom"
+                    else
+                        error_kill "setting_update_censor_bathroom_uncensored."
+                    fi
+
+                }
+                setting_update_censor_bed_uncensored() {
+                    
+                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bed)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Bed: uncensored."
+                        alert_play="yes"
+                        alert_request_censor="bed"
+                    else
+                        error_kill "setting_update_censor_bed_uncensored."
+                    fi
+
+                }
+                setting_update_censor_desk_uncensored() {
+                    
+                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Desk + Kitchen)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Desk: uncensored."
+                        alert_play="yes"
+                        alert_request_censor="desk"
+                    else
+                        error_kill "setting_update_censor_desk_uncensored."
+                    fi
+
+                }
+                setting_update_censor_studio_uncensored() {
+                    
+                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Studio)"
+                    exit_1=$?
+
+                    if [[ $exit_1 -eq 0 ]]; then
+                        echo_quiet "Studio: uncensored."
+                        alert_play="yes"
+                        alert_request_censor="studio"
+                    else
+                        error_kill "setting_update_censor_studio_uncensored."
+                    fi
+
+                }
+
         setting_update_input() {
 
             status_check_playback
@@ -2410,7 +2647,7 @@
                         fi
 
                         # Playback toggle.
-                        if [[ "$flag_setting_update_output_device_default_cycle" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
+                        if [[ "$argument_current_action_1" == "cycle" || "$argument_current_action_1" == "monitor" || "$argument_current_action_1" == "toggle" ]]; then
 
                             echo_verbose "Output cycle or playback monitor."
 
@@ -2436,7 +2673,7 @@
                         
                         # Error.
                         else
-                            echo_verbose "flag_setting_update_output_device_default_cycle, argument_current_action_1."
+                            echo_verbose "argument_current_action_1."
                         fi
 
                     # Headphones.
@@ -2696,7 +2933,7 @@
                         echo_verbose "Null Sink 1."
 
                         # Restore pre alert settings.
-                        if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" ]]; then
+                        if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" || "$argument_current_action_1" == "toggle" ]]; then
 
                             # Restricted.
                             if [[ ("$argument_current_restriction_1" == "restricted" || -z "$argument_current_restriction_1") &&  "$status_check_profile_restriction" == "restricted" ]]; then
@@ -2740,11 +2977,11 @@
                     echo_verbose "Paused."
 
                     # Output cycle: yes.
-                    if [[ "$flag_setting_update_output_device_default_cycle" == "yes" ]]; then
+                    if [[ "$argument_current_action_1" == "cycle" ]]; then
                         echo_verbose "Output cycle: yes."
 
                     # Playback monitor.
-                    elif [[ "$argument_current_action_1" == "monitor" ]]; then
+                    elif [[ "$argument_current_action_1" == "monitor" || "$argument_current_action_1" == "toggle" ]]; then
                         echo_verbose "Playback monitor."
 
                         # Restricted.
@@ -2765,7 +3002,7 @@
 
                     # Error.
                     else
-                        error_verbose "flag_setting_update_output_device_default_cycle, no."
+                        echo_verbose "argument_current_action_1."
                     fi
                 
                 # Error.
@@ -2779,230 +3016,6 @@
             fi
 
         }
-
-        setting_update_censor() {
-
-            echo_quiet "Censor:"
-
-            position_right
-
-            if [[ "$argument_current_censor_1" == "censored" ]]; then
-
-                # All, profile.
-                if [[ -z "$argument_current_scene_1" ]]; then
-
-                    # Censored.
-                    if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                        setting_update_censor_all_censored
-
-                    # Uncensored.
-                    elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
-                        setting_update_censor_all_uncensored
-                        
-                    # Uncensored, already uncensored.
-                    elif [[ ("$argument_current_censor_1" == "uncensored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "uncensored" ]]; then
-                        echo_verbose "Censor: uncensored (unchanged)."
-
-                    # Censored, already censored.
-                    elif [[ ("$argument_current_censor_1" == "censored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "censored" ]]; then
-                        echo_verbose "Censor: censored (unchanged)."
-
-                    else
-                        error_kill "setting_update_censor, profile."
-                    fi
-
-                # All, censor.
-                elif [[ "$argument_current_scene_1" == "all" ]]; then
-
-                    setting_update_censor_all_censored
-
-                # Bathroom.
-                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
-
-                    setting_update_censor_bathroom_censored
-
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_desk_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Bed.
-                elif [[ "$argument_current_scene_1" == "bed" ]]; then
-
-                    setting_update_censor_bed_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_desk_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Desk.
-                elif [[ "$argument_current_scene_1" == "desk" ]]; then
-
-                    setting_update_censor_desk_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Studio.
-                elif [[ "$argument_current_scene_1" == "studio" ]]; then
-
-                    setting_update_censor_studio_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_desk_uncensored
-
-                else
-                    error_kill "setting_update_censor, censored."
-                fi
-
-            # Uncensored.
-            elif [[ "$argument_current_censor_1" == "uncensored" ]]; then
-
-                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
-
-                    setting_update_censor_all_uncensored
-
-                else
-                    error_kill "setting_update_censor, uncensored."
-                fi
-
-            # Error.
-            else
-                error_kill "setting_update_censor."
-            fi
-
-            position_left
-
-        }
-            setting_update_censor_all_censored() {
-
-                setting_update_censor_bathroom_censored
-                setting_update_censor_bed_censored
-                setting_update_censor_desk_censored
-                setting_update_censor_studio_censored
-
-            }
-                setting_update_censor_bathroom_censored() {
-                    
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bathroom)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Bathroom: censored."
-                        alert_play="yes"
-                        alert_request_censor="bathroom"
-                    else
-                        error_kill "setting_update_censor_bathroom_censored."
-                    fi
-
-                }
-                setting_update_censor_bed_censored() {
-                    
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bed)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Bed: censored."
-                        alert_play="yes"
-                        alert_request_censor="bed"
-                    else
-                        error_kill "setting_update_censor_bed_censored."
-                    fi
-
-                }
-                setting_update_censor_desk_censored() {
-                    
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Desk + Kitchen)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Desk: censored."
-                        alert_play="yes"
-                        alert_request_censor="desk"
-                    else
-                        error_kill "setting_update_censor_desk_censored."
-                    fi
-
-                }
-                setting_update_censor_studio_censored() {
-                    
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Studio)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Studio: censored."
-                        alert_play="yes"
-                        alert_request_censor="studio"
-                    else
-                        error_kill "setting_update_censor_studio_censored."
-                    fi
-
-                }
-            setting_update_censor_all_uncensored() {
-
-                setting_update_censor_bathroom_uncensored
-                setting_update_censor_bed_uncensored
-                setting_update_censor_desk_uncensored
-                setting_update_censor_studio_uncensored
-
-            }
-                setting_update_censor_bathroom_uncensored() {
-                    
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bathroom)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Bathroom: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="bathroom"
-                    else
-                        error_kill "setting_update_censor_bathroom_uncensored."
-                    fi
-
-                }
-                setting_update_censor_bed_uncensored() {
-                    
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bed)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Bed: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="bed"
-                    else
-                        error_kill "setting_update_censor_bed_uncensored."
-                    fi
-
-                }
-                setting_update_censor_desk_uncensored() {
-                    
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Desk + Kitchen)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Desk: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="desk"
-                    else
-                        error_kill "setting_update_censor_desk_uncensored."
-                    fi
-
-                }
-                setting_update_censor_studio_uncensored() {
-                    
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Studio)"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_quiet "Studio: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="studio"
-                    else
-                        error_kill "setting_update_censor_studio_uncensored."
-                    fi
-
-                }
 
         setting_update_restriction() {
 
@@ -3946,7 +3959,7 @@
                 fi
 
             }
-            setting_update_input_obs_restrisettingcted_unmute_microphone_2() {
+            setting_update_input_obs_restricted_unmute_microphone_2() {
 
                 script_obs_cli restricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
@@ -4316,9 +4329,6 @@
             else
                 error_kill "setting_update_output_device_default_cycle."
             fi
-
-            flag_setting_update_output_device_default_cycle="yes"
-            output_cycle="yes"
 
             position_left
 
