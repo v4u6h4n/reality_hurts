@@ -2099,17 +2099,11 @@
             if [[ "$output_device_default_ID" != "$output_device_null_sink_1_ID" ]]; then
                 echo_info "Output: null sink 1."
                 alert_request_output_cycle_speakers
-                if [[ "$current_status_playback" == "Playing" && "$status_check_profile_input" == "unmuted" ]]; then
-                    alert_request_profile_input_muted
-                fi
 
             # Headphones.
             elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "yes" ]]; then
                 echo_info "Output: ${output_device_headphones_1_name}."
                 alert_request_output_cycle_headphones_1
-                if [[ "$current_status_playback" == "Playing" && "$status_check_profile_input" == "unmuted" ]]; then
-                    alert_request_profile_input_unmuted
-                fi
 
             # Reset connections.
             elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "no" ]]; then
