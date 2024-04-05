@@ -3060,11 +3060,11 @@
                             echo_debug "flag_alert_played, yes."
 
                             # Input unmuted.
-                            if [[ "$arg_profile_input" == "unmuted" ]]; then
+                            if [[ ("$arg_profile_input" == "unmuted" || -z "$arg_profile_input") &&  "$status_check_profile_input" == "unmuted"  ]]; then
                                 echo_debug "status_check_profile_input, unmuted."
 
                             # Input muted.
-                            elif [[ "$arg_profile_input" == "muted" ]]; then
+                            elif [[ ("$arg_profile_input" == "muted" || -z "$arg_profile_input") &&  "$status_check_profile_input" == "muted"  ]]; then
                                 echo_debug "status_check_profile_input, muted."
 
                                 # Restricted.
