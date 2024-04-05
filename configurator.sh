@@ -3009,7 +3009,14 @@
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
                         echo_debug "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
-                    
+
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" ]]; then
+                            setting_update_playback_playback play
+                        else
+                            echo_debug "No alert played, skipping playback resume."
+                        fi
+                        
                     # Error.
                     else
                         echo_error "status_current_output_device_default."
