@@ -1689,6 +1689,13 @@
                 flag_alert_played="yes"
             fi
 
+            # Profile audio.
+            if [[ -n "$alert_request_profile_audio" ]]; then
+                echo_info "Profile: audio ${alert_request_profile_audio}."
+                paplay "${directory_alerts}profile_audio_${alert_request_profile_audio}.wav"
+                flag_alert_played="yes"
+            fi
+
             # Profile censor.
             if [[ -n "$alert_request_profile_censor" ]]; then
                 echo_info "Profile: censor ${alert_request_profile_censor}."
@@ -1707,13 +1714,6 @@
             if [[ -n "$alert_request_profile_input" ]]; then
                 echo_info "Profile: input ${alert_request_profile_input}."
                 paplay "${directory_alerts}profile_input_${alert_request_profile_input}.wav"
-                flag_alert_played="yes"
-            fi
-
-            # Profile output.
-            if [[ -n "$alert_request_profile_output" ]]; then
-                echo_info "Profile: output ${alert_request_profile_output}."
-                paplay "${directory_alerts}profile_output_${alert_request_profile_output}.wav"
                 flag_alert_played="yes"
             fi
 
@@ -2164,6 +2164,29 @@
 
         }
         interpret_alert_profile_input() {
+
+            # Input muted, output muted.
+            if [[ "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
+                alert_request_profile_audio="muted"
+                echo_info "Alert: input muted."
+
+
+            # Input muted, output unmuted.
+            elif [[ "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
+                alert_request_profile_input_muted
+
+            # Input unmuted, output unmuted.
+            elif [[ "$arg_profile_input" == "unmuted" && "$arg_profile_output" == "unmuted" ]]; then
+                alert_request_profile_audio="unmuted"
+                echo_info "Alert: input muted."
+
+            # Error.
+            else
+                echo_error "interpret_alert_profile_input."
+            fi
+
+        }
+        interpret_alert_profile_output() {
 
             # Requested status muted, checked status unmuted.
             if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
@@ -2863,22 +2886,22 @@
                             echo_error "arg_profile_restriction, status_check_profile_restriction."
                         fi
 
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-                            setting_update_playback_playback play
-                        else
-                            echo_info "No alert played, skipping playback resume."
-                        fi
-                        
                     # Headphones.
                     elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo "$status_current_output_device_default."
+                        echo_info "$status_current_output_device_default."
                     
                     # Error.
                     else
                         echo_error "status_current_output_device_default."
                     fi
 
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" ]]; then
+                        setting_update_playback_playback play
+                    else
+                        echo_info "No alert played, skipping playback resume."
+                    fi
+                        
                 # Paused.
                 elif [[ "$current_status_playback" != "Playing" ]]; then
                     echo_debug "Paused."
