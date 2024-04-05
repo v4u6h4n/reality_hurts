@@ -46,7 +46,7 @@ class Bot(commands.Bot):
 
     def refresh_access_token(self):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configurator.sh')
-        subprocess.run([script_path, "-s", "rbhb", "-ch", "t", "rbh", "r"])
+        subprocess.run([script_path, "-s", "rbhb", "-v", "-ch", "t", "rbh", "rf"])
 
     def get_access_token(self):
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
@@ -122,7 +122,7 @@ class Bot(commands.Bot):
             return
 
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "rbhu", "-ch", "t", "rh", "ud", "p"]
+        arguments_scene = ["-s", "rbhu", "-v", "-ch", "t", "rh", "ud", "p"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
@@ -171,7 +171,7 @@ class Bot(commands.Bot):
             return
 
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "rbhu", "-sc", "q"]
+        arguments_scene = ["-s", "rbhu", "-v", "-sc", "q"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
