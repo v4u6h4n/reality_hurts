@@ -2606,11 +2606,11 @@
                         echo_debug "Output device default: ${status_current_output_device_default}."
 
                         # Restricted.
-                        if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                             setting_update_input_obs_restricted_unmute
 
                         # Unrestricted.
-                        elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                             setting_update_input_obs_restricted_unmute
                             setting_update_input_obs_unrestricted_unmute
                         
@@ -2629,12 +2629,12 @@
                     echo_debug "Paused."
 
                     # Restricted.
-                    if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                    if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                         echo_debug "Restricted."
                         setting_update_input_obs_restricted_unmute
 
                     # Unrestricted.
-                    elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                    elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                         echo_debug "Unrestricted."
                         setting_update_input_obs_restricted_unmute
                         setting_update_input_obs_unrestricted_unmute
@@ -2684,14 +2684,14 @@
                             echo_debug "Output cycle or playback monitor."
 
                             # Restricted.
-                            if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                                 
                                 echo_debug "Restricted."
 
                                 setting_update_input_obs_restricted_mute
 
                             # Unrestricted.
-                            elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                 
                                 echo_debug "Unrestricted."
                                 
@@ -2716,12 +2716,12 @@
                         if [[ "$flag_alert_played" == "yes" || -n "$status_check_playback_toggle" ]]; then
 
                             # Restricted.
-                            if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                                 echo_debug "Restricted."
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
-                            elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                 echo_debug "Unrestricted."
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
@@ -2755,19 +2755,19 @@
                             echo_debug "alert played or playback monitor."
 
                             # Restricted.
-                            if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                                 echo_debug "Restricted."
                                 setting_update_input_obs_restricted_unmute
 
                             # Unrestricted.
-                            elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                 echo_debug "Unrestricted."
                                 setting_update_input_obs_restricted_unmute
                                 setting_update_input_obs_unrestricted_unmute
                             
                             # Error.
                             else
-                                echo_error "restriction."
+                                echo_error "arg_profile_restriction: $arg_profile_restriction, status_check_profile_restriction: $status_check_profile_restriction."
                             fi
                         
                         # Error.
@@ -2871,12 +2871,12 @@
                         echo_debug "$status_current_output_device_default."
 
                         # Restricted.
-                        if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
                             echo_debug "Restricted."
                             setting_update_output_obs_restricted_unmute
 
                         # Unrestricted.
-                        elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                             echo_debug "Unrestricted."
                             setting_update_output_obs_restricted_unmute
                             setting_update_output_obs_unrestricted_unmute
@@ -2914,12 +2914,12 @@
                     elif [[ "$arg_profile_input" == "muted" ]]; then
                         
                         # Restricted.
-                        if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
                             echo_debug "Restricted."
                             setting_update_output_obs_restricted_unmute
                         
                         # Unrestricted.
-                        elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                             echo_debug "Unrestricted."
                             setting_update_output_obs_restricted_unmute
                             setting_update_output_obs_unrestricted_unmute
@@ -2979,12 +2979,12 @@
                         if [[ "$flag_alert_played" == "yes" || "$argument_current_action_1" == "monitor" || "$argument_current_action_1" == "toggle" ]]; then
 
                             # Restricted.
-                            if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") &&  "$status_check_profile_restriction" == "restricted" ]]; then
+                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
                                 echo_debug "Restricted."
                                 setting_update_output_obs_restricted_unmute
 
                             # Unrestricted.
-                            elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                 echo_debug "Unrestricted."
                                 setting_update_output_obs_restricted_unmute
                                 setting_update_output_obs_unrestricted_unmute
@@ -3038,12 +3038,12 @@
                             if [[ "$status_check_profile_input" == "unmuted" ]]; then
 
                                 # Restricted.
-                                if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
+                                if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
                                     echo_debug "Restricted."
                                     setting_update_output_obs_restricted_mute
 
                                 # Unrestricted.
-                                elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                     echo_debug "Unrestricted."
                                     setting_update_output_obs_restricted_mute
                                     setting_update_output_obs_unrestricted_mute
@@ -3075,12 +3075,12 @@
                                 echo_debug "status_check_profile_input, muted."
 
                                 # Restricted.
-                                if [[ ("$arg_profile_restriction" == "restricted" || -z "$arg_profile_restriction") &&  "$status_check_profile_restriction" == "restricted"  ]]; then
+                                if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
                                     echo_debug "Restricted."
                                     setting_update_output_obs_restricted_unmute
 
                                 # Unrestricted.
-                                elif [[ ("$arg_profile_restriction" == "unrestricted" || -z "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                                elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
                                     echo_debug "Unrestricted."
                                     setting_update_output_obs_restricted_unmute
                                     setting_update_output_obs_unrestricted_unmute
