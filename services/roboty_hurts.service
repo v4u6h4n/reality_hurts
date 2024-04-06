@@ -3,7 +3,7 @@ Description=Roboty Hurts
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/main/roboty_hurts.py'
+ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/main/services/roboty_hurts.py'
 Restart=always
 RestartSec=10
 
