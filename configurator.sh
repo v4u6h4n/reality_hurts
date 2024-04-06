@@ -17,22 +17,22 @@
                 # Microphones.
 
                 input_device_microphone_1_name="Rode"
-                input_device_microphone_1_name_obs="Mic: Mobile"
+                input_device_microphone_1_name_obs="mic_mobile"
                 input_device_microphone_1_script_name="microphone_mobile"
                 input_device_microphone_1_node_name="alsa_input.usb-R__DE_Wireless_PRO_RX_8006784B-01.analog-stereo"
 
                 input_device_microphone_2_name="Microphone Desk"
-                input_device_microphone_2_name_obs="Mic: Desk"
+                input_device_microphone_2_name_obs="mic_desk"
                 input_device_microphone_2_script_name="microphone_desk"
                 input_device_microphone_2_node_name="alsa_input.usb-046d_Logitech_StreamCam_11536225-02.analog-stereo"
 
                 input_device_microphone_3_name="Microphone Kitchen"
-                input_device_microphone_3_name_obs="Mic: Kitchen"
+                input_device_microphone_3_name_obs="mic_kitchen"
                 input_device_microphone_3_script_name="microphone_kitchen"
                 input_device_microphone_3_node_name="alsa_input.usb-Generic_Modern_USB-C_Speaker_0V33FRW211801X-00.analog-stereo"
 
                 input_device_microphone_4_name="Microphone Bathroom"
-                input_device_microphone_4_name_obs="Mic: Bathroom"
+                input_device_microphone_4_name_obs="mic_bathroom"
                 input_device_microphone_4_script_name="microphone_bathroom"
                 input_device_microphone_4_node_name="alsa_input.usb-Generic_Modern_USB-C_Speaker_0V33BW6222101X-00.analog-stereo"
 
@@ -481,9 +481,9 @@
         argument_current_censor_1="${argument}"
 
         translate_argument scene $2
-        argument_current_scene_1="${argument}"
+        arg_scene_1="${argument}"
 
-        echo_info "Censor: ${argument_current_censor_1} ${argument_current_scene_1}:"
+        echo_info "Censor: ${argument_current_censor_1} ${arg_scene_1}:"
 
         position_right
 
@@ -910,9 +910,9 @@
         arg_profile_restriction="${argument}"
 
         translate_argument scene $2
-        argument_current_scene_1="${argument}"
+        arg_scene_1="${argument}"
 
-        request_status_restriction="${arg_profile_restriction}_${argument_current_scene_1}"
+        request_status_restriction="${arg_profile_restriction}_${arg_scene_1}"
 
         echo_info "Restriction: ${request_status_restriction}:"
 
@@ -931,13 +931,13 @@
         if [[ -n "$1" && -n "$2" && -n "$3" ]]; then
 
             translate_argument scene_type $1
-            argument_current_scene_type="${argument}"
+            arg_scene_type="${argument}"
 
             translate_argument name $2
-            argument_current_name_1="${argument}"
+            arg_name_1="${argument}"
 
             translate_argument scene $3
-            argument_current_scene_1="${argument}"
+            arg_scene_1="${argument}"
 
         else
             echo_error "command_scene, invalid arguments: ${1} ${2} ${3}."
@@ -947,10 +947,10 @@
         if [[ -n "$4" && -n "$5" ]]; then
 
             translate_argument name $4
-            argument_current_name_2="${argument}"
+            arg_name_2="${argument}"
 
             translate_argument scene $5
-            argument_current_scene_2="${argument}"
+            arg_scene_2="${argument}"
 
         else
             echo_debug "Only one scene change requested, skipping."
@@ -1459,6 +1459,22 @@
         fi
 
     }
+    script_obs_cli() {
+
+        # status_check_obs_websocket ${1}
+
+        status_check_obs_websocket $1
+
+        if [[ "$flag_script_obs_cli" != "executed" ]]; then
+
+            flag_script_obs_cli="executed"
+            source ~/.venvs/bin/activate
+
+        fi
+
+        python "${directory_script}obs_cli.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
+
+    }
     operation_random() {
 
         echo_debug "Random:"
@@ -1490,6 +1506,11 @@
         echo_info "Done."
 
         position_left
+
+    }
+    operation_pipe() {
+
+        echo "--instance $@" > /tmp/obs_cli
 
     }
     operation_speak() {
@@ -1689,10 +1710,10 @@
                 flag_alert_played="yes"
             fi
 
-            # Profile audio.
-            if [[ -n "$alert_request_profile_audio" ]]; then
-                echo_info "Profile: audio ${alert_request_profile_audio}."
-                paplay "${directory_alerts}profile_audio_${alert_request_profile_audio}.wav"
+            # Profile restriction.
+            if [[ -n "$alert_request_profile_restriction" ]]; then
+                echo_info "Profile: restriction ${alert_request_profile_restriction}."
+                paplay "${directory_alerts}profile_restriction_${alert_request_profile_restriction}.wav"
                 flag_alert_played="yes"
             fi
 
@@ -1703,10 +1724,10 @@
                 flag_alert_played="yes"
             fi
 
-            # Profile restriction.
-            if [[ -n "$alert_request_profile_restriction" ]]; then
-                echo_info "Profile: restriction ${alert_request_profile_restriction}."
-                paplay "${directory_alerts}profile_restriction_${alert_request_profile_restriction}.wav"
+            # Profile audio.
+            if [[ -n "$alert_request_profile_audio" ]]; then
+                echo_info "Profile: audio ${alert_request_profile_audio}."
+                paplay "${directory_alerts}profile_audio_${alert_request_profile_audio}.wav"
                 flag_alert_played="yes"
             fi
 
@@ -1825,8 +1846,8 @@
 
     alert_request_censor() {
 
-        alert_request_censor="${argument_current_censor_1}_${argument_current_scene_1}"
-        echo_info "Censor: ${argument_current_scene_1} ${argument_current_censor_1}."
+        alert_request_censor="${argument_current_censor_1}_${arg_scene_1}"
+        echo_info "Censor: ${arg_scene_1} ${argument_current_censor_1}."
 
     }
 
@@ -1865,8 +1886,8 @@
 
     alert_request_restriction() {
 
-        alert_request_restriction="${arg_profile_restriction}_${argument_current_scene_1}"
-        echo_info "Restriction: ${argument_current_scene_1} ${arg_profile_restriction}."
+        alert_request_restriction="${arg_profile_restriction}_${arg_scene_1}"
+        echo_info "Restriction: ${arg_scene_1} ${arg_profile_restriction}."
 
     }
 
@@ -2040,23 +2061,23 @@
             
 
             # All censored.
-            if [[ "$argument_current_scene_1" == "all" ]]; then
+            if [[ "$arg_scene_1" == "all" ]]; then
                 alert_request_censor_censored_all
 
             # Bathroom censored.
-            elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
+            elif [[ "$arg_scene_1" == "bathroom" ]]; then
                 alert_request_censor_censored_bathroom
 
             # Bed censored.
-            elif [[ "$argument_current_scene_1" == "bed" ]]; then
+            elif [[ "$arg_scene_1" == "bed" ]]; then
                 alert_request_censor_censored_bed
 
             # Desk censored.
-            elif [[ "$argument_current_scene_1" == "desk" ]]; then
+            elif [[ "$arg_scene_1" == "desk" ]]; then
                 alert_request_censor_censored_desk
 
             # Studio censored.
-            elif [[ "$argument_current_scene_1" == "studio" ]]; then
+            elif [[ "$arg_scene_1" == "studio" ]]; then
                 alert_request_censor_censored_studio
             else
                 echo_error "interpret_alert_censor."
@@ -2349,7 +2370,7 @@
             if [[ "$argument_current_censor_1" == "censored" ]]; then
 
                 # All, profile.
-                if [[ -z "$argument_current_scene_1" ]]; then
+                if [[ -z "$arg_scene_1" ]]; then
 
                     # Censored.
                     if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
@@ -2372,12 +2393,12 @@
                     fi
 
                 # All, censor.
-                elif [[ "$argument_current_scene_1" == "all" ]]; then
+                elif [[ "$arg_scene_1" == "all" ]]; then
 
                     setting_update_censor_all_censored
 
                 # Bathroom.
-                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
+                elif [[ "$arg_scene_1" == "bathroom" ]]; then
 
                     setting_update_censor_bathroom_censored
 
@@ -2386,7 +2407,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Bed.
-                elif [[ "$argument_current_scene_1" == "bed" ]]; then
+                elif [[ "$arg_scene_1" == "bed" ]]; then
 
                     setting_update_censor_bed_censored
 
@@ -2395,7 +2416,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Desk.
-                elif [[ "$argument_current_scene_1" == "desk" ]]; then
+                elif [[ "$arg_scene_1" == "desk" ]]; then
 
                     setting_update_censor_desk_censored
 
@@ -2404,7 +2425,7 @@
                     setting_update_censor_studio_uncensored
 
                 # Studio.
-                elif [[ "$argument_current_scene_1" == "studio" ]]; then
+                elif [[ "$arg_scene_1" == "studio" ]]; then
 
                     setting_update_censor_studio_censored
 
@@ -2419,7 +2440,7 @@
             # Uncensored.
             elif [[ "$argument_current_censor_1" == "uncensored" ]]; then
 
-                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
+                if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
 
                     setting_update_censor_all_uncensored
 
@@ -2511,6 +2532,7 @@
                     
                     script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bathroom)"
                     exit_1=$?
+
 
                     if [[ $exit_1 -eq 0 ]]; then
                         echo_info "Bathroom: uncensored."
@@ -3128,7 +3150,7 @@
             if [[ "$arg_profile_restriction" == "restricted" ]]; then
 
                 # All, profile.
-                if [[ -z "$argument_current_scene_1" ]]; then
+                if [[ -z "$arg_scene_1" ]]; then
 
                     # Restricted.
                     if [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
@@ -3151,12 +3173,12 @@
                     fi
 
                 # Restriction, restricted.
-                elif [[ "$argument_current_scene_1" == "all" ]]; then
+                elif [[ "$arg_scene_1" == "all" ]]; then
 
                     setting_update_restriction_all_restricted
 
                 # Bathroom.
-                elif [[ "$argument_current_scene_1" == "bathroom" ]]; then
+                elif [[ "$arg_scene_1" == "bathroom" ]]; then
 
                     setting_update_restriction_bathroom_restricted
 
@@ -3165,7 +3187,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Bed.
-                elif [[ "$argument_current_scene_1" == "bed" ]]; then
+                elif [[ "$arg_scene_1" == "bed" ]]; then
 
                     setting_update_restriction_bed_restricted
 
@@ -3174,7 +3196,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Desk.
-                elif [[ "$argument_current_scene_1" == "desk" ]]; then
+                elif [[ "$arg_scene_1" == "desk" ]]; then
 
                     setting_update_restriction_desk_restricted
 
@@ -3183,7 +3205,7 @@
                     setting_update_restriction_studio_unrestricted
 
                 # Studio.
-                elif [[ "$argument_current_scene_1" == "studio" ]]; then
+                elif [[ "$arg_scene_1" == "studio" ]]; then
 
                     setting_update_restriction_studio_restricted
 
@@ -3199,7 +3221,7 @@
             elif [[ "$arg_profile_restriction" == "unrestricted" ]]; then
 
 
-                if [[ "$argument_current_scene_1" == "all" || -z "$argument_current_scene_1" ]]; then
+                if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
 
                     setting_update_restriction_all_unrestricted
 
@@ -3346,52 +3368,52 @@
         setting_update_scene() {
 
             # Quad.
-            if [[ "$argument_current_scene_type" == "quad" ]]; then
+            if [[ "$arg_scene_type" == "quad" ]]; then
 
                 # Anja.
-                if [[ "$argument_current_name_1" == "anja" || "$argument_current_name_2" == "anja" ]]; then
+                if [[ "$arg_name_1" == "anja" || "$arg_name_2" == "anja" ]]; then
 
                     # Name 1.
-                    if [[ "$argument_current_name_1" == "anja" ]]; then
-                        temp_argument_current_scene="argument_current_scene_1"
+                    if [[ "$arg_name_1" == "anja" ]]; then
+                        temp_arg_scene="arg_scene_1"
 
                     # Name 2.
-                    elif [[ "$argument_current_name_2" == "anja" ]]; then
-                        temp_argument_current_scene="argument_current_scene_2"
+                    elif [[ "$arg_name_2" == "anja" ]]; then
+                        temp_arg_scene="arg_scene_2"
 
                     # Error.
                     else
-                        echo_error "setting_update_scene, anja, temp_argument_current_scene."
+                        echo_error "setting_update_scene, anja, temp_arg_scene."
                     fi
 
                     # Bathroom.
-                    if [[ "${!temp_argument_current_scene}" == "bathroom" ]]; then
+                    if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
                         setting_update_scene_quad 2 bathroom
                         setting_update_scene_quad 4 window
 
                     # Bed.
-                    elif [[ "${!temp_argument_current_scene}" == "bed" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "bed" ]]; then
                         setting_update_scene_quad 2 bed_overhead
                         setting_update_scene_quad 4 window
 
                     # Crafts.
-                    elif [[ "${!temp_argument_current_scene}" == "crafts" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
                         echo_error "setting_update_scene, crafts scene disabled."
                         # setting_update_scene_quad 2 crafts
                         # setting_update_scene_quad 4 crafts_overhead
 
                     # Desk.
-                    elif [[ "${!temp_argument_current_scene}" == "desk" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "desk" ]]; then
                         setting_update_scene_quad 2 desk_anja
                         setting_update_scene_quad 4 window
 
                     # Kitchen.
-                    elif [[ "${!temp_argument_current_scene}" == "kitchen" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
                         setting_update_scene_quad 2 kitchen
                         setting_update_scene_quad 4 kitchen_overhead
 
                     # Studio.
-                    elif [[ "${!temp_argument_current_scene}" == "studio" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "studio" ]]; then
                         setting_update_scene_quad 2 studio
                         setting_update_scene_quad 4 window
 
@@ -3400,61 +3422,66 @@
                         echo_error "setting_update_scene, anja, scene."
                     fi
 
+                # Info.
+                else
+                    echo_info "No Anja scene change requested."
+                fi
+
                 # Vaughan.
-                elif [[ "$argument_current_name_1" == "vaughan" || "$argument_current_name_2" == "vaughan" ]]; then
+                if [[ "$arg_name_1" == "vaughan" || "$arg_name_2" == "vaughan" ]]; then
 
                     # Name 1.
-                    if [[ "$argument_current_name_1" == "vaughan" ]]; then
-                        temp_argument_current_scene="argument_current_scene_1"
+                    if [[ "$arg_name_1" == "vaughan" ]]; then
+                        temp_arg_scene="arg_scene_1"
 
                     # Name 2.
-                    elif [[ "$argument_current_name_2" == "vaughan" ]]; then
-                        temp_argument_current_scene="argument_current_scene_2"
+                    elif [[ "$arg_name_2" == "vaughan" ]]; then
+                        temp_arg_scene="arg_scene_2"
 
                     # Error.
                     else
-                        echo_error "setting_update_scene, vaughan, temp_argument_current_scene."
+                        echo_error "setting_update_scene, vaughan, temp_arg_scene."
                     fi
 
                     # Bathroom.
-                    if [[ "${!temp_argument_current_scene}" == "bathroom" ]]; then
+                    if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
                         setting_update_scene_quad 1 bathroom
                         setting_update_scene_quad 3 desktop_dp1
 
                     # Bed.
-                    elif [[ "${!temp_argument_current_scene}" == "bed" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "bed" ]]; then
                         setting_update_scene_quad 1 bed_overhead
                         setting_update_scene_quad 3 desktop_dp1
 
                     # Crafts.
-                    elif [[ "${!temp_argument_current_scene}" == "crafts" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
                         echo_error "setting_update_scene, crafts scene disabled."
                         # setting_update_scene_quad 1 crafts
                         # setting_update_scene_quad 3 crafts_overhead
 
                     # Desk.
-                    elif [[ "${!temp_argument_current_scene}" == "desk" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "desk" ]]; then
                         setting_update_scene_quad 1 desk_vaughan
                         setting_update_scene_quad 3 desktop_dp1
 
                     # Kitchen.
-                    elif [[ "${!temp_argument_current_scene}" == "kitchen" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
                         setting_update_scene_quad 1 kitchen
                         setting_update_scene_quad 3 kitchen_overhead
 
                     # Studio.
-                    elif [[ "${!temp_argument_current_scene}" == "studio" ]]; then
+                    elif [[ "${!temp_arg_scene}" == "studio" ]]; then
                         setting_update_scene_quad 1 studio
                         setting_update_scene_quad 3 desktop_dp1
 
                     # Error.
                     else
-                        echo_error "setting_update_scene, argument_current_scene_1, vaughan, ${!temp_argument_current_scene}."
+                        echo_error "setting_update_scene, arg_scene_1, vaughan, ${!temp_arg_scene}."
                     fi
 
-                # Error.
+                # Info.
                 else
-                    echo_error "setting_update_scene, argument_current_scene_1."
+                    echo_info "No Vaughan scene change requested."
                 fi
 
             # Error.
@@ -3465,6 +3492,10 @@
         }
             setting_update_scene_quad() {
 
+                echo_info "Scene: quad"
+
+                position_right
+
                 status_check scene_quad
 
                 temp_status_current_scene_quad="status_current_scene_quad_${1}"
@@ -3472,20 +3503,24 @@
                 # Scene is already current.
                 if [[ "${!temp_status_current_scene_quad}" == "$2" ]]; then
 
-                    echo_info "${2}: already switched, skipping."
+                    echo_info "Quad $1: $2: already switched, skipping."
 
                 # Scene is not current.
                 elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
                 
-                    script_obs_cli unrestricted item show "${2}" --scene "quad_${1}"
-                    script_obs_cli unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
+                    operation_socket unrestricted item show "${2}" --scene "quad_${1}"
+                    operation_socket unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
 
-                    status_update_scene_quad $2 $1
+                    echo_info "Quad $1: $2: switched."
+
+                    status_update scene_quad $1 $2
 
                 # Error.
                 else
                     echo_error "setting_update_scene_quad."
                 fi
+
+                position_left
 
             }
                 setting_update_scene_quad_input() {
@@ -3840,7 +3875,7 @@
         }
             setting_update_input_obs_restricted_mute_microphone_1() {
 
-                script_obs_cli restricted input mute "$input_device_microphone_1_name_obs"
+                operation_pipe 2 input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3852,7 +3887,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_2() {
 
-                script_obs_cli restricted input mute "$input_device_microphone_2_name_obs"
+                operation_pipe 2 input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3864,7 +3899,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_3() {
 
-                script_obs_cli restricted input mute "$input_device_microphone_3_name_obs"
+                operation_pipe 2 input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3876,7 +3911,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_4() {
 
-                script_obs_cli restricted input mute "$input_device_microphone_4_name_obs"
+                operation_pipe 2 input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3903,7 +3938,7 @@
         }
             setting_update_input_obs_unrestricted_mute_microphone_1() {
 
-                script_obs_cli unrestricted input mute "$input_device_microphone_1_name_obs"
+                operation_pipe 1 input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3915,7 +3950,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_2() {
 
-                script_obs_cli unrestricted input mute "$input_device_microphone_2_name_obs"
+                operation_pipe 1 input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3927,7 +3962,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_3() {
 
-                script_obs_cli unrestricted input mute "$input_device_microphone_3_name_obs"
+                operation_pipe 1 input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3939,7 +3974,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_4() {
 
-                script_obs_cli unrestricted input mute "$input_device_microphone_4_name_obs"
+                operation_pipe 1 input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4050,7 +4085,7 @@
         }
             setting_update_input_obs_restricted_unmute_microphone_1() {
 
-                script_obs_cli restricted input unmute "$input_device_microphone_1_name_obs"
+                operation_pipe 2 input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4062,7 +4097,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_2() {
 
-                script_obs_cli restricted input unmute "$input_device_microphone_2_name_obs"
+                operation_pipe 2 input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4074,7 +4109,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_3() {
 
-                script_obs_cli restricted input unmute "$input_device_microphone_3_name_obs"
+                operation_pipe 2 input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4086,7 +4121,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_4() {
 
-                script_obs_cli restricted input unmute "$input_device_microphone_4_name_obs"
+                operation_pipe 2 input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4111,9 +4146,21 @@
             position_left
 
         }
+            setting_update_input_obs_unrestricted_unmute_microphone_all() {
+
+                operation_pipe 1 input unmute "$input_device_microphone_1_name_obs"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "OBS unrestricted, microphone 1: unmuted."
+                else
+                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_1."
+                fi
+
+            }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
-                script_obs_cli unrestricted input unmute "$input_device_microphone_1_name_obs"
+                operation_pipe 1 input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4125,7 +4172,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_2() {
 
-                script_obs_cli unrestricted input unmute "$input_device_microphone_2_name_obs"
+                operation_pipe 1 input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4137,7 +4184,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_3() {
 
-                script_obs_cli unrestricted input unmute "$input_device_microphone_3_name_obs"
+                operation_pipe 1 input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4149,7 +4196,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_4() {
 
-                script_obs_cli unrestricted input unmute "$input_device_microphone_4_name_obs"
+                operation_pipe 1 input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4368,23 +4415,6 @@
         else
             echo_error "setting_update_light_litra_power_toggle, invalid status: ${status_current_light_litra_power}."
         fi
-
-    }
-
-    # OBS.
-
-    script_obs_cli() {
-
-        status_check_obs_websocket ${1}
-
-        if [[ "$flag_script_obs_cli" != "executed" ]]; then
-
-            flag_script_obs_cli="executed"
-            source ~/.venvs/bin/activate
-
-        fi
-
-        python "${directory_script}obs_cli.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
 
     }
 
@@ -5556,7 +5586,7 @@
 
     status_update() {
 
-        echo_info "Profile status updates:"
+        echo_info "Status update:"
         position_right
 
         # Censor.
@@ -5577,7 +5607,7 @@
         fi
         # Scene.
         if [[ "$1" == "scene_quad" || "$2" == "scene_quad" || "$3" == "scene_quad" || "$4" == "scene_quad" ]]; then
-            status_update_scene_quad
+            status_update_scene_quad $2 $3
         fi
 
         position_left
@@ -5585,14 +5615,20 @@
     }
         status_update_scene_quad() {
 
-            echo "$1" > "${directory_data_private}scene_quad_${2}.txt"
+            echo_info "Scene: quad"
+
+            position_right
+
+            echo "$2" > "${directory_data_private}scene_quad_${1}.txt"
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Quad ${2}: ${1}."
+                echo_info "Quad ${1}: ${2}."
             else
                 echo_error "status_update_scene_quad."
             fi
+
+            position_left
 
         }
 
