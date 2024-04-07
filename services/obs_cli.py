@@ -7,6 +7,7 @@ import re
 import os
 import obsws_python as obs
 import sys
+from threading import Thread
 
 directory_pipe = "/tmp/obs_cli"
 
@@ -16,7 +17,6 @@ def read_client(file_path):
         port = int(file.readline().strip())
         password = file.readline().strip()
     return name, port, password
-
 
 class ObsItemNotFoundException(ValueError):
     pass
@@ -277,95 +277,91 @@ def record_toggle(client):
     return client.toggle_record()
 
 
+def handle_command(command, clients):
+    try:
+        command_args = command.split()
+
+        parser = argparse.ArgumentParser(description='OBS_CLI')
+        parser.add_argument('--client', type=str, required=True, help='Client name.')
+        subparsers = parser.add_subparsers(dest='operation', help='Operation to perform')
+
+        input_parser = subparsers.add_parser('input', help='Input audio subcommand.')
+        input_parser.add_argument('subcommand', choices=['mute', 'unmute', 'toggle'], help='Subcommand')
+        input_parser.add_argument('input', type=str, help='Input name.')
+
+        source_parser = subparsers.add_parser('source', help='Source subcommand.')
+        source_parser.add_argument('subcommand', choices=['hide', 'show'], help='Subcommand')
+        source_parser.add_argument('scene', type=str, help='Scene name.')
+        source_parser.add_argument('source', type=str, help='Source name.')
+
+        args = parser.parse_args(command_args)
+
+        client = clients.get(args.client)
+
+        if client:
+            if args.operation == 'input':
+                if args.subcommand == 'mute':
+                    mute_input(client, args.input)
+                elif args.subcommand == 'unmute':
+                    unmute_input(client, args.input)
+                else:
+                    print("Invalid input subcommand: " + args.subcommand)
+
+            elif args.operation == 'source':
+                if args.subcommand == 'hide':
+                    hide_source(client, args.source, args.scene)
+                elif args.subcommand == 'show':
+                    show_source(client, args.source, args.scene)
+                else:
+                    print("Invalid source subcommand: " + args.subcommand)
+            else:
+                print("Invalid argument.")
+                return
+        else:
+            print("Invalid client name.")
+            return
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+def command_listener(clients):
+    try:
+        while True:
+            with open(directory_pipe, 'r') as pipe:
+                command = pipe.readline().strip()
+                if command:
+                    t = Thread(target=handle_command, args=(command, clients))
+                    t.start()
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
 def main():
     logging.basicConfig()
 
     clients_directory = "/media/storage/Streaming/Software/data/"
-    
+
     try:
         client_directories = {}
 
-        # List files in the specified directory
         for filename in os.listdir(clients_directory):
-            # Check if the file name matches the pattern 'obs_client_#.txt'
             if filename.startswith("obs_client_") and filename.endswith(".txt"):
-                # Extract the client name from the first line of the file
                 with open(os.path.join(clients_directory, filename), 'r') as f:
                     client_name = f.readline().strip()
-                # Store the client name and file path in the dictionary
                 client_directories[client_name] = filename
 
         clients = {}
 
-        # Iterate over the discovered client directories
         for client_name, filename in client_directories.items():
             client_name, client_port, client_password = read_client(os.path.join(clients_directory, filename))
             clients[client_name] = obs.ReqClient(host='localhost', port=client_port, password=client_password)
 
-        while True:
-            with open(directory_pipe, 'r') as pipe:
-                command = pipe.readline().strip()
-
-                command_args = command.split()
-
-                # Client.
-                parser = argparse.ArgumentParser(description='OBS_CLI')
-                parser.add_argument('--client', type=str, required=True, help='Client name.')
-                subparsers = parser.add_subparsers(dest='operation', help='Operation to perform')
-
-                # Input.
-                input_parser = subparsers.add_parser('input', help='Input audio subcommand.')
-                input_parser.add_argument('subcommand', choices=['mute', 'unmute', 'toggle'], help='Subcommand')
-                input_parser.add_argument('input', type=str, help='Input name.')
-
-                # Source.
-                source_parser = subparsers.add_parser('source', help='Source subcommand.')
-                source_parser.add_argument('subcommand', choices=['hide', 'show'], help='Subcommand')
-                source_parser.add_argument('scene', type=str, help='Scene name.')
-                source_parser.add_argument('source', type=str, help='Source name.')
-
-                args = parser.parse_args(command_args)
-
-                client = clients.get(args.client)
-
-                
-
-                # Client.
-                if client:
-
-                    # Input.
-                    if args.operation == 'input':
-                        if args.subcommand == 'mute':
-                            mute_input(client, args.input)
-                        elif args.subcommand == 'unmute':
-                            unmute_input(client, args.input)
-                        else:
-                            print("Invalid input subcommand: " + args.subcommand)
-
-                    # Source.
-                    elif args.operation == 'source':
-                        if args.subcommand == 'hide':
-                            hide_source(client, args.source, args.scene)
-                        elif args.subcommand == 'show':
-                            show_source(client, args.source, args.scene)
-                        else:
-                            print("Invalid source subcommand: " + args.subcommand)
-
-                    # Error: argument.
-                    else:
-                        print("Invalid argument.")
-                        continue
-
-                # Error: client.
-                else:
-                    print("Invalid client name.")
-                    continue
+        command_thread = Thread(target=command_listener, args=(clients,))
+        command_thread.start()
 
     except Exception as e:
-        # Handle exceptions here
         print(f"Error: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
