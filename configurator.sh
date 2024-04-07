@@ -4924,14 +4924,6 @@
 
     }
 
-    # Restriction.
-
-    # Scene.
-
-        # Input.
-
-    # Streamdeck.
-
     setting_update_streamdeck_page() {
 
         echo_info "Streamdeck page updates:"
@@ -5646,8 +5638,6 @@
 
         }
 
-    # Censor.
-
     status_update_profile_censor() {
 
         # Requested status censored, checked status uncensored.
@@ -5840,9 +5830,6 @@
             fi
 
         }
-
-    # Light.
-    
     status_update_light_litra_brightness() {
 
         if [[ -n "$status_request_light_litra_brightness" ]]; then
@@ -5857,9 +5844,6 @@
         echo "$status_request_light_litra_power" > "${directory_data_private}light_litra_power.txt"
 
     }
-
-    # Scene.
-
 
 # SCRIPT ######################################################################################################################################################################################
 
