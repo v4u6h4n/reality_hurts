@@ -3421,8 +3421,8 @@
                 # Scene is not current.
                 elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
                 
-                    operation_socket unrestricted source show "${2}" "quad_${1}"
-                    operation_socket unrestricted source hide "${!temp_status_current_scene_quad}" "quad_${1}"
+                    operation_pipe unrestricted source show "quad_${1}" "${2}"
+                    operation_pipe unrestricted source hide "quad_${1}" "${!temp_status_current_scene_quad}"
 
                     echo_info "Quad $1: $2: switched."
 
