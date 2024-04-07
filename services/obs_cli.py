@@ -337,7 +337,7 @@ def main():
                             mute_input(client, args.input)
                         elif args.subcommand == 'unmute':
                             unmute_input(client, args.input)
-                        else
+                        else:
                             print("Invalid input subcommand: " + args.subcommand)
 
                     # Source.
@@ -346,7 +346,7 @@ def main():
                             hide_source(client, args.source)
                         elif args.subcommand == 'show':
                             show_source(client, args.source)
-                        else
+                        else:
                             print("Invalid source subcommand: " + args.subcommand)
 
                     # Error: argument.
