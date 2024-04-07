@@ -3414,7 +3414,7 @@
                 temp_status_current_scene_quad="status_current_scene_quad_${1}"
 
                 # Scene is already current.
-                if [[ "${!temp_status_current_scene_quad}" == "$2" ]]; then
+                if [[ "${!temp_status_current_scene_quad}" == "${2}" ]]; then
 
                     echo_info "Quad $1: $2: already switched, skipping."
 
@@ -3422,9 +3422,11 @@
                 elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
                 
                     operation_pipe unrestricted source show "quad_${1}_unrestricted" "${2}_unrestricted"
-                    operation_pipe unrestricted source hide "quad_${1}_unrestricted" "${!temp_status_current_scene_quad}_unrestricted"
+                    echo_info "Quad $1: $2: show."
 
-                    echo_info "Quad $1: $2: switched."
+                    operation_pipe unrestricted source hide "quad_${1}_unrestricted" "${!temp_status_current_scene_quad}_unrestricted"
+                    echo_info "Quad $1: ${!temp_status_current_scene_quad}: hide."
+                    
 
                     status_update scene_quad $1 $2
 
