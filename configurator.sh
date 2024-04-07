@@ -4539,7 +4539,7 @@
 
         setting_update_output_obs_restricted_mute() {
 
-            ydotool key 67:1 67:0
+            ydotool key 125:1 68:1 68:0 125:0
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4551,7 +4551,7 @@
         }
         setting_update_output_obs_unrestricted_mute() {
 
-            ydotool key 88:1 88:0
+            ydotool key 125:1 88:1 88:0 125:0
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4782,7 +4782,7 @@
 
         setting_update_output_obs_restricted_unmute() {
 
-            ydotool key 66:1 66:0
+            ydotool key 125:1 67:1 67:0 125:0
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4794,7 +4794,7 @@
         }
         setting_update_output_obs_unrestricted_unmute() {
 
-            ydotool key 68:1 68:0
+            ydotool key 125:1 87:1 87:0 125:0
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
