@@ -1385,7 +1385,7 @@
 
         fi
 
-        python "${directory_script}obs_cli.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
+        python "${directory_script}obs_cli_old.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
 
     }
     operation_random() {
@@ -2379,7 +2379,7 @@
             }
                 setting_update_censor_bathroom_censored() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_bathroom"
+                    operation_pipe unrestricted source show "censor_bathroom" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2393,7 +2393,7 @@
                 }
                 setting_update_censor_bed_censored() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_bed"
+                    operation_pipe unrestricted source show "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2407,7 +2407,7 @@
                 }
                 setting_update_censor_desk_censored() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_desk"
+                    operation_pipe unrestricted source show "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2421,7 +2421,7 @@
                 }
                 setting_update_censor_studio_censored() {
                     
-                    operation_pipe unrestricted source show "Censor" "Censor (Studio)"
+                    operation_pipe unrestricted source show "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2443,7 +2443,7 @@
             }
                 setting_update_censor_bathroom_uncensored() {
                     
-                    operation_pipe unrestricted source hide "Censor" "Censor (Bathroom)"
+                    operation_pipe unrestricted source hide "censor_bathroom" "censor"
                     exit_1=$?
 
 
@@ -2458,7 +2458,7 @@
                 }
                 setting_update_censor_bed_uncensored() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_bed"
+                    operation_pipe unrestricted source hide "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2472,7 +2472,7 @@
                 }
                 setting_update_censor_desk_uncensored() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_desk"
+                    operation_pipe unrestricted source hide "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2486,7 +2486,7 @@
                 }
                 setting_update_censor_studio_uncensored() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_studio"
+                    operation_pipe unrestricted source hide "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3159,7 +3159,7 @@
             }
                 setting_update_restriction_bathroom_restricted() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_bathroom_unrestricted"
+                    operation_pipe unrestricted source show "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3173,7 +3173,7 @@
                 }
                 setting_update_restriction_bed_restricted() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_bed_unrestricted"
+                    operation_pipe unrestricted source show "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3187,7 +3187,7 @@
                 }
                 setting_update_restriction_desk_restricted() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_desk_unrestricted"
+                    operation_pipe unrestricted source show "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3201,7 +3201,7 @@
                 }
                 setting_update_restriction_studio_restricted() {
                     
-                    operation_pipe unrestricted source show "censor" "censor_studio_unrestricted"
+                    operation_pipe unrestricted source show "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3223,7 +3223,7 @@
             }
                 setting_update_restriction_bathroom_unrestricted() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_bathroom_unrestricted"
+                    operation_pipe unrestricted source hide "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3237,7 +3237,7 @@
                 }
                 setting_update_restriction_bed_unrestricted() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_bed_unrestricted"
+                    operation_pipe unrestricted source hide "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3251,7 +3251,7 @@
                 }
                 setting_update_restriction_desk_unrestricted() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_desk_unrestricted"
+                    operation_pipe unrestricted source hide "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3265,7 +3265,7 @@
                 }
                 setting_update_restriction_studio_unrestricted() {
                     
-                    operation_pipe unrestricted source hide "censor" "censor_studio_unrestricted"
+                    operation_pipe unrestricted source hide "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -4059,18 +4059,6 @@
             position_left
 
         }
-            setting_update_input_obs_unrestricted_unmute_microphone_all() {
-
-                operation_pipe unrestricted input unmute "$input_device_microphone_1_name_obs"
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 1: unmuted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_1."
-                fi
-
-            }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
                 operation_pipe unrestricted input unmute "$input_device_microphone_1_name_obs"
