@@ -509,94 +509,7 @@
     }
     command_help() {
 
-        #  ═ ║ ╒ ╓ ╔ ╕ ╖ ╗ ╘ ╙ ╚ ╛ ╜ ╝ ╞ ╟ ╠ ╡ ╢ ╣ ╤ ╥ ╦ ╧ ╨ ╩ ╪ ╫ ╬ ╭ ╮ ╯ ╰
-
-        echo "
-
-        ╔════════════════════════════════════╗
-        ║ ACTIVITY                           ║
-        ╠════════════════════════════════════╣
-        ║ -a                      --activity ║
-        ║  │                                 ║
-        ║  ├─ p                      passive ║
-        ║  ╰─ a                       active ║
-        ║     │                              ║
-        ║     ├─ a                     admin ║
-        ║     ╰─ co                  cooking ║
-        ║        ├─ rbhb         roboty_hurts_bot ║
-        ║        ╰─ rh         reality_hurts ║
-        ╠════════════════════════════════════╣
-        │ BOT
-        ├─────────────────────────────────
-        -t        --token_refresh
-        ============================
-        CENSOR
-        ============================
-        -c        --censor
-
-            a           all
-            ba          bathroom
-            be          bed
-            d           desk
-            s           studio
-        ╔════════════════════════════════════╗
-        ║ CHANNEL                            ║
-        ╠════════════════════════════════════╣
-
-        [command] [platform] [channel] [action] [option] [option]
-
-        [command]
-        -c, --channel
-
-            [platform]
-            t, twitch
-            of, only_fans
-            y, youtube
-            a, all
-
-                [channel]
-                rbhb, roboty_hurst
-                rh, reality_hurts
-                rhu, reality_hurts_uncut
-                a, all
-                as, all_streams
-
-                    [action]
-                    r, refresh
-                    q, query
-                    u, update
-
-                        [option]
-                        <title>
-                        <category>
-                        <tag>
-
-        ============================
-        HELP
-        ============================
-        -h        --help
-
-        LIGHT
-
-        -l,   --light
-
-        1 [litra]
-
-        b,    brightness
-            d,  down
-            u,  up
-        p,    power
-            t,  toggle
-
-        ============================
-        OUTPUT
-        ============================
-
-        -o                --output
-        ├─ c             cycle
-        ├─ l             link
-            ├─ r          reset
-        "
+        echo "Help."
 
     }
     command_light() {
@@ -1510,7 +1423,7 @@
     }
     operation_pipe() {
 
-        echo "--instance $@" > /tmp/obs_cli
+        echo "--client $@" > /tmp/obs_cli
 
     }
     operation_speak() {
@@ -2466,7 +2379,7 @@
             }
                 setting_update_censor_bathroom_censored() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bathroom)"
+                    operation_pipe unrestricted source show "censor" "censor_bathroom"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2480,7 +2393,7 @@
                 }
                 setting_update_censor_bed_censored() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Bed)"
+                    operation_pipe unrestricted source show "censor" "censor_bed"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2494,7 +2407,7 @@
                 }
                 setting_update_censor_desk_censored() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Desk + Kitchen)"
+                    operation_pipe unrestricted source show "censor" "censor_desk"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2508,7 +2421,7 @@
                 }
                 setting_update_censor_studio_censored() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor (Studio)"
+                    operation_pipe unrestricted source show "Censor" "Censor (Studio)"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2530,7 +2443,7 @@
             }
                 setting_update_censor_bathroom_uncensored() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bathroom)"
+                    operation_pipe unrestricted source hide "Censor" "Censor (Bathroom)"
                     exit_1=$?
 
 
@@ -2545,7 +2458,7 @@
                 }
                 setting_update_censor_bed_uncensored() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Bed)"
+                    operation_pipe unrestricted source hide "censor" "censor_bed"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2559,7 +2472,7 @@
                 }
                 setting_update_censor_desk_uncensored() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Desk + Kitchen)"
+                    operation_pipe unrestricted source hide "censor" "censor_desk"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2573,7 +2486,7 @@
                 }
                 setting_update_censor_studio_uncensored() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor (Studio)"
+                    operation_pipe unrestricted source hide "censor" "censor_studio"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3246,7 +3159,7 @@
             }
                 setting_update_restriction_bathroom_restricted() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor Restricted (Bathroom)"
+                    operation_pipe unrestricted source show "censor" "censor_bathroom_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3260,7 +3173,7 @@
                 }
                 setting_update_restriction_bed_restricted() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor Restricted (Bed)"
+                    operation_pipe unrestricted source show "censor" "censor_bed_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3274,7 +3187,7 @@
                 }
                 setting_update_restriction_desk_restricted() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor Restricted (Desk + Kitchen)"
+                    operation_pipe unrestricted source show "censor" "censor_desk_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3288,7 +3201,7 @@
                 }
                 setting_update_restriction_studio_restricted() {
                     
-                    script_obs_cli unrestricted item show "Censor" --scene "Censor Restricted (Studio)"
+                    operation_pipe unrestricted source show "censor" "censor_studio_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3310,7 +3223,7 @@
             }
                 setting_update_restriction_bathroom_unrestricted() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor Restricted (Bathroom)"
+                    operation_pipe unrestricted source hide "censor" "censor_bathroom_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3324,7 +3237,7 @@
                 }
                 setting_update_restriction_bed_unrestricted() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor Restricted (Bed)"
+                    operation_pipe unrestricted source hide "censor" "censor_bed_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3338,7 +3251,7 @@
                 }
                 setting_update_restriction_desk_unrestricted() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor Restricted (Desk + Kitchen)"
+                    operation_pipe unrestricted source hide "censor" "censor_desk_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3352,7 +3265,7 @@
                 }
                 setting_update_restriction_studio_unrestricted() {
                     
-                    script_obs_cli unrestricted item hide "Censor" --scene "Censor Restricted (Studio)"
+                    operation_pipe unrestricted source hide "censor" "censor_studio_unrestricted"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3508,8 +3421,8 @@
                 # Scene is not current.
                 elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
                 
-                    operation_socket unrestricted item show "${2}" --scene "quad_${1}"
-                    operation_socket unrestricted item hide "${!temp_status_current_scene_quad}" --scene "quad_${1}"
+                    operation_socket unrestricted source show "${2}" "quad_${1}"
+                    operation_socket unrestricted source hide "${!temp_status_current_scene_quad}" "quad_${1}"
 
                     echo_info "Quad $1: $2: switched."
 
@@ -3875,7 +3788,7 @@
         }
             setting_update_input_obs_restricted_mute_microphone_1() {
 
-                operation_pipe 2 input mute "$input_device_microphone_1_name_obs"
+                operation_pipe restricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3887,7 +3800,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_2() {
 
-                operation_pipe 2 input mute "$input_device_microphone_2_name_obs"
+                operation_pipe restricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3899,7 +3812,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_3() {
 
-                operation_pipe 2 input mute "$input_device_microphone_3_name_obs"
+                operation_pipe restricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3911,7 +3824,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_4() {
 
-                operation_pipe 2 input mute "$input_device_microphone_4_name_obs"
+                operation_pipe restricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3938,7 +3851,7 @@
         }
             setting_update_input_obs_unrestricted_mute_microphone_1() {
 
-                operation_pipe 1 input mute "$input_device_microphone_1_name_obs"
+                operation_pipe unrestricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3950,7 +3863,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_2() {
 
-                operation_pipe 1 input mute "$input_device_microphone_2_name_obs"
+                operation_pipe unrestricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3962,7 +3875,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_3() {
 
-                operation_pipe 1 input mute "$input_device_microphone_3_name_obs"
+                operation_pipe unrestricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3974,7 +3887,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_4() {
 
-                operation_pipe 1 input mute "$input_device_microphone_4_name_obs"
+                operation_pipe unrestricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4085,7 +3998,7 @@
         }
             setting_update_input_obs_restricted_unmute_microphone_1() {
 
-                operation_pipe 2 input unmute "$input_device_microphone_1_name_obs"
+                operation_pipe restricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4097,7 +4010,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_2() {
 
-                operation_pipe 2 input unmute "$input_device_microphone_2_name_obs"
+                operation_pipe restricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4109,7 +4022,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_3() {
 
-                operation_pipe 2 input unmute "$input_device_microphone_3_name_obs"
+                operation_pipe restricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4121,7 +4034,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_4() {
 
-                operation_pipe 2 input unmute "$input_device_microphone_4_name_obs"
+                operation_pipe restricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4148,7 +4061,7 @@
         }
             setting_update_input_obs_unrestricted_unmute_microphone_all() {
 
-                operation_pipe 1 input unmute "$input_device_microphone_1_name_obs"
+                operation_pipe unrestricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4160,7 +4073,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
-                operation_pipe 1 input unmute "$input_device_microphone_1_name_obs"
+                operation_pipe unrestricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4172,7 +4085,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_2() {
 
-                operation_pipe 1 input unmute "$input_device_microphone_2_name_obs"
+                operation_pipe unrestricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4184,7 +4097,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_3() {
 
-                operation_pipe 1 input unmute "$input_device_microphone_3_name_obs"
+                operation_pipe unrestricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4196,7 +4109,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_4() {
 
-                operation_pipe 1 input unmute "$input_device_microphone_4_name_obs"
+                operation_pipe unrestricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4917,7 +4830,7 @@
         }
             setting_update_output_obs_unrestricted_unmute_output_1() {
 
-                script_obs_cli unrestricted output list "$input_device_output_1_name_obs"
+                operation_pipe unrestricted output list "$input_device_output_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
