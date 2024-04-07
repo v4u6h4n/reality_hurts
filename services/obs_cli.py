@@ -328,6 +328,8 @@ def main():
 
                 client = clients.get(args.client)
 
+                
+
                 # Client.
                 if client:
 
@@ -343,9 +345,9 @@ def main():
                     # Source.
                     elif args.operation == 'source':
                         if args.subcommand == 'hide':
-                            hide_source(client, args.source)
+                            hide_source(client, args.source, args.scene)
                         elif args.subcommand == 'show':
-                            show_source(client, args.source)
+                            show_source(client, args.source, args.scene)
                         else:
                             print("Invalid source subcommand: " + args.subcommand)
 
