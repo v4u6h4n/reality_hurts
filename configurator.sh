@@ -4838,19 +4838,35 @@
 
             position_right
 
-            for ((i = 1; i <= $#; i += 2)); do
+            if [[ -n $1 && -n $2 ]]; then
+                wpctl set-volume "output_device_${1}_ID" $2
+                echo_info "Device 1: $1: $2."
+            else
+                error_kill "setting_update_output_device_volume, arguments 1 and 2."
+            fi
 
-                arg_1="${!i}"
-                arg_2="${!((i+1))}"
+            if [[ -n $3 && -n $4 ]]; then
+                wpctl set-volume "output_device_${3}_ID" $4
+                echo_info "$3: $4."
+            else
+                echo_info "Device 2: not requested."
+            fi
 
-                if [[ -n "$arg_1" && -n "$arg_2" ]]; then
-                    temp_output_device_ID="output_device_${arg_1}_ID"
-                    wpctl set-volume "${!temp_output_device_ID}" "$arg_2"
-                    echo_info "${!temp_output_device_ID}: $arg_2"
+            if [[ -n $5 && -n $6 ]]; then
+                wpctl set-volume "output_device_${5}_ID" $6
+                echo_info "$5: $6."
+            else
+                echo_info "Device 3: not requested."
+            fi
 
-                fi
+            if [[ -n $7 && -n $8 ]]; then
+                wpctl set-volume "output_device_${7}_ID" $8
+                echo_info "$7: $8."
+            else
+                echo_info "Device 4: not requested."
+            fi
 
-            done
+            position_left
 
         }
 
