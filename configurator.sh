@@ -1346,7 +1346,7 @@
 
             status_check_obs_websocket 1
 
-            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "Quad" --startstreaming --startvirtualcam --websocket_port $obs_websocket_password --websocket_password $obs_websocket_port & disown
+            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "quad_unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
             exit_1=$?
 
             if [[ $1 -eq 0 ]]; then
@@ -1361,7 +1361,7 @@
 
             status_check_obs_websocket 2
 
-            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_password --websocket_password $obs_websocket_port & disown
+            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
             exit_1=$?
 
             if [[ $1 -eq 0 ]]; then
@@ -4839,28 +4839,32 @@
             position_right
 
             if [[ -n $1 && -n $2 ]]; then
-                wpctl set-volume "output_device_${1}_ID" $2
+                temp_output_device_ID="output_device_${1}_ID"
+                wpctl set-volume ${!temp_output_device_ID} $2
                 echo_info "Device 1: $1: $2."
             else
                 error_kill "setting_update_output_device_volume, arguments 1 and 2."
             fi
 
             if [[ -n $3 && -n $4 ]]; then
-                wpctl set-volume "output_device_${3}_ID" $4
+                temp_output_device_ID="output_device_${3}_ID"
+                wpctl set-volume ${!temp_output_device_ID} $4
                 echo_info "$3: $4."
             else
                 echo_info "Device 2: not requested."
             fi
 
             if [[ -n $5 && -n $6 ]]; then
-                wpctl set-volume "output_device_${5}_ID" $6
+                temp_output_device_ID="output_device_${5}_ID"
+                wpctl set-volume ${!temp_output_device_ID} $6
                 echo_info "$5: $6."
             else
                 echo_info "Device 3: not requested."
             fi
 
             if [[ -n $7 && -n $8 ]]; then
-                wpctl set-volume "output_device_${7}_ID" $8
+                temp_output_device_ID="output_device_${7}_ID"
+                wpctl set-volume ${!temp_output_device_ID} $8
                 echo_info "$7: $8."
             else
                 echo_info "Device 4: not requested."
@@ -5046,8 +5050,8 @@
 
     status_check_obs_websocket() {
 
-        obs_websocket_port=$(sed -n '2p' "${directory_data_private}obs_client_${1}.txt")
-        obs_websocket_password=$(sed -n '3p' "${directory_data_private}obs_client_${1}.txt")
+        obs_websocket_port=$(sed -n '2p' "${directory_data_private}obs_client_$1.txt")
+        obs_websocket_password=$(sed -n '3p' "${directory_data_private}obs_client_$1.txt")
 
     }
 
