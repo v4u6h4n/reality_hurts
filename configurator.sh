@@ -913,6 +913,8 @@
         setting_update_output_device_unmute speaker_1 speaker_2 speaker_3 null_sink_1
         setting_update_output_device_volume speaker_1 0.35 speaker_2 0.4 speaker_3 0.4 null_sink_1 1
 
+        modprobe v4l2loopback exclusive_caps=1 card_label='OBS Virtual Camera'
+
         # Start OBS.
         operation_sleep 30
         operation_application obs_unrestricted
