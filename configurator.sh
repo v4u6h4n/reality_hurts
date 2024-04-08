@@ -1344,7 +1344,7 @@
         # OBS unrestricted.
         if [[ "$1" == "obs_unrestricted" ]]; then
 
-            status_check_obs_websocket unrestricted
+            status_check_obs_websocket 1
 
             ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "Quad" --startstreaming --startvirtualcam --websocket_port $obs_websocket_password --websocket_password $obs_websocket_port & disown
             exit_1=$?
@@ -1359,7 +1359,7 @@
         # OBS restricted.
         if [[ "$1" == "obs_restricted" ]]; then
 
-            status_check_obs_websocket restricted
+            status_check_obs_websocket 2
 
             ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_password --websocket_password $obs_websocket_port & disown
             exit_1=$?
@@ -5046,8 +5046,8 @@
 
     status_check_obs_websocket() {
 
-        obs_websocket_password=$(cat "${directory_data_private}obs_websocket_${1}_password.txt")
-        obs_websocket_port=$(cat "${directory_data_private}obs_websocket_${1}_port.txt")
+        obs_websocket_port=$(sed -n '2p' "${directory_data_private}obs_client_${1}.txt")
+        obs_websocket_password=$(sed -n '3p' "${directory_data_private}obs_client_${1}.txt")
 
     }
 
