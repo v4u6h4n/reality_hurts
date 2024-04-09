@@ -926,7 +926,7 @@
         operation_sleep 5
         
         command_profile uc ur m m
-        command_scene anja studio vaughan desk
+        command_scene quad anja studio vaughan desk
 
     }
     command_verbose() {
