@@ -6,10 +6,13 @@ import logging
 import re
 import os
 import obsws_python as obs
+import socket
 import sys
+import time
 from threading import Thread
 
 directory_pipe = "/tmp/obs_cli"
+directory_socket = '/tmp/script_socket'
 
 def read_client(file_path):
     with open(file_path, 'r') as file:
@@ -123,6 +126,7 @@ def show_source(client, source, scene=None, is_group=False):
     scene = scene or get_current_scene_name(client)
     source_id = get_source_id(client, source=source, scene=scene, is_group=is_group)
     parent = scene if is_group else get_source_parent(client, source, scene)
+    print("Show: scene: " + scene + ", source: " + source)
     return client.set_scene_item_enabled(parent, source_id, True)
 
 
@@ -130,6 +134,7 @@ def hide_source(client, source, scene=None, is_group=False):
     scene = scene or get_current_scene_name(client)
     source_id = get_source_id(client, source=source, scene=scene, is_group=is_group)
     parent = scene if is_group else get_source_parent(client, source, scene)
+    print("Hide: scene: " + scene + ", source: " + source)
     return client.set_scene_item_enabled(parent, source_id, False)
 
 
@@ -169,10 +174,12 @@ def get_mute_state(client, input):
 
 
 def mute_input(client, input):
+    print("Input mute: " + input)
     client.set_input_mute(input, True)
 
 
 def unmute_input(client, input):
+    print("Input unmute: " + input)
     client.set_input_mute(input, False)
 
 
@@ -324,17 +331,58 @@ def handle_command(command, clients):
     except Exception as e:
         print(f"Error: {e}")
 
+
+# def command_listener(clients):
+#     try:
+#         while True:
+#             with open(directory_pipe, 'r') as pipe:
+#                 command = pipe.readline().strip()
+#                 if command:
+#                     t = Thread(target=handle_command, args=(command, clients))
+#                     t.start()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         sys.exit(1)
+
+
+# def command_listener(clients):
+#     try:
+#         server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+#         if os.path.exists(directory_socket):
+#             os.unlink(directory_socket)
+#         server_socket.bind(directory_socket)
+#         server_socket.listen(1)
+
+#         while True:
+#             client_socket, _ = server_socket.accept()
+#             command = client_socket.recv(1024).decode()
+#             if command:
+#                 print("Command:", command)
+#                 handle_command(command, clients)
+#             client_socket.close()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         sys.exit(1)
+
+
 def command_listener(clients):
     try:
+        server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        if os.path.exists(directory_socket):
+            os.unlink(directory_socket)
+        server_socket.bind(directory_socket)
+        server_socket.listen(1)
+
         while True:
-            with open(directory_pipe, 'r') as pipe:
-                command = pipe.readline().strip()
-                if command:
-                    t = Thread(target=handle_command, args=(command, clients))
-                    t.start()
+            client_socket, _ = server_socket.accept()
+            command = client_socket.recv(1024).decode()
+            if command:
+                print("Command:", command)
+                handle_command(command, clients)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
 
 def main():
     logging.basicConfig()
