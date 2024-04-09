@@ -336,6 +336,23 @@
 
 # COMMAND #####################################################################################################################################################################################
 
+    command_application() {
+
+        translate_argument application $1
+        arg_application="${argument}"
+
+        translate_argument application_profile $2
+        arg_application_profile="${argument}"
+
+        echo_info "Application: ${arg_application_1} ${arg_application_profile_1}"
+
+        position_right
+
+        setting_update application
+
+        position_left
+
+    }
     command_activity() {
 
         echo_info "Activity:"
@@ -917,10 +934,10 @@
 
         # Start OBS.
         operation_sleep 30
-        operation_application obs_unrestricted
+        command_application obs unrestricted
 
         operation_sleep 5
-        operation_application obs_restricted
+        command_application obs restricted
 
         # Mute OBS.
         operation_sleep 5
@@ -1031,6 +1048,26 @@
                 echo_error "translate_argument, title, invalid argument: ${2}."
             fi
 
+        # Application.
+        elif [[ "$1" == "application" ]]; then
+
+            if [[ "$2" == "obs_studio" || "$2" == "o" ]]; then
+                argument="obs_studio"
+            else
+                echo_error "translate_argument, application, invalid argument: ${2}."
+            fi
+
+        # Application profile.
+        elif [[ "$1" == "application_profile" ]]; then
+
+            if [[ "$2" == "restricted" || "$2" == "r" ]]; then
+                argument="restricted"
+            elif [[ "$2" == "unrestricted" || "$2" == "u" ]]; then
+                argument="unrestricted"
+            else
+                echo_error "translate_argument, application_profile, invalid argument: ${2}."
+            fi
+
         # Attribute.
         elif [[ "$1" == "attribute" ]]; then
 
@@ -1085,6 +1122,8 @@
 
             if [[ "$2" == "--activity" || "$2" == "-a" ]]; then
                 argument="activity"
+            elif [[ "$2" == "--application" || "$2" == "-ap" ]]; then
+                argument="application"
             elif [[ "$2" == "--automation" || "$2" == "-au" ]]; then
                 argument="automation"
             elif [[ "$2" == "--censor" || "$2" == "-c" ]]; then
@@ -1341,39 +1380,6 @@
     }
 
 
-    operation_application() {
-
-        # OBS unrestricted.
-        if [[ "$1" == "obs_unrestricted" ]]; then
-
-            status_check_obs_websocket 1
-
-            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "quad_unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-            exit_1=$?
-
-            if [[ $1 -eq 0 ]]; then
-                echo_info "Success."
-            else
-                echo_error_urgent "OBS failed to launch."
-            fi
-        fi
-
-        # OBS restricted.
-        if [[ "$1" == "obs_restricted" ]]; then
-
-            status_check_obs_websocket 2
-
-            ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-            exit_1=$?
-
-            if [[ $1 -eq 0 ]]; then
-                echo_info "Success."
-            else
-                echo_error_urgent "OBS failed to launch."
-            fi
-        fi
-
-    }
     script_obs_cli() {
 
         # status_check_obs_websocket ${1}
@@ -2280,6 +2286,55 @@
         position_left
 
     }
+
+        setting_update_application() {
+
+            echo_info "Application:"
+
+            position_right
+
+            # OBS unrestricted.
+            if [[ "$arg_application" == "obs_studio" ]]; then
+
+                if [[ "$arg_application_profile" == "restricted" ]]; then
+
+                    status_check_obs_websocket 2
+
+                    ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    exit_1=$?
+
+                    if [[ $1 -eq 0 ]]; then
+                        echo_info "OBS Studio (Restricted)."
+                    else
+                        echo_error_urgent "OBS failed to launch."
+                    fi
+
+                elif [[ "$arg_application_profile" == "unrestricted" ]]; then
+
+                    status_check_obs_websocket 1
+
+                    ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "quad_unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    exit_1=$?
+
+                    if [[ $1 -eq 0 ]]; then
+                        echo_info "OBS Studio (Unrestricted)."
+                    else
+                        echo_error_urgent "OBS failed to launch."
+                    fi
+
+                # Error.
+                else
+                    echo_error  "setting_update_application, arg_application_profile: $arg_application_profile."
+                fi
+
+            # Error.
+            else
+                echo_error  "setting_update_application, arg_application: $arg_application."
+            fi
+
+            position_left
+
+        }
 
         setting_update_censor() {
 
@@ -5893,16 +5948,51 @@
                 command_verbose
                 shift
                 ;;
-            --playback|-pl)
+            --activity|-a)
                 command_gatekeeper "$@"
                 shift
-                command_playback "$@"
+                command_activity "$@"
                 break
                 ;;
-            --startup|-st)
+            --application|-ap)
                 command_gatekeeper "$@"
                 shift
-                command_startup "$@"
+                command_application "$@"
+                break
+                ;;
+            --automation|-au)
+                command_gatekeeper "$@"
+                shift
+                command_automation "$@"
+                break
+                ;;
+            --censor|-c)
+                command_gatekeeper "$@"
+                shift
+                command_censor "$@"
+                break
+                ;;
+            --channel|-ch)
+                command_gatekeeper "$@"
+                shift
+                command_channel "$@"
+                break
+                ;;
+            --debug|-d)
+                command_gatekeeper "$@"
+                shift
+                command_debug "$@"
+                break
+                ;;
+            --help|-h)
+                command_gatekeeper "$@"
+                command_help
+                break
+                ;;
+            --light|-l)
+                command_gatekeeper "$@"
+                shift
+                command_light "$@"
                 break
                 ;;
             --output|-o)
@@ -5911,16 +6001,22 @@
                 command_output "$@"
                 break
                 ;;
+            --permission|-pe)
+                command_gatekeeper "$@"
+                shift
+                command_permission "$@"
+                break
+                ;;
+            --playback|-pl)
+                command_gatekeeper "$@"
+                shift
+                command_playback "$@"
+                break
+                ;;
             --profile|-p)
                 command_gatekeeper "$@"
                 shift
                 command_profile "$@"
-                break
-                ;;
-            --censor|-c)
-                command_gatekeeper "$@"
-                shift
-                command_censor "$@"
                 break
                 ;;
             --restriction|-r)
@@ -5935,52 +6031,19 @@
                 command_scene "$@"
                 break
                 ;;
-            --activity|-a)
+            --startup|-st)
                 command_gatekeeper "$@"
                 shift
-                command_activity "$@"
-                break
-                ;;
-            --channel|-ch)
-                command_gatekeeper "$@"
-                shift
-                command_channel "$@"
-                break
-                ;;
-            --permission|-pe)
-                command_gatekeeper "$@"
-                shift
-                command_permission "$@"
-                break
-                ;;
-            --automation|-au)
-                command_gatekeeper "$@"
-                shift
-                command_automation "$@"
-                break
-                ;;
-            --light|-l)
-                command_gatekeeper "$@"
-                shift
-                command_light "$@"
-                break
-                ;;
-            --debug|-d)
-                command_gatekeeper "$@"
-                shift
-                command_debug "$@"
-                break
-                ;;
-            --help|-h)
-                command_gatekeeper "$@"
-                command_help
+                command_startup "$@"
                 break
                 ;;
             "")
                 echo_error "No arguments detected."
+                break
                 ;;
             *)
                 echo_debug "No arguments left."
+                break
                 ;;
         esac
     done
