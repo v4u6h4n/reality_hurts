@@ -5356,7 +5356,7 @@
         }
         status_check_output_device_headphones_1() {
 
-            status_current_output_device_headphones_1_connection=$(bluetoothctl info $output_device_headphones_1_address | grep "Connected:" | awk '{print $2}')
+            status_current_output_device_headphones_1_connection=$(bluetoothctl info $output_device_headphones_1_address | grep -q "Battery Percentage:" && echo "yes")
 
             if [[ "$status_current_output_device_headphones_1_connection" == "yes" ]]; then
                 output_device_headphones_1_ID=$(pw-cli i $output_device_headphones_1_node_name | grep -oP 'id: \K\w+')
