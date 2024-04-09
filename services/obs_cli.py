@@ -11,7 +11,6 @@ import sys
 import time
 from threading import Thread
 
-directory_pipe = "/tmp/obs_cli"
 directory_socket = '/tmp/script_socket'
 
 def read_client(file_path):
@@ -330,20 +329,6 @@ def handle_command(command, clients):
 
     except Exception as e:
         print(f"Error: {e}")
-
-
-# def command_listener(clients):
-#     try:
-#         while True:
-#             with open(directory_pipe, 'r') as pipe:
-#                 command = pipe.readline().strip()
-#                 if command:
-#                     t = Thread(target=handle_command, args=(command, clients))
-#                     t.start()
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         sys.exit(1)
-
 
 # def command_listener(clients):
 #     try:
