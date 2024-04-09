@@ -1,0 +1,9 @@
+[Unit]
+Description=v4l2loopback
+After=network.target
+
+[Service]
+ExecStart=/media/storage/Streaming/Software/scripts/main/services/v4l2loopback.sh
+
+[Install]
+WantedBy=default.target
