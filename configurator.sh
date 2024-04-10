@@ -398,6 +398,10 @@
     }
     command_automation() {
 
+        echo_info "Automation:"
+
+        position_right
+        
         current_hour=$(date +%H)
 
         # Morning.
@@ -432,6 +436,8 @@
         else
             echo_error_speak "command_automation."
         fi
+
+        position_left
 
     }
     command_channel() {
@@ -934,10 +940,10 @@
 
         # Start OBS.
         operation_sleep 30
-        command_application obs unrestricted
+        command_application obs_studio unrestricted
 
         operation_sleep 5
-        command_application obs restricted
+        command_application obs_studio restricted
 
         # Mute OBS.
         operation_sleep 5
@@ -1612,6 +1618,7 @@
             if [[ -n "$alert_request_activity" ]]; then
                 echo_info "Activity: ${alert_request_activity}."
                 paplay "${directory_alerts}activity_${alert_request_activity}.wav"
+                alert_request_activity=""
                 flag_alert_played="yes"
             fi
 
@@ -1619,6 +1626,7 @@
             if [[ -n "$alert_debug" ]]; then
                 echo_info "Debug: ${alert_debug}."
                 paplay "${directory_alerts}debug_${alert_debug}.wav"
+                alert_debug=""
                 flag_alert_played="yes"
             fi
 
@@ -1626,6 +1634,7 @@
             if [[ -n "$alert_request_permission" ]]; then
                 echo_info "Permission: ${alert_request_permission}."
                 paplay "${directory_alerts}permission_${alert_request_permission}.wav"
+                alert_request_permission=""
                 flag_alert_played="yes"
             fi
 
@@ -1633,6 +1642,7 @@
             if [[ -n "$alert_request_output" ]]; then
                 echo_info "Output: ${alert_request_output}."
                 paplay "${directory_alerts}output_${alert_request_output}.wav"
+                alert_request_output=""
                 flag_alert_played="yes"
             fi
 
@@ -1640,6 +1650,7 @@
             if [[ -n "$alert_request_profile_restriction" ]]; then
                 echo_info "Profile: restriction ${alert_request_profile_restriction}."
                 paplay "${directory_alerts}profile_restriction_${alert_request_profile_restriction}.wav"
+                alert_request_profile_restriction=""
                 flag_alert_played="yes"
             fi
 
@@ -1647,6 +1658,7 @@
             if [[ -n "$alert_request_profile_censor" ]]; then
                 echo_info "Profile: censor ${alert_request_profile_censor}."
                 paplay "${directory_alerts}profile_censor_${alert_request_profile_censor}.wav"
+                alert_request_profile_censor=""
                 flag_alert_played="yes"
             fi
 
@@ -1654,6 +1666,7 @@
             if [[ -n "$alert_request_profile_audio" ]]; then
                 echo_info "Profile: audio ${alert_request_profile_audio}."
                 paplay "${directory_alerts}profile_audio_${alert_request_profile_audio}.wav"
+                alert_request_profile_audio=""
                 flag_alert_played="yes"
             fi
 
@@ -1661,6 +1674,7 @@
             if [[ -n "$alert_request_profile_input" ]]; then
                 echo_info "Profile: input ${alert_request_profile_input}."
                 paplay "${directory_alerts}profile_input_${alert_request_profile_input}.wav"
+                alert_request_profile_input=""
                 flag_alert_played="yes"
             fi
 
@@ -1668,6 +1682,7 @@
             if [[ -n "$alert_request_censor" ]]; then
                 echo_info "Censor: ${alert_request_censor}."
                 paplay "${directory_alerts}censor_${alert_request_censor}.wav"
+                alert_request_censor=""
                 flag_alert_played="yes"
             fi
 
@@ -1675,6 +1690,7 @@
             if [[ -n "$alert_request_restriction" ]]; then
                 echo_info "Restriction: ${alert_request_restriction}."
                 paplay "${directory_alerts}restriction_${alert_request_restriction}.wav"
+                alert_request_restriction=""
                 flag_alert_played="yes"
             fi
 
@@ -2412,16 +2428,17 @@
                     echo_error "setting_update_censor, censored."
                 fi
 
-            # Uncensored.
-            elif [[ "$argument_current_censor_1" == "uncensored" ]]; then
-
+            # Uncensored, censored.
+            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
                 if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
-
                     setting_update_censor_all_uncensored
-
                 else
                     echo_error "setting_update_censor, uncensored."
                 fi
+
+            # Uncensored, uncensored.
+            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
+                echo_info "Already uncensored, skipping."
 
             # Error.
             else
@@ -2441,7 +2458,7 @@
             }
                 setting_update_censor_bathroom_censored() {
                     
-                    operation_socket --client  unrestricted source show "censor_bathroom" "censor"
+                    operation_socket --client unrestricted source show "censor_bathroom" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2455,7 +2472,7 @@
                 }
                 setting_update_censor_bed_censored() {
                     
-                    operation_socket --client  unrestricted source show "censor_bed" "censor"
+                    operation_socket --client unrestricted source show "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2469,7 +2486,7 @@
                 }
                 setting_update_censor_desk_censored() {
                     
-                    operation_socket --client  unrestricted source show "censor_desk" "censor"
+                    operation_socket --client unrestricted source show "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2483,7 +2500,7 @@
                 }
                 setting_update_censor_studio_censored() {
                     
-                    operation_socket --client  unrestricted source show "censor_studio" "censor"
+                    operation_socket --client unrestricted source show "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2505,7 +2522,7 @@
             }
                 setting_update_censor_bathroom_uncensored() {
                     
-                    operation_socket --client  unrestricted source hide "censor_bathroom" "censor"
+                    operation_socket --client unrestricted source hide "censor_bathroom" "censor"
                     exit_1=$?
 
 
@@ -2520,7 +2537,7 @@
                 }
                 setting_update_censor_bed_uncensored() {
                     
-                    operation_socket --client  unrestricted source hide "censor_bed" "censor"
+                    operation_socket --client unrestricted source hide "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2534,7 +2551,7 @@
                 }
                 setting_update_censor_desk_uncensored() {
                     
-                    operation_socket --client  unrestricted source hide "censor_desk" "censor"
+                    operation_socket --client unrestricted source hide "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -2548,7 +2565,7 @@
                 }
                 setting_update_censor_studio_uncensored() {
                     
-                    operation_socket --client  unrestricted source hide "censor_studio" "censor"
+                    operation_socket --client unrestricted source hide "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3192,8 +3209,8 @@
                     echo_error "setting_update_restriction, restricted."
                 fi
 
-            # Unrestricted.
-            elif [[ "$arg_profile_restriction" == "unrestricted" ]]; then
+            # Unrestricted, restricted.
+            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
 
 
                 if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
@@ -3203,6 +3220,10 @@
                 else
                     echo_error "setting_update_restriction, unrestricted."
                 fi
+
+            # Unrestricted, unrestricted.
+            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                echo_info "Already unrestricted, skipping."
 
             else
                 echo_error "setting_update_restriction."
@@ -3221,7 +3242,7 @@
             }
                 setting_update_restriction_bathroom_restricted() {
                     
-                    operation_socket --client  unrestricted source show "censor_bathroom_unrestricted" "censor"
+                    operation_socket --client unrestricted source show "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3235,7 +3256,7 @@
                 }
                 setting_update_restriction_bed_restricted() {
                     
-                    operation_socket --client  unrestricted source show "censor_bed_unrestricted" "censor"
+                    operation_socket --client unrestricted source show "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3249,7 +3270,7 @@
                 }
                 setting_update_restriction_desk_restricted() {
                     
-                    operation_socket --client  unrestricted source show "censor_desk_unrestricted" "censor"
+                    operation_socket --client unrestricted source show "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3263,7 +3284,7 @@
                 }
                 setting_update_restriction_studio_restricted() {
                     
-                    operation_socket --client  unrestricted source show "censor_studio_unrestricted" "censor"
+                    operation_socket --client unrestricted source show "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3285,7 +3306,7 @@
             }
                 setting_update_restriction_bathroom_unrestricted() {
                     
-                    operation_socket --client  unrestricted source hide "censor_bathroom_unrestricted" "censor"
+                    operation_socket --client unrestricted source hide "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3299,7 +3320,7 @@
                 }
                 setting_update_restriction_bed_unrestricted() {
                     
-                    operation_socket --client  unrestricted source hide "censor_bed_unrestricted" "censor"
+                    operation_socket --client unrestricted source hide "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3313,7 +3334,7 @@
                 }
                 setting_update_restriction_desk_unrestricted() {
                     
-                    operation_socket --client  unrestricted source hide "censor_desk_unrestricted" "censor"
+                    operation_socket --client unrestricted source hide "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3327,7 +3348,7 @@
                 }
                 setting_update_restriction_studio_unrestricted() {
                     
-                    operation_socket --client  unrestricted source hide "censor_studio_unrestricted" "censor"
+                    operation_socket --client unrestricted source hide "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3483,10 +3504,10 @@
                 # Scene is not current.
                 elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
                 
-                    operation_socket --client  unrestricted source show "quad_${1}_unrestricted" "${2}_unrestricted"
+                    operation_socket --client unrestricted source show "quad_${1}_unrestricted" "${2}_unrestricted"
                     echo_info "Quad $1: $2: show."
 
-                    operation_socket --client  unrestricted source hide "quad_${1}_unrestricted" "${!temp_status_current_scene_quad}_unrestricted"
+                    operation_socket --client unrestricted source hide "quad_${1}_unrestricted" "${!temp_status_current_scene_quad}_unrestricted"
                     echo_info "Quad $1: ${!temp_status_current_scene_quad}: hide."
                     
 
@@ -3852,7 +3873,7 @@
         }
             setting_update_input_obs_restricted_mute_microphone_1() {
 
-                operation_socket --client  restricted input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3864,7 +3885,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_2() {
 
-                operation_socket --client  restricted input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3876,7 +3897,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_3() {
 
-                operation_socket --client  restricted input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3888,7 +3909,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_4() {
 
-                operation_socket --client  restricted input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3915,7 +3936,7 @@
         }
             setting_update_input_obs_unrestricted_mute_microphone_1() {
 
-                operation_socket --client  unrestricted input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3927,7 +3948,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_2() {
 
-                operation_socket --client  unrestricted input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3939,7 +3960,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_3() {
 
-                operation_socket --client  unrestricted input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -3951,7 +3972,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_4() {
 
-                operation_socket --client  unrestricted input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4062,7 +4083,7 @@
         }
             setting_update_input_obs_restricted_unmute_microphone_1() {
 
-                operation_socket --client  restricted input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4074,7 +4095,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_2() {
 
-                operation_socket --client  restricted input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4086,7 +4107,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_3() {
 
-                operation_socket --client  restricted input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4098,7 +4119,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_4() {
 
-                operation_socket --client  restricted input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4125,7 +4146,7 @@
         }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
-                operation_socket --client  unrestricted input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4137,7 +4158,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_2() {
 
-                operation_socket --client  unrestricted input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4149,7 +4170,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_3() {
 
-                operation_socket --client  unrestricted input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4161,7 +4182,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_4() {
 
-                operation_socket --client  unrestricted input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4601,7 +4622,9 @@
 
         setting_update_output_obs_restricted_mute() {
 
-            ydotool key 125:1 68:1 68:0 125:0
+            # ydotool key 125:1 68:1 68:0 125:0
+
+            operation_socket --client restricted hotkey trigger key OBS_KEY_F10
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4613,7 +4636,8 @@
         }
         setting_update_output_obs_unrestricted_mute() {
 
-            ydotool key 125:1 88:1 88:0 125:0
+            # ydotool key 125:1 88:1 88:0 125:0
+            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F12
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4844,7 +4868,8 @@
 
         setting_update_output_obs_restricted_unmute() {
 
-            ydotool key 125:1 67:1 67:0 125:0
+            # ydotool key 125:1 67:1 67:0 125:0
+            operation_socket --client restricted hotkey trigger key OBS_KEY_F9
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4856,7 +4881,8 @@
         }
         setting_update_output_obs_unrestricted_unmute() {
 
-            ydotool key 125:1 87:1 87:0 125:0
+            # ydotool key 125:1 87:1 87:0 125:0
+            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -4881,7 +4907,7 @@
         }
             setting_update_output_obs_unrestricted_unmute_output_1() {
 
-                operation_socket --client  unrestricted output list "$input_device_output_1_name_obs"
+                operation_socket --client unrestricted output list "$input_device_output_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -5013,8 +5039,6 @@
 
         position_right
 
-        if [[ "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" ]]; then
-
             # Interpret page.
             if [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
                 streamdeck_page="2"
@@ -5038,8 +5062,11 @@
                 streamdeck_page="134"
             # Error.
             else
-                echo_error "Invalid profile arguments."
+                echo_error "setting_update_streamdeck_page, invalid profile arguments."
             fi
+
+        # Streamdeck source.
+        if [[ "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" ]]; then
 
             # Update streamdeck pages.
             if [[ "$source" == "streamdeck_bathroom" ]]; then
@@ -5059,14 +5086,15 @@
                 streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
                 streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
             else
-                echo_error "Invalid streamdeck source."
+                echo_error "setting_update_streamdeck_page, invalid source."
             fi
 
-            echo_info "Profile: $argument_current_censor_1 $arg_profile_restriction $arg_profile_input $arg_profile_output $streamdeck_page."
-
-        # Error.
+        # Other sources.
         else
-            echo_info "Skipped."
+            streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
         fi
 
         position_left
