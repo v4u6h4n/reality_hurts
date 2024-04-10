@@ -2069,12 +2069,12 @@
                 alert_request_output_cycle_headphones_1
 
             # Reset connections.
-            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "no" ]]; then
+            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "" ]]; then
                 echo_info "Output: null sink 1 (unchanged)."
                 alert_request_output_cycle_speakers
             # Error.
             else
-                echo_error "Output: failed."
+                echo_error "Output: failed. $status_current_output_device_headphones_1_connection"
             fi
 
         }
@@ -4439,7 +4439,7 @@
                 setting_update_output_device_default_headphones_1
 
             # Reset connections.
-            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "no" ]]; then
+            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "" ]]; then
                 setting_update_output_device_default_null_sink_1
 
             # Error.
