@@ -122,7 +122,7 @@ class Bot(commands.Bot):
             return
 
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "rbhu", "-v", "-ch", "t", "rh", "ud", "p"]
+        arguments_scene = ["-s", "rbhu", "-v", "-ch", "t", "rh", "ud", "p", "p"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments

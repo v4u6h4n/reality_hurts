@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PREREQUISITES ###############################################################################################################################################################################
+    # PREREQUISITES ###############################################################################################################################################################################
 
     prerequisite() {
 
@@ -282,12 +282,12 @@
         if [[ $exit_1 -eq 0 ]]; then
 
             # Quiet.
-            if [[ "$2" == "quiet" ]]; then
+            if [[ "$2" == "info" ]]; then
 
                 echo_info "${3}"
 
             # Verbose.
-            elif [[ "$2" == "verbose" ]]; then
+            elif [[ "$2" == "debug" ]]; then
 
                 echo_debug "${3}"
 
@@ -334,7 +334,7 @@
 
     }
 
-# COMMAND #####################################################################################################################################################################################
+    # COMMAND #####################################################################################################################################################################################
 
     command_application() {
 
@@ -407,22 +407,22 @@
         # Morning.
         if [[ $current_hour -eq 5 ]]; then
             
-            command_permission channel toggle couchsurfer scene select couchsurfer
+            command_permission command channel toggle couchsurfer command scene select couchsurfer
 
             command_channel twitch reality_hurts refresh
 
-            command_channel twitch reality_hurts update passive morning
+            command_channel twitch reality_hurts update passive passive morning
 
             command_scene quad anja studio vaughan desk
 
         # Sleeping.
         elif [[ $current_hour -eq 21 ]]; then
 
-            command_permission channel select owner scene select owner
+            command_permission command channel select owner command scene select owner
 
             command_channel twitch reality_hurts refresh
 
-            command_channel twitch reality_hurts update sleeping sleeping
+            command_channel twitch reality_hurts update passive sleeping sleeping
 
             command_scene quad anja bed vaughan studio
 
@@ -438,6 +438,63 @@
         fi
 
         position_left
+
+    }
+    command_camera() {
+
+        # Camera type 1, camera 1.
+        if [[ -n "$1" && -n "$2" ]]; then
+
+            translate_argument camera_type $1
+            arg_camera_type_1="${argument}"
+
+            translate_argument camera $2
+            arg_camera_1="${argument}"
+
+        else
+            echo_error "command_camera, not enough arguments: \$1 \$2."
+        fi
+
+        # Camera type 2, camera 2.
+        if [[ -n "$3" && -n "$4" ]]; then
+
+            translate_argument camera_type $3
+            arg_camera_type_2="${argument}"
+
+            translate_argument camera $4
+            arg_camera_2="${argument}"
+
+        else
+            echo_info "No more arguments, skipping."
+        fi
+
+        # Camera type 3, camera 3.
+        if [[ -n "$5" && -n "$6" ]]; then
+
+            translate_argument camera_type $5
+            arg_camera_type_3="${argument}"
+
+            translate_argument camera $6
+            arg_camera_3="${argument}"
+
+        else
+            echo_info "No more arguments, skipping."
+        fi
+
+        # Camera type 4, camera 4.
+        if [[ -n "$7" && -n "$8" ]]; then
+
+            translate_argument camera_type $7
+            arg_camera_type_4="${argument}"
+
+            translate_argument camera $8
+            arg_camera_4="${argument}"
+
+        else
+            echo_info "No more arguments, skipping."
+        fi
+
+        setting_update camera camera_input
 
     }
     command_channel() {
@@ -458,11 +515,6 @@
 
             position_right
 
-            # translate_argument data $4
-            # argument_current_data="${argument}"
-
-            # argument_current_data_payload="$5"
-
             setting_update_channel_query
 
         # Refresh.
@@ -481,10 +533,13 @@
 
             position_right
 
-            translate_argument category $4
+            translate_argument stream_type $4
+            argument_current_stream_type_1="${argument}"
+
+            translate_argument category $5
             argument_current_category_1="${argument}"
 
-            translate_argument activity $5
+            translate_argument activity $6
             argument_current_activity_1="${argument}"
 
             setting_update_channel_refresh
@@ -652,24 +707,52 @@
 
         position_right
 
-        translate_argument subcommand $1
-        argument_current_subcommand_1="${argument}"
+        translate_argument unit $1
+        argument_current_unit_type_1="${argument}"
 
-        translate_argument action $2
+        # Command.
+        if [[ "$argument_current_unit_type_1" == "command" ]]; then
+            translate_argument subcommand $2
+            argument_current_unit_1="${argument}"
+    
+        # Function.
+        elif [[ "$argument_current_unit_type_1" == "function" ]]; then
+            argument_current_unit_1="$2"
+
+        # Error.
+        else
+            echo_error "command_permission, argument_current_unit_1, invalid unit: $argument_current_unit_1."
+        fi
+
+        translate_argument action $3
         argument_current_action_1="${argument}"
 
-        translate_argument role $3
+        translate_argument role $4
         argument_current_role_1="${argument}"
 
-        if [[ -n "$4" && -n "$5" && -n "$6" ]]; then
+        if [[ -n "$5" && -n "$6" && -n "$7" && -n "$8" ]]; then
 
-            translate_argument subcommand $4
-            argument_current_subcommand_2="${argument}"
+            translate_argument unit $5
+            argument_current_unit_type_2="${argument}"
 
-            translate_argument action $5
+            # Command.
+            if [[ "$argument_current_unit_type_2" == "command" ]]; then
+                translate_argument subcommand $6
+                argument_current_unit_2="${argument}"
+        
+            # Function.
+            elif [[ "$argument_current_unit_type_2" == "function" ]]; then
+                argument_current_unit_2="$6"
+
+            # Error.
+            else
+                echo_error "command_permission, argument_current_unit_1, invalid unit: $argument_current_unit_2."
+            fi
+
+            translate_argument action $7
             argument_current_action_2="${argument}"
 
-            translate_argument role $6
+            translate_argument role $8
             argument_current_role_2="${argument}"
 
         else
@@ -692,7 +775,7 @@
         position_right
 
         translate_argument command $1
-        argument_current_subcommand_1="${argument}"
+        argument_current_unit_1="${argument}"
 
         status_check_permission
         interpret_source_permission
@@ -833,7 +916,7 @@
 
         setting_update censor restriction input output
 
-        status_update censor restriction input output
+        status_update profile_censor profile_restriction profile_input profile_output
 
         setting_update_streamdeck_page
 
@@ -892,8 +975,7 @@
             echo_debug "Only one scene change requested, skipping."
         fi
 
-        setting_update scene
-        setting_update_scene_quad_input
+        setting_update scene camera_input
 
     }
     command_source() {
@@ -958,7 +1040,7 @@
 
     }
 
-# OPERATION ###################################################################################################################################################################################
+    # OPERATION ###################################################################################################################################################################################
 
     translate_argument() {
 
@@ -1093,6 +1175,62 @@
                 echo_error "translate_argument, attribute, invalid argument: ${2}."
             fi
 
+        # Camera.
+        elif [[ "$1" == "camera" ]]; then
+
+            if [[ "$2" == "bathroom" || "$2" == "ba" ]]; then
+                argument="bathroom"
+            elif [[ "$2" == "bed_overhead" || "$2" == "be_o" ]]; then
+                argument="bed_overhead"
+            elif [[ "$2" == "bed_tripod" || "$2" == "be_t" ]]; then
+                argument="bed_tripod"
+            elif [[ "$2" == "crafts_anja" || "$2" == "cr_a" ]]; then
+                argument="crafts_anja"
+            elif [[ "$2" == "crafts_anja_overhead" || "$2" == "cr_a_o" ]]; then
+                argument="crafts_anja_overhead"
+            elif [[ "$2" == "crafts_vaughan" || "$2" == "cr_v" ]]; then
+                argument="crafts_vaughan"
+            elif [[ "$2" == "crafts_vaughan_overhead" || "$2" == "cr_v_o" ]]; then
+                argument="crafts_vaughan_overhead"
+            elif [[ "$2" == "desk_anja" || "$2" == "da" ]]; then
+                argument="desk_anja"
+            elif [[ "$2" == "desk_vaughan" || "$2" == "dv" ]]; then
+                argument="desk_vaughan"
+            elif [[ "$2" == "kitchen" || "$2" == "k" ]]; then
+                argument="kitchen"
+            elif [[ "$2" == "kitchen_overhead" || "$2" == "k_o" ]]; then
+                argument="kitchen_overhead"
+            elif [[ "$2" == "screen_anja_2" || "$2" == "sc_a_2" ]]; then
+                argument="screen_anja_2"
+            elif [[ "$2" == "screen_vaughan_1" || "$2" == "sc_v_1" ]]; then
+                argument="screen_vaughan_1"
+            elif [[ "$2" == "screen_vaughan_3" || "$2" == "sc_v_3" ]]; then
+                argument="screen_vaughan_3"
+            elif [[ "$2" == "studio" || "$2" == "s" ]]; then
+                argument="studio"
+            elif [[ "$2" == "window" || "$2" == "w" ]]; then
+                argument="window"
+            else
+                echo_error "translate_argument, camera, invalid argument: ${2}."
+            fi
+
+        # Camera type.
+        elif [[ "$1" == "camera_type" ]]; then
+
+            if [[ "$2" == "quad_1" || "$2" == "q1" ]]; then
+                argument="quad_1"
+            elif [[ "$2" == "quad_2" || "$2" == "q2" ]]; then
+                argument="quad_2"
+            elif [[ "$2" == "quad_3" || "$2" == "q3" ]]; then
+                argument="quad_3"
+            elif [[ "$2" == "quad_4" || "$2" == "q4" ]]; then
+                argument="quad_4"
+            elif [[ "$2" == "single" || "$2" == "s" ]]; then
+                argument="single"
+            else
+                echo_error "translate_argument, camera_type, invalid argument: ${2}."
+            fi
+
         # Category.
         elif [[ "$1" == "category" ]]; then
 
@@ -1134,6 +1272,8 @@
                 argument="automation"
             elif [[ "$2" == "--censor" || "$2" == "-c" ]]; then
                 argument="censor"
+            elif [[ "$2" == "--camera" || "$2" == "-ca" ]]; then
+                argument="camera"
             elif [[ "$2" == "--channel" || "$2" == "-ch" ]]; then
                 argument="channel"
             elif [[ "$2" == "--debug" || "$2" == "-d" ]]; then
@@ -1316,6 +1456,19 @@
                 echo_error "translate_argument, source, invalid argument: ${2}."
             fi
 
+        # Stream type.
+        elif [[ "$1" == "stream_type" ]]; then
+
+            if [[ "$2" == "active_uncut" || "$2" == "a_u" ]]; then
+                argument="active_uncut"
+            elif [[ "$2" == "active_normal" || "$2" == "a_n" ]]; then
+                argument="active_normal"
+            elif [[ "$2" == "passive" || "$2" == "p" ]]; then
+                argument="passive"
+            else
+                echo_error "translate_argument, stream_type, invalid argument: ${2}."
+            fi
+
         # Subcommand.
         elif [[ "$1" == "subcommand" ]]; then
 
@@ -1351,6 +1504,17 @@
                 echo_error "translate_argument, subcommand, invalid argument: ${2}."
             fi
 
+        # Unit.
+        elif [[ "$1" == "unit" ]]; then
+
+            if [[ "$2" == "command" || "$2" == "c" ]]; then
+                argument="command"
+            elif [[ "$2" == "function" || "$2" == "f" ]]; then
+                argument="function"
+            else
+                echo_error "translate_argument, utility, invalid argument: ${2}."
+            fi
+
         # Utility.
         elif [[ "$1" == "utility" ]]; then
 
@@ -1384,7 +1548,6 @@
         printf -v "$1" '%s' "$result"
 
     }
-
 
     script_obs_cli() {
 
@@ -1458,7 +1621,7 @@
 
     }
 
-# ALERT #######################################################################################################################################################################################
+    # ALERT #######################################################################################################################################################################################
 
     alert_play() {
 
@@ -1930,7 +2093,7 @@
 
     }
 
-# INTERPRET ######################################################################################################################################################################################
+    # INTERPRET ######################################################################################################################################################################################
 
     # Alerting.
 
@@ -2286,7 +2449,7 @@
 
     }
 
-# SETTING UPDATE ################################################################################################################################################################################
+    # SETTING UPDATE ################################################################################################################################################################################
 
     setting_update() {
 
@@ -2316,8 +2479,10 @@
 
                     status_check_obs_websocket 2
 
-                    ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                     exit_1=$?
+
+                    systemctl --user restart obs_cli
 
                     if [[ $1 -eq 0 ]]; then
                         echo_info "OBS Studio (Restricted)."
@@ -2329,8 +2494,10 @@
 
                     status_check_obs_websocket 1
 
-                    ivpn exclude /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=obs com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "quad_unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "quad_unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                     exit_1=$?
+
+                    systemctl --user restart obs_cli
 
                     if [[ $1 -eq 0 ]]; then
                         echo_info "OBS Studio (Unrestricted)."
@@ -3384,34 +3551,27 @@
 
                     # Bathroom.
                     if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
-                        setting_update_scene_quad 2 bathroom
-                        setting_update_scene_quad 4 window
+                        command_camera quad_2 bathroom quad_4 window
 
                     # Bed.
                     elif [[ "${!temp_arg_scene}" == "bed" ]]; then
-                        setting_update_scene_quad 2 bed_overhead
-                        setting_update_scene_quad 4 window
+                        command_camera quad_2 bed_overhead quad_4 window
 
                     # Crafts.
                     elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
                         echo_error "setting_update_scene, crafts scene disabled."
-                        # setting_update_scene_quad 2 crafts
-                        # setting_update_scene_quad 4 crafts_overhead
 
                     # Desk.
                     elif [[ "${!temp_arg_scene}" == "desk" ]]; then
-                        setting_update_scene_quad 2 desk_anja
-                        setting_update_scene_quad 4 window
+                        command_camera quad_2 desk_anja quad_4 window
 
                     # Kitchen.
                     elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
-                        setting_update_scene_quad 2 kitchen
-                        setting_update_scene_quad 4 kitchen_overhead
+                        command_camera quad_2 kitchen quad_4 kitchen_overhead
 
                     # Studio.
                     elif [[ "${!temp_arg_scene}" == "studio" ]]; then
-                        setting_update_scene_quad 2 studio
-                        setting_update_scene_quad 4 window
+                        command_camera quad_2 studio quad_4 window
 
                     # Error.
                     else
@@ -3441,34 +3601,27 @@
 
                     # Bathroom.
                     if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
-                        setting_update_scene_quad 1 bathroom
-                        setting_update_scene_quad 3 desktop_dp1
+                        command_camera quad_1 bathroom quad_3 screen_vaughan_1
 
                     # Bed.
                     elif [[ "${!temp_arg_scene}" == "bed" ]]; then
-                        setting_update_scene_quad 1 bed_overhead
-                        setting_update_scene_quad 3 desktop_dp1
+                        command_camera quad_1 bed_overhead quad_3 screen_vaughan_1
 
                     # Crafts.
                     elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
                         echo_error "setting_update_scene, crafts scene disabled."
-                        # setting_update_scene_quad 1 crafts
-                        # setting_update_scene_quad 3 crafts_overhead
 
                     # Desk.
                     elif [[ "${!temp_arg_scene}" == "desk" ]]; then
-                        setting_update_scene_quad 1 desk_vaughan
-                        setting_update_scene_quad 3 desktop_dp1
+                        command_camera quad_1 desk_vaughan quad_3 screen_vaughan_1
 
                     # Kitchen.
                     elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
-                        setting_update_scene_quad 1 kitchen
-                        setting_update_scene_quad 3 kitchen_overhead
+                        command_camera quad_1 kitchen quad_3 kitchen_overhead
 
                     # Studio.
                     elif [[ "${!temp_arg_scene}" == "studio" ]]; then
-                        setting_update_scene_quad 1 studio
-                        setting_update_scene_quad 3 desktop_dp1
+                        command_camera quad_1 studio quad_3 screen_vaughan_1
 
                     # Error.
                     else
@@ -3486,73 +3639,232 @@
             fi
 
         }
-            setting_update_scene_quad() {
 
-                echo_info "Scene: quad"
+        setting_update_camera() {
+
+            echo_info "Camera:"
+
+            position_right
+
+            status_check camera
+
+            # Quad.
+            if [[ "$arg_camera_type_1" == "quad_1" || "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
+
+                echo_info "Camera type: quad"
 
                 position_right
 
-                status_check scene_quad
+                # Current camera type is quad.
+                if [[ "$status_current_camera_type" == "quad" ]]; then
+                    echo_info "Quad: already showing, skipping."
 
-                temp_status_current_scene_quad="status_current_scene_quad_${1}"
+                # Current camera type is not quad.
+                else
+                    operation_socket --client unrestricted source show "restricted" "quad_restricted"
+                    echo_info "Quad restricted: show."
+                    operation_socket --client unrestricted source show "unrestricted" "quad_unrestricted"
+                    echo_info "Quad unrestricted: show."
+                    operation_socket --client unrestricted source hide "restricted" "${status_current_camera_type}_restricted"
+                    echo_info "$status_current_camera_type restricted: hide."
+                    operation_socket --client unrestricted source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                    echo_info "$status_current_camera_type unrestricted: hide."
+                    status_update_camera_type quad
+                fi
 
-                # Scene is already current.
-                if [[ "${!temp_status_current_scene_quad}" == "${2}" ]]; then
+                setting_update_camera_quad $arg_camera_type_1 $arg_camera_type_2 $arg_camera_type_3 $arg_camera_type_4
 
-                    echo_info "Quad $1: $2: already switched, skipping."
+                position_left
 
-                # Scene is not current.
-                elif [[ "${!temp_status_current_scene_quad}" != "$2" ]]; then
-                
-                    operation_socket --client unrestricted source show "quad_${1}_unrestricted" "${2}_unrestricted"
-                    echo_info "Quad $1: $2: show."
+            # Single.
+            elif [[ "$arg_camera_type_1" == "single" ]]; then
 
-                    operation_socket --client unrestricted source hide "quad_${1}_unrestricted" "${!temp_status_current_scene_quad}_unrestricted"
-                    echo_info "Quad $1: ${!temp_status_current_scene_quad}: hide."
+                echo_info "Camera type: single"
+
+                position_right
+
+                # Current camera type is single.
+                if [[ "$status_current_camera_type" == "single" ]]; then
+                    echo_info "Single: already showing, skipping."
+
+                # Current camera type is not single.
+                else
+                    operation_socket --client unrestricted source show "restricted" "single_restricted"
+                    echo_info "Single restricted: show."
+                    operation_socket --client unrestricted source show "unrestricted" "single_unrestricted"
+                    echo_info "Single unrestricted: show."
+                    operation_socket --client unrestricted source hide "restricted" "${status_current_camera_type}_restricted"
+                    echo_info "$status_current_camera_type restricted: hide."
+                    operation_socket --client unrestricted source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                    echo_info "$status_current_camera_type unrestricted: hide."
+                    status_update_camera_type single
+                fi
+
+                setting_update_camera_single $arg_camera_1
+
+                position_left
+
+            # Error.
+            else
+                echo_error "setting_update_camera, arg_camera_type_1: $arg_camera_type_1."
+            fi
+
+            position_left
+
+        }
+            setting_update_camera_input() {
+
+                status_check camera
+
+                # Quad.
+                if [[ "$arg_camera_type_1" == "quad_1" ||  "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
+
+                    # Bathroom.
+                    if [[ "$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom" ]]; then
+                        setting_update_input_device_unmute 4
+                    elif [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" ]]; then
+                        setting_update_input_device_mute 4
+                    else
+                        echo_error "setting_update_camera_input, bathroom."
+                    fi
+
+                    # Desk.
+                    if [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" || "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                        setting_update_input_device_unmute 2
+                    elif [[ ("$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom") && ("$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen") ]]; then
+                        setting_update_input_device_mute 2
+                    else
+                        echo_error "setting_update_camera_input, desk"
+                    fi
+
+                    # Kitchen.
+                    if [[ "$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen" ]]; then
+                        setting_update_input_device_unmute 3
+                    elif [[ "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                        setting_update_input_device_mute 3
+                    else
+                        echo_error "setting_update_camera_input, kitchen."
+                    fi
+
+                # Single.
+                elif [[ "$arg_camera_type_1" == "single" ]]; then
+
+                    # Bathroom.
+                    if [[ "$status_current_camera_single" == "bathroom" ]]; then
+                        setting_update_input_device_mute 2
+                        setting_update_input_device_mute 3
+                        setting_update_input_device_unmute 4
+
+                    # Kitchen.
+                    elif [[ "$status_current_camera_single" == "kitchen" ]]; then
+                        setting_update_input_device_mute 2
+                        setting_update_input_device_unmute 3
+                        setting_update_input_device_mute 4
+
+                    # Desk.
+                    elif [[ "$status_current_camera_single" != "bathroom" && "$status_current_camera_single" != "kitchen" ]]; then
+                        setting_update_input_device_unmute 2
+                        setting_update_input_device_mute 3
+                        setting_update_input_device_mute 4
+
+                    # Error.
+                    else
+                        echo_error "status_current_camera_single: $status_current_camera_single."
+                    fi
+
+                # Error.    
+                else
+                    echo_error "setting_update_camera_input, arg_camera_type_1: $arg_camera_type_1."
+                fi
+
+            }
+            setting_update_camera_quad() {
+
+
+                echo_info "Quad: $1"
+
+                position_right
+
+                for arg in "$@"; do
+
+                    if [[ "$arg" == "$arg_camera_type_1" ]]; then
+                        camera_number=1
+                    elif [[ "$arg" == "$arg_camera_type_2" ]]; then
+                        camera_number=2
+                    elif [[ "$arg" == "$arg_camera_type_3" ]]; then
+                        camera_number=3
+                    elif [[ "$arg" == "$arg_camera_type_4" ]]; then
+                        camera_number=4
+                    else
+                        echo_error "setting_update_camera_quad, arg_camera_type_x."
+                    fi
+
+                    quad_number="${arg//quad_/}"
+
+                    temp_status_current_camera_quad="status_current_camera_quad_$quad_number"
                     
+                    temp_status_new_camera_quad="arg_camera_$camera_number"
 
-                    status_update scene_quad $1 $2
+                    # Camera is already shown.
+                    if [[ "${!temp_status_current_camera_quad}" == "${!temp_status_new_camera_quad}" ]]; then
+                        echo_info "Quad $quad_number: is already ${!temp_status_new_camera_quad}, skipping."
+
+                    # Camera is hidden.
+                    elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
+                        operation_socket --client unrestricted source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
+                        echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
+                        operation_socket --client unrestricted source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
+                        echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
+
+                        operation_socket --client unrestricted source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
+                        echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
+                        operation_socket --client unrestricted source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
+                        echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
+
+                        status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
+
+                    # Error.
+                    else
+                        echo_error "setting_update_camera_quad."
+                    fi
+                
+                done
+
+                position_left
+
+            }
+            setting_update_camera_single() {
+
+                echo_info "Single:"
+
+                position_right
+
+                # Camera is already shown.
+                if [[ "$status_current_camera_single" == "$1" ]]; then
+                    echo_info "$1 is already shown, skipping."
+
+                # Camera is hidden.
+                elif [[ "$status_current_camera_single" != "$1" ]]; then
+                    operation_socket --client unrestricted source show "single_restricted" "${1}_restricted"
+                    echo_info "single_restricted: show ${1}_restricted."
+                    operation_socket --client unrestricted source show "single_unrestricted" "${1}_unrestricted"
+                    echo_info "single_unrestricted: show ${1}_unrestricted."
+
+                    operation_socket --client unrestricted source hide "single_restricted" "${status_current_camera_single}_restricted"
+                    echo_info "single_restricted: hide ${status_current_camera_single}_restricted."
+                    operation_socket --client unrestricted source hide "single_unrestricted" "${status_current_camera_single}_unrestricted"
+                    echo_info "single_unrestricted: hide ${status_current_camera_single}_unrestricted."
+
+                    status_update_camera_single $1
 
                 # Error.
                 else
-                    echo_error "setting_update_scene_quad."
+                    echo_error "setting_update_camera_single."
                 fi
 
                 position_left
 
             }
-                setting_update_scene_quad_input() {
-
-                    status_check scene_quad
-
-                    # Bathroom.
-                    if [[ "$status_current_scene_quad_1" == "bathroom" ||  "$status_current_scene_quad_2" == "bathroom" ||  "$status_current_scene_quad_3" == "bathroom" ||  "$status_current_scene_quad_4" == "bathroom" ]]; then
-                        setting_update_input_device_unmute 4
-                    elif [[ "$status_current_scene_quad_1" != "bathroom" ||  "$status_current_scene_quad_2" != "bathroom" ||  "$status_current_scene_quad_3" != "bathroom" ||  "$status_current_scene_quad_4" != "bathroom" ]]; then
-                        setting_update_input_device_mute 4
-                    else
-                        echo_error "setting_update_scene_quad_input, bathroom."
-                    fi
-
-                    # Bed.
-                    if [[ "$status_current_scene_quad_1" == "bed_overhead" ||  "$status_current_scene_quad_2" == "bed_overhead" ||  "$status_current_scene_quad_3" == "bed_overhead" ||  "$status_current_scene_quad_4" == "bed_overhead" || "$status_current_scene_quad_1" == "crafts" ||  "$status_current_scene_quad_2" == "crafts" ||  "$status_current_scene_quad_3" == "crafts" ||  "$status_current_scene_quad_4" == "crafts" || "$status_current_scene_quad_1" == "desk_anja" ||  "$status_current_scene_quad_2" == "desk_anja" ||  "$status_current_scene_quad_3" == "desk_anja" ||  "$status_current_scene_quad_4" == "desk_anja" || "$status_current_scene_quad_1" == "desk_vaughan" ||  "$status_current_scene_quad_2" == "desk_vaughan" ||  "$status_current_scene_quad_3" == "desk_vaughan" ||  "$status_current_scene_quad_4" == "desk_vaughan" || "$status_current_scene_quad_1" == "studio" ||  "$status_current_scene_quad_2" == "studio" ||  "$status_current_scene_quad_3" == "studio" ||  "$status_current_scene_quad_4" == "studio" ]]; then
-                        setting_update_input_device_unmute 2
-                    elif [[ "$status_current_scene_quad_1" != "bed_overhead" ||  "$status_current_scene_quad_2" != "bed_overhead" ||  "$status_current_scene_quad_3" != "bed_overhead" ||  "$status_current_scene_quad_4" != "bed_overhead" || "$status_current_scene_quad_1" != "crafts" ||  "$status_current_scene_quad_2" != "crafts" ||  "$status_current_scene_quad_3" != "crafts" ||  "$status_current_scene_quad_4" != "crafts" || "$status_current_scene_quad_1" != "desk" ||  "$status_current_scene_quad_2" != "desk" ||  "$status_current_scene_quad_3" != "desk" ||  "$status_current_scene_quad_4" != "desk" || "$status_current_scene_quad_1" != "studio" ||  "$status_current_scene_quad_2" != "studio" ||  "$status_current_scene_quad_3" != "studio" ||  "$status_current_scene_quad_4" != "studio" ]]; then
-                        setting_update_input_device_mute 2
-                    else
-                        echo_error "setting_update_scene_quad_input, bed_overhead, crafts, desk, studio."
-                    fi
-
-                    # Kitchen.
-                    if [[ "$status_current_scene_quad_1" == "kitchen" ||  "$status_current_scene_quad_2" == "kitchen" ||  "$status_current_scene_quad_3" == "kitchen" ||  "$status_current_scene_quad_4" == "kitchen" ]]; then
-                        setting_update_input_device_unmute 3
-                    elif [[ "$status_current_scene_quad_1" != "kitchen" ||  "$status_current_scene_quad_2" != "kitchen" ||  "$status_current_scene_quad_3" != "kitchen" ||  "$status_current_scene_quad_4" != "kitchen" ]]; then
-                        setting_update_input_device_mute 3
-                    else
-                        echo_error "setting_update_scene_quad_input, kitchen."
-                    fi
-
-                }
 
     # Channel.
 
@@ -3610,6 +3922,16 @@
         echo_info "Channel update:"
 
         position_right
+
+        # Stream type.
+        if [[ "$argument_stream_type_1" == "passive" ]]; then
+            status_update input_unlock
+        elif [[ "$argument_stream_type_1" == "active_normal" ]]; then
+            status_update input_lock
+            command_permission command channel select owner command scene select owner
+        elif [[ "$argument_stream_type_1" == "active_uncut" ]]; then
+            status_update input_lock
+            command_permission command channel select owner
 
         # Twitch.
         if [[ "$argument_current_platform_1" == "twitch" || "$argument_current_platform_1" == "all" ]]; then
@@ -3735,30 +4057,31 @@
 
             position_right
 
+            status_check_input_permission
             status_check_input_device all
 
             # All.
-            if [[ "$1" == "all" ]]; then
+            if [[ ("$1" == "all") ]]; then
                 setting_update_input_device_mute_all
             fi
 
             # Microphone 1.
-            if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
+            if [[ ("$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1") && ("$status_current_input_permission_1" != "owner" || ("$status_current_input_permission_1" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_mute_microphone_1
             fi
 
             # Microphone 2.
-            if [[ "$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2" ]]; then
+            if [[ ("$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2") && ("$status_current_input_permission_2" != "owner" || ("$status_current_input_permission_2" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_mute_microphone_2
             fi
 
             # Microphone 3.
-            if [[ "$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3" ]]; then
+            if [[ ("$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3") && ("$status_current_input_permission_3" != "owner" || ("$status_current_input_permission_3" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_mute_microphone_3
             fi
 
             # Microphone 4.
-            if [[ "$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4" ]]; then
+            if [[ ("$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4") && ("$status_current_input_permission_4" != "owner" || ("$status_current_input_permission_4" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_mute_microphone_4
             fi 
 
@@ -3816,11 +4139,7 @@
                 wpctl set-mute $microphone_1_ID 1
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_1_name}"
-                else
-                    echo_error "setting_update_input_device_mute_microphone_1."
-                fi
+                error_check 1 info "${input_device_microphone_1_name}"
 
             }
             setting_update_input_device_mute_microphone_2() {
@@ -3828,33 +4147,26 @@
                 wpctl set-mute $microphone_2_ID 1
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_2_name}"
-                else
-                    echo_error "setting_update_input_device_mute_microphone_2."
-                fi
+                error_check 1 info "${input_device_microphone_2_name}"
+
             }
             setting_update_input_device_mute_microphone_3() {
 
                 wpctl set-mute $microphone_3_ID 1
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_3_name}"
-                else
-                    echo_error "setting_update_input_device_mute_microphone_3."
-                fi
+                error_check 1 info "${input_device_microphone_3_name}"
+
             }
             setting_update_input_device_mute_microphone_4() {
+
+                
 
                 wpctl set-mute $microphone_4_ID 1
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_4_name}"
-                else
-                    echo_error "setting_update_input_device_mute_microphone_4."
-                fi
+                error_check 1 info "${input_device_microphone_4_name}"
+
             }
 
         setting_update_input_obs_restricted_mute() {
@@ -3991,25 +4303,27 @@
 
             position_right
 
+            status_check_input_permission
             status_check_input_device all
 
             # Microphone 1.
-            if [[ ("$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1") || "$1" == "all" ]]; then
+            if [[ (("$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1") || "$1" == "all") && ("$status_current_input_permission_1" != "owner" || ("$status_current_input_permission_1" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
+                
                 setting_update_input_device_unmute_microphone_1
             fi
 
             # Microphone 2.
-            if [[ ("$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2") || "$1" == "all" ]]; then
+            if [[ (("$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2") || "$1" == "all") && ("$status_current_input_permission_2" != "owner" || ("$status_current_input_permission_2" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_unmute_microphone_2
             fi
 
             # Microphone 3.
-            if [[ ("$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3") || "$1" == "all" ]]; then
+            if [[ (("$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3") || "$1" == "all") && ("$status_current_input_permission_3" != "owner" || ("$status_current_input_permission_3" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_unmute_microphone_3
             fi
 
             # Microphone 4.
-            if [[ ("$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4") || "$1" == "all" ]]; then
+            if [[ (("$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4") || "$1" == "all") && ("$status_current_input_permission_4" != "owner" || ("$status_current_input_permission_4" == "owner" && "$status_current_source_permission" == "owner" )) ]]; then
                 setting_update_input_device_unmute_microphone_4
             fi 
 
@@ -4026,11 +4340,7 @@
                 wpctl set-mute $microphone_1_ID 0
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_1_name}"
-                else
-                    echo_error "setting_update_input_device_unmute_microphone_1."
-                fi
+                error_check 1 info "${input_device_microphone_1_name}"
 
             }
             setting_update_input_device_unmute_microphone_2() {
@@ -4038,33 +4348,24 @@
                 wpctl set-mute $microphone_2_ID 0
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_2_name}"
-                else
-                    echo_error "setting_update_input_device_unmute_microphone_2."
-                fi
+                error_check 1 info "${input_device_microphone_2_name}"
+
             }
             setting_update_input_device_unmute_microphone_3() {
 
                 wpctl set-mute $microphone_3_ID 0
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_3_name}"
-                else
-                    echo_error "setting_update_input_device_unmute_microphone_3."
-                fi
+                error_check 1 info "${input_device_microphone_3_name}"
+
             }
             setting_update_input_device_unmute_microphone_4() {
 
                 wpctl set-mute $microphone_4_ID 0
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_4_name}"
-                else
-                    echo_error "setting_update_input_device_unmute_microphone_4."
-                fi
+                error_check 1 info "${input_device_microphone_4_name}"
+
             }
 
         setting_update_input_obs_restricted_unmute() {
@@ -4988,7 +5289,7 @@
             playerctl --player playerctld play
             exit_1=$?
 
-            error_check 1 quiet "Resumed."
+            error_check 1 info "Resumed."
 
         }
         setting_update_playback_playback_pause() {
@@ -4996,7 +5297,7 @@
             playerctl --player playerctld pause
             exit_1=$?
 
-            error_check 1 quiet "Paused."
+            error_check 1 info "Paused."
 
         }
         setting_update_playback_playback_toggle() {
@@ -5004,7 +5305,7 @@
             playerctl --player playerctld play-pause
             exit_1=$?
 
-            error_check 1 quiet "Toggled."
+            error_check 1 info "Toggled."
 
         }
 
@@ -5101,40 +5402,68 @@
 
     }
 
-# STATUS CHECK ################################################################################################################################################################################
+    # STATUS CHECK ################################################################################################################################################################################
 
     status_check() {
 
-        echo_info "Status check: ${1}"
+        echo_info "Status check:"
 
         position_right
 
-        if [[ "$1" == "light_litra_brightness" ]]; then
-            status_check_light_litra_brightness
-        elif [[ "$1" == "light_litra_power" ]]; then
-            status_check_light_litra_power
-        elif [[ "$1" == "scene_quad" ]]; then
-            status_check_scene_quad
-        else
-            echo_error "status_check, invalid argument: ${1}."
-        fi
+        for arg in "$@"; do
+            temp_setting_update="status_check_$arg"
+            $temp_setting_update
+        done
 
         position_left
 
     }
-        status_check_scene_quad() {
+        status_check_light_litra_brightness() {
 
-            status_current_scene_quad_1=$(cat "${directory_data_private}scene_quad_1.txt")
-            echo_info "Quad 1: ${status_current_scene_quad_1}."
+            status_current_light_litra_brightness=$(cat "${directory_data_private}light_litra_brightness.txt")
+            echo_info "$status_current_light_brightness"
 
-            status_current_scene_quad_2=$(cat "${directory_data_private}scene_quad_2.txt")
-            echo_info "Quad 2: ${status_current_scene_quad_2}."
+        }
+        status_check_light_litra_power() {
 
-            status_current_scene_quad_3=$(cat "${directory_data_private}scene_quad_3.txt")
-            echo_info "Quad 3: ${status_current_scene_quad_3}."
+            status_current_light_litra_power=$(cat "${directory_data_private}light_litra_power.txt")
+            echo_info "$status_current_light_litra_power"
 
-            status_current_scene_quad_4=$(cat "${directory_data_private}scene_quad_4.txt")
-            echo_info "Quad 4: ${status_current_scene_quad_4}."
+        }
+        status_check_camera() {
+
+            status_current_camera_type=$(cat "${directory_data_private}camera_type.txt")
+            echo_info "Camera type: ${status_current_camera_type}."
+
+            status_current_camera_quad_1=$(cat "${directory_data_private}camera_quad_1.txt")
+            echo_info "Quad 1: ${status_current_camera_quad_1}."
+
+            status_current_camera_quad_2=$(cat "${directory_data_private}camera_quad_2.txt")
+            echo_info "Quad 2: ${status_current_camera_quad_2}."
+
+            status_current_camera_quad_3=$(cat "${directory_data_private}camera_quad_3.txt")
+            echo_info "Quad 3: ${status_current_camera_quad_3}."
+
+            status_current_camera_quad_4=$(cat "${directory_data_private}camera_quad_4.txt")
+            echo_info "Quad 4: ${status_current_camera_quad_4}."
+
+            status_current_camera_single=$(cat "${directory_data_private}camera_single.txt")
+            echo_info "Single: ${status_current_camera_single}."
+
+        }
+        status_check_input_permission() {
+
+            status_current_input_permission_1=$(cat "${directory_data_private}permission_input_1.txt")
+            echo_info "Input 1: ${status_current_input_permission_1}."
+
+            status_current_input_permission_2=$(cat "${directory_data_private}permission_input_2.txt")
+            echo_info "Input 2: ${status_current_input_permission_2}."
+
+            status_current_input_permission_3=$(cat "${directory_data_private}permission_input_3.txt")
+            echo_info "Input 3: ${status_current_input_permission_3}."
+
+            status_current_input_permission_4=$(cat "${directory_data_private}permission_input_4.txt")
+            echo_info "Input 4: ${status_current_input_permission_4}."
 
         }
 
@@ -5197,19 +5526,6 @@
         }
 
     # Light.
-
-        status_check_light_litra_brightness() {
-
-            status_current_light_litra_brightness=$(cat "${directory_data_private}light_litra_brightness.txt")
-            echo_info "$status_current_light_brightness"
-
-        }
-        status_check_light_litra_power() {
-
-            status_current_light_litra_power=$(cat "${directory_data_private}light_litra_power.txt")
-            echo_info "$status_current_light_litra_power"
-
-        }
 
     # Argument
 
@@ -5457,13 +5773,13 @@
 
         position_right
 
-        status_current_permission_role_1=$(cat "${directory_data_private}permission_${argument_current_subcommand_1}.txt")
+        status_current_permission_role_1=$(cat "${directory_data_private}permission_${argument_current_unit_1}.txt")
 
         echo_debug "${status_current_permission_role_1}"
 
-        if [[ -n "$argument_current_subcommand_2" ]]; then
+        if [[ -n "$argument_current_unit_type_2" ]]; then
 
-                    status_current_permission_role_2=$(cat "${directory_data_private}permission_${argument_current_subcommand_2}.txt")
+                    status_current_permission_role_2=$(cat "${directory_data_private}permission_${argument_current_unit_2}.txt")
 
                     echo_debug "${status_current_permission_role_2}"
 
@@ -5591,32 +5907,209 @@
     status_update() {
 
         echo_info "Status update:"
+
         position_right
 
-        # Censor.
-        if [[ "$1" == "censor" || "$2" == "censor" || "$3" == "censor" || "$4" == "censor" ]]; then
-            status_update_profile_censor
-        fi
-        # Input.
-        if [[ "$1" == "input" || "$2" == "input" || "$3" == "input" || "$4" == "input" ]]; then
-            status_update_profile_input
-        fi
-        # Output.
-        if [[ "$1" == "output" || "$2" == "output" || "$3" == "output" || "$4" == "output" ]]; then
-            status_update_profile_output
-        fi
-        # Restriction.
-        if [[ "$1" == "restriction" || "$2" == "restriction" || "$3" == "restriction" || "$4" == "restriction" ]]; then
-            status_update_profile_restriction
-        fi
-        # Scene.
-        if [[ "$1" == "scene_quad" || "$2" == "scene_quad" || "$3" == "scene_quad" || "$4" == "scene_quad" ]]; then
-            status_update_scene_quad $2 $3
-        fi
+        for arg in "$@"; do
+            temp_function="status_update_$arg"
+            $temp_function
+        done
 
         position_left
 
     }
+        status_update_profile_censor() {
+
+            # Requested status censored, checked status uncensored.
+            if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
+                status_update_profile_censor_censored
+
+            # Requested status uncensored, checked status censored.
+            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
+                status_update_profile_censor_uncensored
+
+            # Requested status censored, checked status censored.
+            elif [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "censored" ]]; then
+                echo_debug "Censor: censored (unchanged)."
+
+            # Requested status uncensored, checked status uncensored.
+            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
+                echo_debug "Censor: uncensored (unchanged)."
+
+            # Error.
+            else
+                echo_error "Censor status update: failed."
+            fi
+
+        }
+            status_update_profile_censor_censored() {
+
+                echo "censored" > "${directory_data_private}profile_censor.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Censor: censored."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Censor: censoring failed."
+                fi
+
+            }
+            status_update_profile_censor_uncensored() {
+
+                echo "uncensored" > "${directory_data_private}profile_censor.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Censor: uncensored."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Censor: uncensoring failed."
+                fi
+
+            }
+        status_update_profile_input() {
+
+            # Requested status muted, checked status unmuted.
+            if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
+                status_update_profile_input_muted
+
+            # Requested status unmuted, checked status muted.
+            elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
+                status_update_profile_input_unmuted
+
+            # Requested status muted, checked status muted.
+            elif [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "muted" ]]; then
+                echo_debug "Input: muted (unchanged)."
+
+            # Requested status unmuted, checked status unmuted.
+            elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "unmuted" ]]; then
+                echo_debug "Input: unmuted (unchanged)."
+
+            # Error.
+            else
+                echo_error "Input status update: failed."
+            fi
+
+        }
+            status_update_profile_input_muted() {
+
+                echo "muted" > "${directory_data_private}profile_input.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Input: muted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Input: muting failed."
+                fi
+
+            }
+            status_update_profile_input_unmuted() {
+
+                echo "unmuted" > "${directory_data_private}profile_input.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Input: unmuted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Input: unmuting failed."
+                fi
+
+            }
+        status_update_profile_output() {
+
+            # Requested status muted, checked status unmuted.
+            if [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
+                status_update_profile_output_muted
+
+            # Requested status unmuted, checked status muted.
+            elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
+                status_update_profile_output_unmuted
+
+            # Requested status muted, checked status muted.
+            elif [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "muted" ]]; then
+                echo_debug "Output: muted (unchanged) (1A)."
+
+            # Requested status unmuted, checked status unmuted.
+            elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "unmuted" ]]; then
+                echo_debug "Output: unmuted (unchanged) (1B)."
+
+            # Error.
+            else
+                echo_error "Output status update: failed."
+            fi
+
+        }
+            status_update_profile_output_muted() {
+
+                echo "muted" > "${directory_data_private}profile_output.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Output: muted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Output: muting failed."
+                fi
+
+            }
+            status_update_profile_output_unmuted() {
+
+                echo "unmuted" > "${directory_data_private}profile_output.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Output: unmuted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Output: unmuting failed."
+                fi
+
+            }
+        status_update_profile_restriction() {
+
+            # Requested status restricted, checked status unrestricted.
+            if [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                status_update_profile_restriction_restricted
+
+            # Requested status unrestricted, checked status restricted.
+            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
+                status_update_profile_restriction_unrestricted
+
+            # Requested status restricted, checked status restricted.
+            elif [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "restricted" ]]; then
+                echo_debug "Restriction: restricted (unchanged)."
+
+            # Requested status unrestricted, checked status unrestricted.
+            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                echo_debug "Restriction: unrestricted (unchanged)."
+
+            # Error.
+            else
+                echo_error "Restriction status update: failed."
+            fi
+
+        }
+            status_update_profile_restriction_restricted() {
+
+                echo "restricted" > "${directory_data_private}profile_restriction.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Restriction: restricted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Restriction: restricting failed."
+                fi
+
+            }
+            status_update_profile_restriction_unrestricted() {
+
+                echo "unrestricted" > "${directory_data_private}profile_restriction.txt"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Restriction: unrestricted."
+                elif [[ $exit_1 -ne 0 ]]; then
+                    echo_error "Restriction: unrestricting failed."
+                fi
+
+            }
         status_update_scene_quad() {
 
             echo_info "Scene: quad"
@@ -5631,6 +6124,100 @@
             else
                 echo_error "status_update_scene_quad."
             fi
+
+            position_left
+
+        }
+        status_update_camera_quad() {
+
+            echo_info "Status update quad: "
+
+            position_right
+
+            echo "$2" > "${directory_data_private}camera_quad_${1}.txt"
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "Quad ${1}: ${2}."
+            else
+                echo_error "status_update_camera_quad."
+            fi
+
+            position_left
+
+        }
+        status_update_camera_single() {
+
+            echo_info "Camera single:"
+
+            position_right
+
+            echo "$1" > "${directory_data_private}camera_single.txt"
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "Single: ${1}."
+            else
+                echo_error "status_update_camera_single."
+            fi
+
+            position_left
+
+        }
+        status_update_camera_type() {
+
+            echo_info "Camera type:"
+
+            position_right
+
+            echo "$1" > "${directory_data_private}camera_type.txt"
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "Camera type: $1."
+            else
+                echo_error "status_update_camera_type."
+            fi
+
+            position_left
+
+        }
+        status_update_input_lock() {
+
+            echo_info "Input lock:"
+
+            position_right
+
+            echo "locked" > "${directory_data_private}input_1.txt"
+            exit_1=$?
+            echo "locked" > "${directory_data_private}input_2.txt"
+            exit_2=$?
+            echo "locked" > "${directory_data_private}input_3.txt"
+            exit_3=$?
+            echo "locked" > "${directory_data_private}input_4.txt"
+            exit_4=$?
+
+            error_check 4 debug "Input locked."
+
+            position_left
+
+        }
+        status_update_input_unlock() {
+
+            echo_info "Input unlock:"
+
+            position_right
+
+            echo "unlocked" > "${directory_data_private}input_1.txt"
+            exit_1=$?
+            echo "unlocked" > "${directory_data_private}input_2.txt"
+            exit_2=$?
+            echo "unlocked" > "${directory_data_private}input_3.txt"
+            exit_3=$?
+            echo "unlocked" > "${directory_data_private}input_4.txt"
+            exit_4=$?
+
+            error_check 4 debug "Input unlocked."
 
             position_left
 
@@ -5723,12 +6310,12 @@
     }
         status_update_permission_role() {
 
-            echo "$status_request_permission_role_1" > "${directory_data_private}permission_${argument_current_subcommand_1}.txt"
+            echo "$status_request_permission_role_1" > "${directory_data_private}permission_${argument_current_unit_1}.txt"
             exit_1=$?
 
             if [[ -n "$argument_current_role_2" ]]; then
 
-                echo "$status_request_permission_role_2" > "${directory_data_private}permission_${argument_current_subcommand_2}.txt"
+                echo "$status_request_permission_role_2" > "${directory_data_private}permission_${argument_current_unit_2}.txt"
                 exit_2=$?
 
             else
@@ -5749,198 +6336,6 @@
 
         }
 
-    status_update_profile_censor() {
-
-        # Requested status censored, checked status uncensored.
-        if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
-            status_update_profile_censor_censored
-
-        # Requested status uncensored, checked status censored.
-        elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
-            status_update_profile_censor_uncensored
-
-        # Requested status censored, checked status censored.
-        elif [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "censored" ]]; then
-            echo_debug "Censor: censored (unchanged)."
-
-        # Requested status uncensored, checked status uncensored.
-        elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
-            echo_debug "Censor: uncensored (unchanged)."
-
-        # Error.
-        else
-            echo_error "Censor status update: failed."
-        fi
-
-    }
-        status_update_profile_censor_censored() {
-
-            echo "censored" > "${directory_data_private}profile_censor.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Censor: censored."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Censor: censoring failed."
-            fi
-
-        }
-        status_update_profile_censor_uncensored() {
-
-            echo "uncensored" > "${directory_data_private}profile_censor.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Censor: uncensored."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Censor: uncensoring failed."
-            fi
-
-        }
-    status_update_profile_input() {
-
-        # Requested status muted, checked status unmuted.
-        if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
-            status_update_profile_input_muted
-
-        # Requested status unmuted, checked status muted.
-        elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
-            status_update_profile_input_unmuted
-
-        # Requested status muted, checked status muted.
-        elif [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "muted" ]]; then
-            echo_debug "Input: muted (unchanged)."
-
-        # Requested status unmuted, checked status unmuted.
-        elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "unmuted" ]]; then
-            echo_debug "Input: unmuted (unchanged)."
-
-        # Error.
-        else
-            echo_error "Input status update: failed."
-        fi
-
-    }
-        status_update_profile_input_muted() {
-
-            echo "muted" > "${directory_data_private}profile_input.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Input: muted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Input: muting failed."
-            fi
-
-        }
-        status_update_profile_input_unmuted() {
-
-            echo "unmuted" > "${directory_data_private}profile_input.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Input: unmuted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Input: unmuting failed."
-            fi
-
-        }
-    status_update_profile_output() {
-
-        # Requested status muted, checked status unmuted.
-        if [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
-            status_update_profile_output_muted
-
-        # Requested status unmuted, checked status muted.
-        elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
-            status_update_profile_output_unmuted
-
-        # Requested status muted, checked status muted.
-        elif [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "muted" ]]; then
-            echo_debug "Output: muted (unchanged) (1A)."
-
-        # Requested status unmuted, checked status unmuted.
-        elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "unmuted" ]]; then
-            echo_debug "Output: unmuted (unchanged) (1B)."
-
-        # Error.
-        else
-            echo_error "Output status update: failed."
-        fi
-
-    }
-        status_update_profile_output_muted() {
-
-            echo "muted" > "${directory_data_private}profile_output.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Output: muted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Output: muting failed."
-            fi
-
-        }
-        status_update_profile_output_unmuted() {
-
-            echo "unmuted" > "${directory_data_private}profile_output.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Output: unmuted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Output: unmuting failed."
-            fi
-
-        }
-    status_update_profile_restriction() {
-
-        # Requested status restricted, checked status unrestricted.
-        if [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
-            status_update_profile_restriction_restricted
-
-        # Requested status unrestricted, checked status restricted.
-        elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
-            status_update_profile_restriction_unrestricted
-
-        # Requested status restricted, checked status restricted.
-        elif [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "restricted" ]]; then
-            echo_debug "Restriction: restricted (unchanged)."
-
-        # Requested status unrestricted, checked status unrestricted.
-        elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
-            echo_debug "Restriction: unrestricted (unchanged)."
-
-        # Error.
-        else
-            echo_error "Restriction status update: failed."
-        fi
-
-    }
-        status_update_profile_restriction_restricted() {
-
-            echo "restricted" > "${directory_data_private}profile_restriction.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Restriction: restricted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Restriction: restricting failed."
-            fi
-
-        }
-        status_update_profile_restriction_unrestricted() {
-
-            echo "unrestricted" > "${directory_data_private}profile_restriction.txt"
-            exit_1=$?
-
-            if [[ $exit_1 -eq 0 ]]; then
-                echo_info "Restriction: unrestricted."
-            elif [[ $exit_1 -ne 0 ]]; then
-                echo_error "Restriction: unrestricting failed."
-            fi
-
-        }
     status_update_light_litra_brightness() {
 
         if [[ -n "$status_request_light_litra_brightness" ]]; then
@@ -5992,6 +6387,12 @@
                 command_gatekeeper "$@"
                 shift
                 command_automation "$@"
+                break
+                ;;
+            --camera|-ca)
+                command_gatekeeper "$@"
+                shift
+                command_camera "$@"
                 break
                 ;;
             --censor|-c)
