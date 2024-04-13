@@ -3932,6 +3932,9 @@
         elif [[ "$argument_stream_type_1" == "active_uncut" ]]; then
             status_update input_lock
             command_permission command channel select owner
+        else
+            echo_error "setting_update_channel_update, argument_stream_type_1: $argument_stream_type_1."
+        fi
 
         # Twitch.
         if [[ "$argument_current_platform_1" == "twitch" || "$argument_current_platform_1" == "all" ]]; then
