@@ -288,14 +288,22 @@ def handle_command(command, clients):
         parser.add_argument('--client', type=str, required=True, help='Client name.')
         subparsers = parser.add_subparsers(dest='operation', help='Operation to perform')
 
+
         input_parser = subparsers.add_parser('input', help='Input audio subcommand.')
         input_parser.add_argument('subcommand', choices=['mute', 'unmute', 'toggle'], help='Subcommand')
         input_parser.add_argument('input', type=str, help='Input name.')
+
 
         source_parser = subparsers.add_parser('source', help='Source subcommand.')
         source_parser.add_argument('subcommand', choices=['hide', 'show'], help='Subcommand')
         source_parser.add_argument('scene', type=str, help='Scene name.')
         source_parser.add_argument('source', type=str, help='Source name.')
+
+
+        scene_parser = subparsers.add_parser('scene', help='Scene subcommand.')
+        scene_parser.add_argument('subcommand', choices=['list', 'switch'], help='Subcommand')
+        scene_parser.add_argument('scene', type=str, help='Scene name.')
+
 
         hotkey_parser = subparsers.add_parser('hotkey', help='Hotkey subcommand.')
         hotkey_subparsers = hotkey_parser.add_subparsers(dest='subcommand', help='Subcommand')
