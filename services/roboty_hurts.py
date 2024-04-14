@@ -46,7 +46,7 @@ class Bot(commands.Bot):
 
     def refresh_access_token(self):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
-        subprocess.run([script_path, "-s", "rbhb", "-v", "-ch", "t", "rbh", "rf"])
+        subprocess.run([script_path, "-s", "rb_h_o", "-v", "-ch", "t", "rbh", "rf"])
 
     def get_access_token(self):
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
@@ -121,8 +121,20 @@ class Bot(commands.Bot):
             self.log_message(f"RESPONSE | {response_message}")
             return
 
+        if self.get_permission_level(ctx.author.name) == 4:
+            temp_source = "rb_h_o"
+        elif self.get_permission_level(ctx.author.name) == 3:
+            temp_source = "rb_h_l"
+        elif self.get_permission_level(ctx.author.name) == 2:
+            temp_source = "rb_h_r"
+        elif self.get_permission_level(ctx.author.name) == 1:
+            temp_source = "rb_h_h"
+        elif self.get_permission_level(ctx.author.name) == 0:
+            temp_source = "rb_h_c"
+
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "rbhu", "-v", "-ch", "t", "rh", "ud", "p", "p"]
+        arguments_scene = ["-s", temp_source, "-v", "-ch", "t", "rh", "ud", "p", "p"]
+
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
@@ -170,8 +182,19 @@ class Bot(commands.Bot):
             self.log_message(f"RESPONSE | {response_message}")
             return
 
+        if self.get_permission_level(ctx.author.name) == 4:
+            temp_source = "rb_h_o"
+        elif self.get_permission_level(ctx.author.name) == 3:
+            temp_source = "rb_h_l"
+        elif self.get_permission_level(ctx.author.name) == 2:
+            temp_source = "rb_h_r"
+        elif self.get_permission_level(ctx.author.name) == 1:
+            temp_source = "rb_h_h"
+        elif self.get_permission_level(ctx.author.name) == 0:
+            temp_source = "rb_h_c"
+
         # Append custom static arguments to the list
-        arguments_scene = ["-s", "rbhu", "-v", "-sc", "q"]
+        arguments_scene = ["-s", temp_source, "-v", "-sc", "q"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments
