@@ -758,13 +758,13 @@
                     # Down.
                     if [[ "$arg_light_action" == "down" ]]; then
                         status_check light_litra_brightness
-                        setting_update_light_litra_brightness_down
+                        setting_update light_litra_brightness_down
                         status_update_light_litra_brightness
 
                     # Up.
                     elif [[ "$arg_light_action" == "up" ]]; then
                         status_check light_litra_brightness
-                        setting_update_light_litra_brightness_up
+                        setting_update light_litra_brightness_up
                         status_update_light_litra_brightness
                     else
                         echo_error "command_light, argument_current_light, argument_current_atribute, brightness, arg_light_action."
@@ -776,7 +776,7 @@
                     # Toggle.
                     if [[ "$arg_light_action" == "toggle" ]]; then
                         status_check light_litra_power
-                        setting_update_light_litra_power_toggle
+                        setting_update light_litra_power_toggle
                         status_update_light_litra_brightness
                         status_update_light_litra_power
 
@@ -1968,7 +1968,6 @@
 
     # Utilities.
 
-
     alert_request() {
 
         echo_info "Alert request:"
@@ -2009,12 +2008,13 @@
 
         }
 
+
+
     alert_request_skip() {
 
         flag_alert_request_skip="yes"
 
     }
-
 
     alert_request_old() {
 
@@ -2560,6 +2560,7 @@
 
     }
 
+        # Application.
         setting_update_application() {
 
             echo_info "Application:"
@@ -2613,6 +2614,7 @@
 
         }
 
+        # Camera.
         setting_update_camera() {
 
             echo_info "Camera:"
@@ -2854,6 +2856,7 @@
 
             }
 
+        # Censor.
         setting_update_censor() {
 
             echo_info "Censor:"
@@ -3080,6 +3083,7 @@
 
                 }
 
+        # Input.
         setting_update_input() {
 
             echo_info "Input:"
@@ -3335,6 +3339,133 @@
 
         }
 
+        # Light.
+        setting_update_light_litra_brightness_down() {
+
+            source ~/.venvs/bin/activate
+
+            if [[ "$status_current_light_litra_brightness" == "1" ]]; then
+                deactivate
+                status_request_light_litra_brightness="1"
+            elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
+                lc bright 1
+                deactivate
+                status_request_light_litra_brightness="1"
+            elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
+                lc bright 10
+                deactivate
+                status_request_light_litra_brightness="10"
+            elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
+                lc bright 20
+                deactivate
+                status_request_light_litra_brightness="20"
+            elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
+                lc bright 30
+                deactivate
+                status_request_light_litra_brightness="30"
+            elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
+                lc bright 40
+                deactivate
+                status_request_light_litra_brightness="40"
+            elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
+                lc bright 50
+                deactivate
+                status_request_light_litra_brightness="50"
+            elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
+                lc bright 60
+                deactivate
+                status_request_light_litra_brightness="60"
+            elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
+                lc bright 70
+                deactivate
+                status_request_light_litra_brightness="70"
+            elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
+                lc bright 80
+                deactivate
+                status_request_light_litra_brightness="80"
+            elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
+                lc bright 90
+                deactivate
+                status_request_light_litra_brightness="90"
+            fi
+
+        }
+        setting_update_light_litra_brightness_up() {
+
+            source ~/.venvs/bin/activate
+
+            if [[ "$status_current_light_litra_brightness" == "1" ]]; then
+                lc bright 10
+                deactivate
+                status_request_light_litra_brightness="10"
+            elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
+                lc bright 20
+                deactivate
+                status_request_light_litra_brightness="20"
+            elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
+                lc bright 30
+                deactivate
+                status_request_light_litra_brightness="30"
+            elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
+                lc bright 40
+                deactivate
+                status_request_light_litra_brightness="40"
+            elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
+                lc bright 50
+                deactivate
+                status_request_light_litra_brightness="50"
+            elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
+                lc bright 60
+                deactivate
+                status_request_light_litra_brightness="60"
+            elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
+                lc bright 70
+                deactivate
+                status_request_light_litra_brightness="70"
+            elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
+                lc bright 80
+                deactivate
+                status_request_light_litra_brightness="80"
+            elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
+                lc bright 90
+                deactivate
+                status_request_light_litra_brightness="90"
+            elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
+                lc bright 100
+                deactivate
+                status_request_light_litra_brightness="100"
+            elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
+                deactivate
+                status_request_light_litra_brightness="100"
+            fi
+
+        }
+        setting_update_light_litra_power_toggle() {
+
+            # Toggle on.
+            if [[ "$status_current_light_litra_power" == "0" ]]; then
+                source ~/.venvs/bin/activate
+                lc on
+                lc bright 50
+                deactivate
+                status_request_light_litra_power="1"
+                status_request_light_litra_brightness="50"
+
+            # Toggle off.
+            elif [[ "$status_current_light_litra_power" == "1" ]]; then
+                source ~/.venvs/bin/activate
+                lc off
+                deactivate
+                status_request_light_litra_power="0"
+
+            # Error.
+            else
+                echo_error "setting_update_light_litra_power_toggle, invalid status: ${status_current_light_litra_power}."
+            fi
+
+        }
+
+        # Output.
         setting_update_output() {
 
             echo_info "Output:"
@@ -3634,6 +3765,7 @@
 
         }
 
+        # Restriction.
         setting_update_restriction() {
 
             echo_info "Restriction:"
@@ -4707,133 +4839,6 @@
                     echo_error "setting_update_input_device_volume_microphone_4."
                 fi
             }
-
-    # Light.
-
-    setting_update_light_litra_brightness_down() {
-
-        source ~/.venvs/bin/activate
-
-        if [[ "$status_current_light_litra_brightness" == "1" ]]; then
-            deactivate
-            status_request_light_litra_brightness="1"
-        elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
-            lc bright 1
-            deactivate
-            status_request_light_litra_brightness="1"
-        elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
-            lc bright 10
-            deactivate
-            status_request_light_litra_brightness="10"
-        elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
-            lc bright 20
-            deactivate
-            status_request_light_litra_brightness="20"
-        elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
-            lc bright 30
-            deactivate
-            status_request_light_litra_brightness="30"
-        elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
-            lc bright 40
-            deactivate
-            status_request_light_litra_brightness="40"
-        elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
-            lc bright 50
-            deactivate
-            status_request_light_litra_brightness="50"
-        elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
-            lc bright 60
-            deactivate
-            status_request_light_litra_brightness="60"
-        elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
-            lc bright 70
-            deactivate
-            status_request_light_litra_brightness="70"
-        elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
-            lc bright 80
-            deactivate
-            status_request_light_litra_brightness="80"
-        elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
-            lc bright 90
-            deactivate
-            status_request_light_litra_brightness="90"
-        fi
-
-    }
-    setting_update_light_litra_brightness_up() {
-
-        source ~/.venvs/bin/activate
-
-        if [[ "$status_current_light_litra_brightness" == "1" ]]; then
-            lc bright 10
-            deactivate
-            status_request_light_litra_brightness="10"
-        elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
-            lc bright 20
-            deactivate
-            status_request_light_litra_brightness="20"
-        elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
-            lc bright 30
-            deactivate
-            status_request_light_litra_brightness="30"
-        elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
-            lc bright 40
-            deactivate
-            status_request_light_litra_brightness="40"
-        elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
-            lc bright 50
-            deactivate
-            status_request_light_litra_brightness="50"
-        elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
-            lc bright 60
-            deactivate
-            status_request_light_litra_brightness="60"
-        elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
-            lc bright 70
-            deactivate
-            status_request_light_litra_brightness="70"
-        elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
-            lc bright 80
-            deactivate
-            status_request_light_litra_brightness="80"
-        elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
-            lc bright 90
-            deactivate
-            status_request_light_litra_brightness="90"
-        elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
-            lc bright 100
-            deactivate
-            status_request_light_litra_brightness="100"
-        elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
-            deactivate
-            status_request_light_litra_brightness="100"
-        fi
-
-    }
-    setting_update_light_litra_power_toggle() {
-
-        # Toggle on.
-        if [[ "$status_current_light_litra_power" == "0" ]]; then
-            source ~/.venvs/bin/activate
-            lc on
-            lc bright 50
-            deactivate
-            status_request_light_litra_power="1"
-            status_request_light_litra_brightness="50"
-
-        # Toggle off.
-        elif [[ "$status_current_light_litra_power" == "1" ]]; then
-            source ~/.venvs/bin/activate
-            lc off
-            deactivate
-            status_request_light_litra_power="0"
-
-        # Error.
-        else
-            echo_error "setting_update_light_litra_power_toggle, invalid status: ${status_current_light_litra_power}."
-        fi
-
-    }
 
     # Output.
 
