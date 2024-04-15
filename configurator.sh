@@ -3,7 +3,6 @@
 
 # PREREQUISITES ###############################################################################################################################################################################
 
-
     prerequisite() {
 
         prerequisite_device
@@ -2865,6 +2864,8 @@
 
             position_right
 
+            status_check_profile censor
+
             if [[ "$argument_current_censor_1" == "censored" ]]; then
 
                 # All, profile.
@@ -2945,7 +2946,7 @@
 
             # Uncensored, uncensored.
             elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                echo_info "Already uncensored, skipping."
+                setting_update_censor_all_uncensored
 
             # Error.
             else
