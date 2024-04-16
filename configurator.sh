@@ -91,7 +91,7 @@
         }
         prerequisite_permission() {
 
-            data_permission_channel="housemate"
+            data_permission_stream="housemate"
             data_permission_scene="couchsurfer"
 
         }
@@ -454,27 +454,27 @@
 
 
             translate_argument category $1
-            arg_channel_category="${argument}"
+            arg_stream_category="${argument}"
 
             translate_argument title $2
             argument_current_title="${argument}"
 
-            translate_argument channel $3
-            arg_channel_channel="${argument}"
+            translate_argument account $3
+            arg_stream_account="${argument}"
 
-            title_start_list="${directory_data_public}activity_title_${arg_channel_category}_${argument_current_title}_start.txt"
-            title_end_list="${directory_data_public}activity_title_${arg_channel_category}_end.txt"
+            title_start_list="${directory_data_public}activity_title_${arg_stream_category}_${argument_current_title}_start.txt"
+            title_end_list="${directory_data_public}activity_title_${arg_stream_category}_end.txt"
 
             operation_random title_start "$title_start_list"
             operation_random title_end "$title_end_list"
 
             title="$title_start | $title_end"
             
-            category=$(cat "${directory_data_public}activity_category_${arg_channel_category}.txt")
+            category=$(cat "${directory_data_public}activity_category_${arg_stream_category}.txt")
             
-            setting_update_channel_refresh
+            setting_update_stream_refresh
 
-            setting_update_channel_update
+            setting_update_stream_info
 
             # Owner.
             if [[ "$status_current_source_permission" == "owner" && "$source" != "service" ]]; then
@@ -501,25 +501,25 @@
             # Morning.
             if [[ $current_hour -eq 5 ]]; then
                 
-                command permission channel toggle couchsurfer
+                command permission stream toggle couchsurfer
                 command permission scene select couchsurfer
                 command permission input select couchsurfer
 
-                command channel twitch reality_hurts refresh
+                command stream refresh twitch reality_hurts
 
-                command channel twitch reality_hurts update passive passive morning
+                command stream info twitch reality_hurts passive passive morning
 
                 command scene quad anja studio vaughan desk
 
             # Sleeping.
             elif [[ $current_hour -eq 21 ]]; then
 
-                command permission channel select owner
+                command permission stream select owner
                 command permission scene select owner
 
-                command channel twitch reality_hurts refresh
+                command stream refresh twitch reality_hurts
 
-                command channel twitch reality_hurts update passive sleeping sleeping
+                command stream info twitch reality_hurts passive sleeping sleeping
 
                 command scene quad anja bed vaughan studio
 
@@ -596,62 +596,6 @@
             setting_update camera camera_input
 
         }
-        command_channel() {
-
-            translate_argument platform $1
-            arg_channel_platform="${argument}"
-
-            translate_argument channel $2
-            arg_channel_channel="${argument}"
-
-            translate_argument action $3
-            arg_channel_action="${argument}"
-
-            # Query.
-            if [[ "$arg_channel_action" == "query" ]]; then
-
-                echo_info "Channel: query"
-
-                position_right
-
-                setting_update_channel_query
-
-            # Refresh.
-            elif [[ "$arg_channel_action" == "refresh" ]]; then
-
-                echo_info "Channel: refresh"
-
-                position_right
-
-                setting_update_channel_refresh
-                
-            # Update.
-            elif [[ "$arg_channel_action" == "update" ]]; then
-
-                echo_info "Channel: update"
-
-                position_right
-
-                translate_argument stream_type $4
-                arg_channel_type="${argument}"
-
-                translate_argument category $5
-                arg_channel_category="${argument}"
-
-                translate_argument activity $6
-                arg_channel_activity="${argument}"
-
-                setting_update_channel_refresh
-                setting_update_channel_update
-
-            # Error.
-            else
-                echo_error "command_channel, invalid argument: $1 $2 $3 $4 $5 $6."
-            fi
-
-            position_left
-
-        }
         command_censor() {
 
             translate_argument profile $1
@@ -712,7 +656,7 @@
                     setting_update_input_device_mute $arg_input_device
 
                 # Toggle.
-                elif [[ "$arg_input_action" == "toggle" ]]; then
+                elif [[ "$arg_playback_action" == "toggle" ]]; then
                     setting_update_input_device_mute_toggle $arg_input_device
                     alert_request input
                     alert_play
@@ -1117,16 +1061,74 @@
 
             # Start OBS.
             operation_sleep 30
-            command application obs_studio unrestricted
+            command application obs_studio unrestricted_uncut
 
             operation_sleep 5
-            command application obs_studio restricted
+            command application obs_studio restricted_uncut
 
             # Mute OBS.
             operation_sleep 5
             
             command profile uc ur m m
             command scene quad anja studio vaughan desk
+
+        }
+        command_stream() {
+
+            translate_argument action $1
+            arg_stream_action="${argument}"
+
+            translate_argument platform $2
+            arg_stream_platform="${argument}"
+
+            translate_argument account $3
+            arg_stream_account="${argument}"
+
+            # Query.
+            if [[ "$arg_stream_action" == "query" ]]; then
+
+                echo_info "Stream: query"
+
+                position_right
+
+                setting_update_stream_refresh
+                setting_update_stream_query
+
+            # Refresh.
+            elif [[ "$arg_stream_action" == "refresh" ]]; then
+
+                echo_info "Stream: refresh"
+
+                position_right
+
+                setting_update_stream_refresh
+                
+            # Update.
+            elif [[ "$arg_stream_action" == "info" ]]; then
+
+                echo_info "Stream: info"
+
+                position_right
+
+                translate_argument profile $4
+                arg_stream_restriction="${argument}"
+
+                translate_argument stream_type $5
+                arg_stream_type="${argument}"
+
+                arg_stream_category="$6"
+
+                #translate_argument activity $7
+                arg_stream_activity="$7"
+
+                setting_update_stream_info
+
+            # Error.
+            else
+                echo_error "command_stream, invalid argument: $1 $2 $3 $4 $5 $6 $7."
+            fi
+
+            position_left
 
         }
         command_verbose() {
@@ -1145,8 +1147,24 @@
 
         position_right
 
+        # Account.
+        if [[ "$1" == "account" ]]; then
+
+            if [[ "$2" == "roboty_hurts" || "$2" == "rbh" ]]; then
+                argument="roboty_hurts"
+            elif [[ "$2" == "reality_hurts" || "$2" == "rh" ]]; then
+                argument="reality_hurts"
+            elif [[ "$2" == "reality_hurts_uncut" || "$2" == "rhu" ]]; then
+                argument="reality_hurts_uncut"
+            elif [[ "$2" == "all" || "$2" == "a" ]]; then
+                argument="all"
+            elif [[ "$2" == "all_streams" || "$2" == "as" ]]; then
+                argument="all_streams"
+            else
+                echo_error "translate_argument, account, invalid argument: ${2}."
+            fi
         # Action.
-        if [[ "$1" == "action" ]]; then
+        elif [[ "$1" == "action" ]]; then
 
             if [[ "$2" == "back" || "$2" == "b" ]]; then
                 argument="back"
@@ -1156,6 +1174,8 @@
                 argument="down"
             elif [[ "$2" == "forward" || "$2" == "f" ]]; then
                 argument="forward"
+            elif [[ "$2" == "info" || "$2" == "i" ]]; then
+                argument="info"
             elif [[ "$2" == "monitor" || "$2" == "m" ]]; then
                 argument="monitor"
             elif [[ "$2" == "mute" || "$2" == "mu" ]]; then
@@ -1184,56 +1204,56 @@
                 echo_error "translate_argument, action, invalid argument: ${2}."
             fi
 
-        # Activity.
-        elif [[ "$1" == "activity" ]]; then
+        # # Activity.
+        # elif [[ "$1" == "activity" ]]; then
 
-            if [[ "$2" == "admin" || "$2" == "a" ]]; then
-                argument="admin"
-            elif [[ "$2" == "chores" || "$2" == "c" ]]; then
-                argument="chores"
-            elif [[ "$2" == "chilling" || "$2" == "ch" ]]; then
-                argument="chilling"
-            elif [[ "$2" == "coding" || "$2" == "co" ]]; then
-                argument="coding"
-            elif [[ "$2" == "cooking_breakfast" || "$2" == "c_b" ]]; then
-                argument="cooking_breakfast"
-            elif [[ "$2" == "cooking_lunch" || "$2" == "c_l" ]]; then
-                argument="cooking_lunch"
-            elif [[ "$2" == "cooking_dinner" || "$2" == "c_d" ]]; then
-                argument="cooking_dinner"
-            elif [[ "$2" == "crafts" || "$2" == "cr" ]]; then
-                argument="crafts"
-            elif [[ "$2" == "dancing" || "$2" == "d" ]]; then
-                argument="dancing"
-            elif [[ "$2" == "eating_breakfast" || "$2" == "e_b" ]]; then
-                argument="eating_breakfast"
-            elif [[ "$2" == "eating_lunch" || "$2" == "e_l" ]]; then
-                argument="eating_lunch"
-            elif [[ "$2" == "eating_dinner" || "$2" == "e_d" ]]; then
-                argument="eating_dinner"
-            elif [[ "$2" == "fitness" || "$2" == "f" ]]; then
-                argument="fitness"
-            elif [[ "$2" == "morning" || "$2" == "m" ]]; then
-                argument="morning"
-            elif [[ "$2" == "painting" || "$2" == "p" ]]; then
-                argument="painting"
-            elif [[ "$2" == "relationship" || "$2" == "r" ]]; then
-                argument="relationship"
-            elif [[ "$2" == "sewing" || "$2" == "se" ]]; then
-                argument="sewing"
-            elif [[ "$2" == "sleeping" || "$2" == "sl" ]]; then
-                argument="sleeping"
-            elif [[ "$2" == "socialising" || "$2" == "s" ]]; then
-                argument="socialising"
-            elif [[ "$2" == "therapy_formal" || "$2" == "t_f" ]]; then
-                argument="therapy_formal"
-            elif [[ "$2" == "therapy_informal" || "$2" == "t_i" ]]; then
-                argument="therapy_informal"
-            elif [[ "$2" == "waking_up" || "$2" == "w" ]]; then
-                argument="waking_up"
-            else
-                echo_error "translate_argument, title, invalid argument: ${2}."
-            fi
+        #     if [[ "$2" == "admin" || "$2" == "a" ]]; then
+        #         argument="admin"
+        #     elif [[ "$2" == "chores" || "$2" == "c" ]]; then
+        #         argument="chores"
+        #     elif [[ "$2" == "chilling" || "$2" == "ch" ]]; then
+        #         argument="chilling"
+        #     elif [[ "$2" == "coding" || "$2" == "co" ]]; then
+        #         argument="coding"
+        #     elif [[ "$2" == "cooking_breakfast" || "$2" == "c_b" ]]; then
+        #         argument="cooking_breakfast"
+        #     elif [[ "$2" == "cooking_lunch" || "$2" == "c_l" ]]; then
+        #         argument="cooking_lunch"
+        #     elif [[ "$2" == "cooking_dinner" || "$2" == "c_d" ]]; then
+        #         argument="cooking_dinner"
+        #     elif [[ "$2" == "crafts" || "$2" == "cr" ]]; then
+        #         argument="crafts"
+        #     elif [[ "$2" == "dancing" || "$2" == "d" ]]; then
+        #         argument="dancing"
+        #     elif [[ "$2" == "eating_breakfast" || "$2" == "e_b" ]]; then
+        #         argument="eating_breakfast"
+        #     elif [[ "$2" == "eating_lunch" || "$2" == "e_l" ]]; then
+        #         argument="eating_lunch"
+        #     elif [[ "$2" == "eating_dinner" || "$2" == "e_d" ]]; then
+        #         argument="eating_dinner"
+        #     elif [[ "$2" == "fitness" || "$2" == "f" ]]; then
+        #         argument="fitness"
+        #     elif [[ "$2" == "morning" || "$2" == "m" ]]; then
+        #         argument="morning"
+        #     elif [[ "$2" == "painting" || "$2" == "p" ]]; then
+        #         argument="painting"
+        #     elif [[ "$2" == "relationship" || "$2" == "r" ]]; then
+        #         argument="relationship"
+        #     elif [[ "$2" == "sewing" || "$2" == "se" ]]; then
+        #         argument="sewing"
+        #     elif [[ "$2" == "sleeping" || "$2" == "sl" ]]; then
+        #         argument="sleeping"
+        #     elif [[ "$2" == "socialising" || "$2" == "s" ]]; then
+        #         argument="socialising"
+        #     elif [[ "$2" == "therapy_formal" || "$2" == "t_f" ]]; then
+        #         argument="therapy_formal"
+        #     elif [[ "$2" == "therapy_informal" || "$2" == "t_i" ]]; then
+        #         argument="therapy_informal"
+        #     elif [[ "$2" == "waking_up" || "$2" == "w" ]]; then
+        #         argument="waking_up"
+        #     else
+        #         echo_error "translate_argument, title, invalid argument: ${2}."
+        #     fi
 
         # Application.
         elif [[ "$1" == "application" ]]; then
@@ -1247,10 +1267,14 @@
         # Application profile.
         elif [[ "$1" == "application_profile" ]]; then
 
-            if [[ "$2" == "restricted" || "$2" == "r" ]]; then
+            if [[ "$2" == "restricted" ]]; then
                 argument="restricted"
-            elif [[ "$2" == "unrestricted" || "$2" == "u" ]]; then
+            elif [[ "$2" == "restricted_uncut" ]]; then
+                argument="restricted_uncut"
+            elif [[ "$2" == "unrestricted" ]]; then
                 argument="unrestricted"
+            elif [[ "$2" == "unrestricted_uncut" ]]; then
+                argument="unrestricted_uncut"
             else
                 echo_error "translate_argument, application_profile, invalid argument: ${2}."
             fi
@@ -1332,36 +1356,6 @@
                 echo_error "translate_argument, camera_type, invalid argument: ${2}."
             fi
 
-        # Category.
-        elif [[ "$1" == "category" ]]; then
-
-            if [[ "$2" == "fitness" || "$2" == "f" ]]; then
-                argument="fitness"
-            elif [[ "$2" == "passive" || "$2" == "p" ]]; then
-                argument="passive"
-            elif [[ "$2" == "sleeping" || "$2" == "sl" ]]; then
-                argument="sleeping"
-            else
-                echo_error "translate_argument, category, invalid argument: ${2}."
-            fi
-
-        # Channel.
-        elif [[ "$1" == "channel" ]]; then
-
-            if [[ "$2" == "roboty_hurts" || "$2" == "rbh" ]]; then
-                argument="roboty_hurts"
-            elif [[ "$2" == "reality_hurts" || "$2" == "rh" ]]; then
-                argument="reality_hurts"
-            elif [[ "$2" == "reality_hurts_uncut" || "$2" == "rhu" ]]; then
-                argument="reality_hurts_uncut"
-            elif [[ "$2" == "all" || "$2" == "a" ]]; then
-                argument="all"
-            elif [[ "$2" == "all_streams" || "$2" == "as" ]]; then
-                argument="all_streams"
-            else
-                echo_error "translate_argument, channel, invalid argument: ${2}."
-            fi
-
         # Command.
         elif [[ "$1" == "command" ]]; then
 
@@ -1375,8 +1369,6 @@
                 argument="censor"
             elif [[ "$2" == "--camera" || "$2" == "camera" || "$2" == "-ca" || "$2" == "ca" ]]; then
                 argument="camera"
-            elif [[ "$2" == "--channel" || "$2" == "channel" || "$2" == "-ch" || "$2" == "ch" ]]; then
-                argument="channel"
             elif [[ "$2" == "--debug" || "$2" == "debug" || "$2" == "-d" || "$2" == "d" ]]; then
                 argument="debug"
             elif [[ "$2" == "--help" || "$2" == "help" || "$2" == "-h" || "$2" == "h" ]]; then
@@ -1399,6 +1391,8 @@
                 argument="scene"
             elif [[ "$2" == "--startup" || "$2" == "startup" || "$2" == "-st" || "$2" == "st" ]]; then
                 argument="startup"
+            elif [[ "$2" == "--stream" || "$2" == "stream" || "$2" == "-str" || "$2" == "str" ]]; then
+                argument="stream"
             elif [[ "$2" == "--verbose" || "$2" == "verbose" || "$2" == "-v" || "$2" == "v" ]]; then
                 argument="verbose"
             else
@@ -1585,12 +1579,12 @@
         # Stream type.
         elif [[ "$1" == "stream_type" ]]; then
 
-            if [[ "$2" == "active_uncut" || "$2" == "a_u" ]]; then
-                argument="active_uncut"
-            elif [[ "$2" == "active_normal" || "$2" == "a_n" ]]; then
-                argument="active_normal"
-            elif [[ "$2" == "passive" || "$2" == "p" ]]; then
-                argument="passive"
+            if [[ "$2" == "uncut_active" || "$2" == "a" ]]; then
+                argument="uncut_active"
+            elif [[ "$2" == "normal" || "$2" == "n" ]]; then
+                argument="normal"
+            elif [[ "$2" == "uncut_passive" || "$2" == "p" ]]; then
+                argument="uncut_passive"
             else
                 echo_error "translate_argument, stream_type, invalid argument: ${2}."
             fi
@@ -2568,14 +2562,15 @@
 
             position_right
 
-            # OBS unrestricted.
+            # OBS Studio.
             if [[ "$arg_application" == "obs_studio" ]]; then
 
+                # Restricted uncut.
                 if [[ "$arg_application_profile" == "restricted" ]]; then
 
                     status_check_obs_websocket 2
 
-                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "Restricted (Uncut)" --collection "Restricted (Uncut)" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                     exit_1=$?
 
                     systemctl --user restart obs_cli
@@ -2586,11 +2581,44 @@
                         echo_error_urgent "OBS failed to launch."
                     fi
 
+                # Restricted uncut.
+                elif [[ "$arg_application_profile" == "restricted_uncut" ]]; then
+
+                    status_check_obs_websocket 2
+
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    exit_1=$?
+
+                    systemctl --user restart obs_cli
+
+                    if [[ $1 -eq 0 ]]; then
+                        echo_info "OBS Studio (Restricted)."
+                    else
+                        echo_error_urgent "OBS failed to launch."
+                    fi
+
+                # Unrestricted.
                 elif [[ "$arg_application_profile" == "unrestricted" ]]; then
 
                     status_check_obs_websocket 1
 
-                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "Unrestricted (Uncut)" --collection "Unrestricted (Uncut)" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                    exit_1=$?
+
+                    systemctl --user restart obs_cli
+
+                    if [[ $1 -eq 0 ]]; then
+                        echo_info "OBS Studio (Unrestricted)."
+                    else
+                        echo_error_urgent "OBS failed to launch."
+                    fi
+
+                # Unrestricted uncut.
+                elif [[ "$arg_application_profile" == "unrestricted_uncut" ]]; then
+
+                    status_check_obs_websocket 1
+
+                    flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                     exit_1=$?
 
                     systemctl --user restart obs_cli
@@ -3196,7 +3224,7 @@
                         fi
 
                         # Playback toggle.
-                        if [[ "$arg_input_action" == "cycle" || "$arg_input_action" == "monitor" || "$arg_input_action" == "toggle" ]]; then
+                        if [[ "$arg_input_action" == "cycle" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
 
                             echo_debug "Output cycle or playback monitor."
 
@@ -3267,7 +3295,7 @@
                         echo_debug "Output device default: ${status_current_output_device_default}."
 
                         # Alert played.
-                        if [[ "$flag_alert_played" == "yes" || "$arg_input_action" == "monitor" || "$arg_input_action" == "toggle" ]]; then
+                        if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
 
                             echo_debug "alert played or playback monitor."
 
@@ -3620,7 +3648,7 @@
                         echo_debug "Null Sink 1."
 
                         # Restore pre alert settings.
-                        if [[ "$flag_alert_played" == "yes" || "$arg_output_action" == "monitor" || "$arg_output_action" == "toggle" ]]; then
+                        if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
 
                             # Restricted.
                             if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
@@ -3675,7 +3703,7 @@
                         echo_debug "Null Sink 1."
 
                         # Playback monitor.
-                        if [[ "$arg_output_action" == "monitor" || "$arg_output_action" == "toggle" ]]; then
+                        if [[ "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
                             echo_debug "Playback monitor."
 
                             # Input unmuted.
@@ -4112,9 +4140,9 @@
 
     # Channel.
 
-    setting_update_channel_query() {
+    setting_update_stream_query() {
 
-        echo_info "Channel query:"
+        echo_info "Stream query:"
 
         position_right
 
@@ -4130,19 +4158,17 @@
             #-X GET "https://api.twitch.tv/helix/tags/streams?$query_url"
 
     }
-    setting_update_channel_refresh() {
+    setting_update_stream_refresh() {
 
-        # Arguments: $1 = platform, $2 = channel name. 
-
-        echo_info "Refreshing access token..."
+        echo_info "Stream refresh:"
 
         position_right
 
         status_check_channel client_id client_secret refresh_token user_id
 
-        access_token_file="${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_access_token.txt"
+        access_token_file="${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_access_token.txt"
 
-        echo_info "Channel: ${arg_channel_channel}."
+        echo_info "Channel: ${arg_stream_account}."
 
         local response=$(curl -s -X POST \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -4161,53 +4187,75 @@
         position_left
 
     }
-    setting_update_channel_update() {
+    setting_update_stream_info() {
 
-        echo_info "Channel update:"
+        echo_info "Stream info update:"
 
         position_right
 
-        # Stream type.
-        if [[ "$arg_channel_type" == "passive" ]]; then
-            status_update input_unlock
-        elif [[ "$arg_channel_type" == "active_normal" ]]; then
-            status_update input_lock
-            command permission channel select owner
+        # Type.
+        if [[ "$arg_stream_type" == "uncut_passive" ]]; then
+            command permission input select couchsurfer
+        elif [[ "$arg_stream_type" == "normal" ]]; then
+            command permission stream select owner
             command permission scene select owner
-        elif [[ "$arg_channel_type" == "active_uncut" ]]; then
-            status_update input_lock
-            command permission channel select owner
+            command permission input select owner
+        elif [[ "$arg_stream_type" == "uncut_active" ]]; then
+            command permission stream select owner
+            
         else
-            echo_error "setting_update_channel_update, arg_channel_type: $arg_channel_type."
+            echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi
 
-        # Twitch.
-        if [[ "$arg_channel_platform" == "twitch" || "$arg_channel_platform" == "all" ]]; then
-            setting_update_channel_update_twitch
+        # Restriction.
+        if [[ "$arg_stream_restriction" == "restricted" ]]; then
+            :
+        elif [[ "$arg_stream_restriction" == "unrestricted" ]]; then
+
+            # Platform.
+            if [[ "$arg_stream_platform" == "twitch" ]]; then
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
+            elif [[ "$arg_stream_platform" == "all" ]]; then
+
+                if [[ "$arg_stream_account" == "all" ]]; then
+                    arg_stream_platform="twitch"
+                    arg_stream_account="reality_hurts"
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
+                fi
+            else
+                echo_error "setting_update_stream_info, setting_update_stream_info_twitch: $setting_update_stream_info_twitch."
+            fi
+
+        else
+            echo_error "setting_update_stream_info, arg_stream_restriction: $arg_stream_restriction."
         fi
+
+
 
         position_left
 
     }
-        setting_update_channel_update_twitch() {
+        setting_update_stream_info_twitch() {
 
-            echo_info "Twitch: $arg_channel_channel"
+            echo_info "Twitch: $arg_stream_account"
 
             position_right
 
-            title_start_list="${directory_data_public}activity_title_start_${arg_channel_activity}.txt"
+            title_start_list="${directory_data_public}activity_title_start_${arg_stream_activity}.txt"
             title_end_list="${directory_data_public}activity_title_end_all.txt"
-            tag_list="${directory_data_public}activity_tag_${arg_channel_activity}.txt"
+            tag_list="${directory_data_public}activity_tag_${arg_stream_activity}.txt"
 
             operation_random title_start "$title_start_list"
             operation_random title_end "$title_end_list"
             translate_json tag $tag_list
 
             title="$title_start | $title_end"
-            category=$(cat "${directory_data_public}activity_category_${arg_channel_category}.txt")
+            category=$(cat "${directory_data_public}activity_category_${arg_stream_category}.txt")
             
             echo_info "Title: $title"
-            echo_info "Category: $arg_channel_category ($category)"
+            echo_info "Category: $arg_stream_category ($category)"
             echo_info "Tags: $tag"
 
             status_check_channel access_token client_id user_id
@@ -5681,49 +5729,49 @@
     status_check_channel() {
 
         if [[ ("$1" == "access_token" || "$2" == "access_token" || "$3" == "access_token" || "$4" == "access_token" || "$4" == "access_token") || "$1" == "all" ]]; then
-        status_check_channel_access_token
+        status_check_stream_access_token
         fi
 
         if [[ ("$1" == "client_id" || "$2" == "client_id" || "$3" == "client_id" || "$4" == "client_id" || "$4" == "client_id") || "$1" == "all" ]]; then
-        status_check_channel_client_ID
+        status_check_stream_client_ID
         fi
 
         if [[ ("$1" == "client_secret" || "$2" == "client_secret" || "$3" == "client_secret" || "$4" == "client_secret" || "$4" == "client_secret") || "$1" == "all" ]]; then
-        status_check_channel_client_secret
+        status_check_stream_client_secret
         fi
 
         if [[ ("$1" == "refresh_token" || "$2" == "refresh_token" || "$3" == "refresh_token" || "$4" == "refresh_token" || "$4" == "refresh_token") || "$1" == "all" ]]; then
-        status_check_channel_refresh_token
+        status_check_stream_refresh_token
         fi
 
         if [[ ("$1" == "user_id" || "$2" == "user_id" || "$3" == "user_id" || "$4" == "user_id" || "$4" == "user_id") || "$1" == "all" ]]; then
-        status_check_channel_user_ID
+        status_check_stream_user_ID
         fi
 
     }
-        status_check_channel_access_token() {
+        status_check_stream_access_token() {
 
-            access_token=$(cat "${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_access_token.txt")
-
-        }
-        status_check_channel_client_ID() {
-
-            client_id=$(cat "${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_client_id.txt")
+            access_token=$(cat "${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_access_token.txt")
 
         }
-        status_check_channel_client_secret() {
+        status_check_stream_client_ID() {
 
-            client_secret=$(cat "${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_client_secret.txt")
-
-        }
-        status_check_channel_refresh_token() {
-
-            refresh_token=$(cat "${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_refresh_token.txt")
+            client_id=$(cat "${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_client_id.txt")
 
         }
-        status_check_channel_user_ID() {
+        status_check_stream_client_secret() {
 
-            user_id=$(cat "${directory_data_private}channel_${arg_channel_platform}_${arg_channel_channel}_user_id.txt")
+            client_secret=$(cat "${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_client_secret.txt")
+
+        }
+        status_check_stream_refresh_token() {
+
+            refresh_token=$(cat "${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_refresh_token.txt")
+
+        }
+        status_check_stream_user_ID() {
+
+            user_id=$(cat "${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_user_id.txt")
 
         }
 
@@ -6355,46 +6403,6 @@
             else
                 echo_error "status_update_camera_type."
             fi
-
-            position_left
-
-        }
-        status_update_input_lock() {
-
-            echo_info "Input lock:"
-
-            position_right
-
-            echo "locked" > "${directory_data_private}input_1.txt"
-            exit_1=$?
-            echo "locked" > "${directory_data_private}input_2.txt"
-            exit_2=$?
-            echo "locked" > "${directory_data_private}input_3.txt"
-            exit_3=$?
-            echo "locked" > "${directory_data_private}input_4.txt"
-            exit_4=$?
-
-            error_check 4 debug "Input locked."
-
-            position_left
-
-        }
-        status_update_input_unlock() {
-
-            echo_info "Input unlock:"
-
-            position_right
-
-            echo "unlocked" > "${directory_data_private}input_1.txt"
-            exit_1=$?
-            echo "unlocked" > "${directory_data_private}input_2.txt"
-            exit_2=$?
-            echo "unlocked" > "${directory_data_private}input_3.txt"
-            exit_3=$?
-            echo "unlocked" > "${directory_data_private}input_4.txt"
-            exit_4=$?
-
-            error_check 4 debug "Input unlocked."
 
             position_left
 
