@@ -46,7 +46,7 @@ class Bot(commands.Bot):
 
     def refresh_access_token(self):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
-        subprocess.run([script_path, "-s", "rb_h_o", "-v", "-ch", "t", "rbh", "rf"])
+        subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
     def get_access_token(self):
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
@@ -133,7 +133,7 @@ class Bot(commands.Bot):
             temp_source = "rb_h_c"
 
         # Append custom static arguments to the list
-        arguments_scene = ["-s", temp_source, "-v", "-ch", "t", "rh", "ud", "p", "p"]
+        arguments_scene = ["--source", temp_source, "--verbose", "--stream", "info", "twitch", "reality_hurts", "passive", "p"]
 
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
@@ -194,7 +194,7 @@ class Bot(commands.Bot):
             temp_source = "rb_h_c"
 
         # Append custom static arguments to the list
-        arguments_scene = ["-s", temp_source, "-v", "-sc", "q"]
+        arguments_scene = ["--source", temp_source, "--verbose", "--scene", "quad"]
         # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
         # Construct the command to run the script with combined arguments

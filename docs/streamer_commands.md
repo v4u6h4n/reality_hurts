@@ -15,45 +15,62 @@
 # Censor
 
 
-# Channel
+# Stream
 
 <ins>Format:</ins>
 
 ```
-<command> <platform> <channel> <action> [category] [activity]
+<command> <action> <platform> <account> <action> [category] [activity]
 ```
 
 <ins>Command:</ins>
 
 ```
--ch     --channel
-```
-
-<ins>Platform:</ins>
-
-```
-t       twitch
-```
-
-<ins>Channel:</ins>
-
-```
-rh      reality_hurts
-rhu     reality_hurts_uncut
+-str    --stream
 ```
 
 <ins>Action:</ins>
 
 ```
+i       info
 q       query
 r       refresh
-ud      update
 
+```
+
+<ins>Platform:</ins>
+
+```
+all
+twitch
+```
+
+<ins>Account:</ins>
+
+```
+all
+<account name>
+```
+
+<ins>Restriction:</ins>
+
+```
+r       restricted
+ur      unrestricted
+```
+
+<ins>Stream Type:</ins>
+
+```
+a       active
+n       normal
+u       passive
 ```
 
 <ins>Category:</ins>
 
 ```
+c       chatting
 p       passive
 sl      sleeping
 ```
