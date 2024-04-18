@@ -45,11 +45,13 @@ class Bot(commands.Bot):
         logging.info(message)
 
     def refresh_access_token(self):
+        print ("Refreshing access token...")
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
         subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
     def get_access_token(self):
-        token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'channel_twitch_roboty_hurts_access_token.txt')
+        print("Getting access token...")
+        token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
         with open(token_file, "r") as file:
             return file.read().strip()
 
@@ -66,6 +68,7 @@ class Bot(commands.Bot):
         else:
             log_message = f"CHAT     | {message.author.name}: {message.content}"
 
+        print(f'{message.author.name}: {message.content}')
         self.log_message(log_message)
         await self.handle_commands(message)
         
@@ -90,7 +93,7 @@ class Bot(commands.Bot):
     @commands.cooldown(1, 10, commands.Bucket.channel)
     async def activity(self, ctx: commands.Context):
         # Read the permission level string from the text file
-        permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_channel.txt')
+        permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_stream.txt')
         with open(permission_file, "r") as file:
             permission_scene = file.read().strip()
 
