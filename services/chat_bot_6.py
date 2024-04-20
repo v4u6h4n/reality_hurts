@@ -63,7 +63,13 @@ class Bot(commands.Bot):
 
     def refresh_access_token(self):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
-        subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
+        
+        # Run the script and suppress output by redirecting stdout and stderr to subprocess.PIPE
+        subprocess.run(
+            [script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
 
     def get_access_token(self):
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
@@ -88,9 +94,9 @@ class Bot(commands.Bot):
                 # Check the status of the response
                 if response.status == 200:
                     # Parse the JSON response
-                    print("Successfully retrieving global emotes data!")
+                    # print("Successfully retrieving global emotes data!")
                     data = await response.json()
-                    print("Successfully retrieved global emotes data!")
+                    # print("Successfully retrieved global emotes data!")
                     
                     # Create a dictionary to store emote names and their details
                     emote_dict = {}
