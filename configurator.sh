@@ -507,7 +507,7 @@
 
                 command stream refresh twitch reality_hurts
 
-                command stream info twitch reality_hurts passive passive morning
+                command stream info twitch reality_hurts unrestricted passive passive channel_under_construction
 
                 command scene quad anja studio vaughan desk
 
@@ -519,7 +519,7 @@
 
                 command stream refresh twitch reality_hurts
 
-                command stream info twitch reality_hurts passive sleeping sleeping
+                command stream info twitch reality_hurts unrestricted passive sleeping sleeping
 
                 command scene quad anja bed vaughan studio
 
@@ -974,7 +974,7 @@
 
             status_update profile_censor profile_restriction profile_input profile_output
 
-            setting_update_streamdeck_page
+            # setting_update_streamdeck_page
 
             position_left
 
@@ -1579,12 +1579,12 @@
         # Stream type.
         elif [[ "$1" == "stream_type" ]]; then
 
-            if [[ "$2" == "uncut_active" || "$2" == "a" ]]; then
-                argument="uncut_active"
+            if [[ "$2" == "active" || "$2" == "a" ]]; then
+                argument="active"
             elif [[ "$2" == "normal" || "$2" == "n" ]]; then
                 argument="normal"
-            elif [[ "$2" == "uncut_passive" || "$2" == "p" ]]; then
-                argument="uncut_passive"
+            elif [[ "$2" == "passive" || "$2" == "p" ]]; then
+                argument="passive"
             else
                 echo_error "translate_argument, stream_type, invalid argument: ${2}."
             fi
@@ -2974,7 +2974,7 @@
 
             # Uncensored, uncensored.
             elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                setting_update_censor_all_uncensored
+                echo_info "Censor: already uncensored, skipping."
 
             # Error.
             else
@@ -4194,13 +4194,13 @@
         position_right
 
         # Type.
-        if [[ "$arg_stream_type" == "uncut_passive" ]]; then
+        if [[ "$arg_stream_type" == "passive" ]]; then
             command permission input select couchsurfer
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-        elif [[ "$arg_stream_type" == "uncut_active" ]]; then
+        elif [[ "$arg_stream_type" == "active" ]]; then
             command permission stream select owner
             
         else

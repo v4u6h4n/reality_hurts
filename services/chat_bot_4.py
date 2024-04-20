@@ -129,9 +129,7 @@ class Bot(commands.Bot):
         print(f'{message.author.name}: {message.content}')
         self.log_message(f'{message.author.name}: {message.content}')
 
-        # Check if 'emotes' tag exists in message.tags.
         if 'emotes' in message.tags and message.tags['emotes']:
-            # Parse the emotes string into a dictionary.
             emotes_str = message.tags['emotes']
             emotes_dict = {}
             for emote in emotes_str.split('/'):
@@ -139,41 +137,23 @@ class Bot(commands.Bot):
                 positions = positions_str.split(',')
                 emotes_dict[emote_id] = positions
 
-            # Initialize the modified message as the original message content
-            modified_content = message.content
-
-            # Process each emote in the dictionary.
             for emote_id, positions in emotes_dict.items():
                 for pos in positions:
-                    # The position format is "start-end".
                     start, end = map(int, pos.split('-'))
                     emote_text = message.content[start:end + 1]
                     print(f'Emote detected: {emote_text} from {message.author.name}')
 
-                    # Check if emote_text is in the global emotes dictionary
                     if emote_text in self.global_emotes:
-                        # Get the emote's image URL from the global emotes dictionary
                         emote_image_url = self.global_emotes[emote_text]["images"]["url_1x"]
+                        print(f"Emote URL: {emote_image_url}")
 
-                        # Use the image URL to create an image with the graphics protocol (q=2 for quiet mode)
-                        create_image_command = f'echo -e "\033_Ga=T,q=2,i={emote_id};d=1,{emote_image_url}\033\\"'
-                        subprocess.run(create_image_command, shell=True)
-
-                        # Create a virtual image placement with the desired number of lines and columns
-                        # Let's assume you want a 2x2 placement for the image
-                        placement_command = f'echo -e "\033_Ga=p,U=1,i={emote_id},c=2,r=2\033\\"'
-                        subprocess.run(placement_command, shell=True)
-
-                        # Print the Unicode placeholder for the image
-                        # Encoding the image ID in the foreground color and row/column diacritics
-                        placeholder = fr'\033[38;5;{emote_id}m\U00010EEEE\U0305\U0305\033[39m'
-                        modified_content = modified_content.replace(emote_text, placeholder)
-
-            # Print the modified content with Unicode placeholders
-            print(f'{message.author.name}: {modified_content}')
+                        # Call the image rendering script and pass the image URL as an argument
+                        subprocess.run(['python3', '/media/storage/Streaming/Software/scripts/dev/services/send-png_2.py', emote_image_url])
 
         # Handle any commands in the message.
         await self.handle_commands(message)
+
+
 
 
 

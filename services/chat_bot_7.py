@@ -8,74 +8,57 @@ from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 from twitchio.ext import commands
 import os
-from twitchio import Client, GlobalEmote  # Importing Client class from twitchio for API interactions
+from twitchio import Client, GlobalEmote
 from twitchio.http import TwitchHTTP
-# from twitchio.client import Client
-
 
 
 def get_client_id():
-    # Specify the path to the file containing the client ID
-    client_id_file = '/media/storage/Streaming/Software/data/stream_twitch_roboty_hurts_client_id.txt'
-    
-    # Read the client ID from the file
+    client_id_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_client_id.txt')
     with open(client_id_file, 'r') as file:
         client_id = file.read().strip()
-    
     return client_id
 
+
 def get_client_secret():
-    # Specify the path to the file containing the client secret
-    client_secret_file = '/media/storage/Streaming/Software/data/stream_twitch_roboty_hurts_client_secret.txt'
-    
-    # Read the client secret from the file
+    client_secret_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_client_secret.txt')
     with open(client_secret_file, 'r') as file:
         client_secret = file.read().strip()
-    
     return client_secret
 
-# Bot.
+
 class Bot(commands.Bot):
 
     def __init__(self):
-        self.refresh_access_token()
         super().__init__(token=self.get_access_token(), prefix='!', initial_channels=['reality_hurts'])
         self.setup_logging()
-        
-        # Initialize the global emotes dictionary as None initially
         self.global_emotes = None
+
+
+    def get_access_token(self):
+        access_token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
+        with open(access_token_file, "r") as file:
+            return file.read().strip()
+
 
     def setup_logging(self):
         log_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', datefmt='%Y-%m-%d | %H:%M:%S')
 
-        # Define the log handler with date-based rotation
-        log_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'logs', 'roboty_hurts', f'{datetime.now().strftime("%Y-%m-%d")}.log')
+        log_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'logs', 'chat_bot', f'{datetime.now().strftime("%Y-%m-%d")}.log')
         log_handler = TimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=0)
         log_handler.setFormatter(log_formatter)
 
-        # Add the log handler to the root logger
         root_logger = logging.getLogger()
         root_logger.setLevel(logging.INFO)
         root_logger.addHandler(log_handler)
 
+
     def log_message(self, message):
         logging.info(message)
 
-    def refresh_access_token(self):
-        script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
-        subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
-
-    def get_access_token(self):
-        token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
-        with open(token_file, "r") as file:
-            return file.read().strip()
-
 
     async def get_global_emotes(self, client_id: str, token: str):
-        # Define the API URL for global emotes
         api_url = "https://api.twitch.tv/helix/chat/emotes/global"
         
-        # Define the headers for the request
         headers = {
             "Client-ID": client_id,
             "Authorization": f"Bearer {token}",
@@ -88,11 +71,8 @@ class Bot(commands.Bot):
                 # Check the status of the response
                 if response.status == 200:
                     # Parse the JSON response
-                    print("Successfully retrieving global emotes data!")
                     data = await response.json()
-                    print("Successfully retrieved global emotes data!")
                     
-                    # Create a dictionary to store emote names and their details
                     emote_dict = {}
                     for emote in data["data"]:
                         # Store emote details using emote name as the key
@@ -105,28 +85,19 @@ class Bot(commands.Bot):
                     raise Exception(f"Failed to retrieve global emotes: {response.status} - {await response.text()}")
 
 
-
-
     async def event_ready(self):
         self.log_message(f'Logged in as {self.nick}')
 
-        # Retrieve client ID and token
         client_id = get_client_id()
         token = self.get_access_token()
 
         # Fetch global emotes and store them in the dictionary
         self.global_emotes = await self.get_global_emotes(client_id, token)
 
-        # Schedule token refresh periodically
-        self.loop.create_task(self.run_refresh_access_token_periodically())
-
-
 
     async def event_message(self, message):
-        # Log the chat message.
         self.log_message(f'{message.author.name}: {message.content}')
 
-        # Copy the original message content for replacement
         modified_message = message.content
 
         # Process the emotes in the chat message
@@ -160,18 +131,9 @@ class Bot(commands.Bot):
                         # Replace the emote text with the rendered emote in the message
                         modified_message = modified_message[:start] + rendered_emote + modified_message[end + 1:]
 
-        # Print the modified message with emotes rendered in place
         print(f'{message.author.name}: {modified_message}')
 
-        # Handle any commands in the message
         await self.handle_commands(message)
-
-
-
-    async def run_refresh_access_token_periodically(self):
-        while True:
-            await asyncio.sleep(1800)
-            self.refresh_access_token()
 
 bot = Bot()
 bot.run()
