@@ -501,9 +501,8 @@
             # Morning.
             if [[ $current_hour -eq 5 ]]; then
                 
-                command permission stream toggle couchsurfer
+                command permission stream select couchsurfer
                 command permission scene select couchsurfer
-                command permission input select couchsurfer
 
                 command stream refresh twitch reality_hurts
 
@@ -2665,13 +2664,13 @@
 
                 # Current camera type is not quad.
                 else
-                    operation_socket --client unrestricted source show "restricted" "quad_restricted"
+                    operation_socket --client unrestricted_uncut source show "restricted" "quad_restricted"
                     echo_info "Quad restricted: show."
-                    operation_socket --client unrestricted source show "unrestricted" "quad_unrestricted"
+                    operation_socket --client unrestricted_uncut source show "unrestricted" "quad_unrestricted"
                     echo_info "Quad unrestricted: show."
-                    operation_socket --client unrestricted source hide "restricted" "${status_current_camera_type}_restricted"
+                    operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
                     echo_info "$status_current_camera_type restricted: hide."
-                    operation_socket --client unrestricted source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                    operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
                     echo_info "$status_current_camera_type unrestricted: hide."
                     status_update_camera_type quad
                 fi
@@ -2693,13 +2692,13 @@
 
                 # Current camera type is not single.
                 else
-                    operation_socket --client unrestricted source show "restricted" "single_restricted"
+                    operation_socket --client unrestricted_uncut source show "restricted" "single_restricted"
                     echo_info "Single restricted: show."
-                    operation_socket --client unrestricted source show "unrestricted" "single_unrestricted"
+                    operation_socket --client unrestricted_uncut source show "unrestricted" "single_unrestricted"
                     echo_info "Single unrestricted: show."
-                    operation_socket --client unrestricted source hide "restricted" "${status_current_camera_type}_restricted"
+                    operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
                     echo_info "$status_current_camera_type restricted: hide."
-                    operation_socket --client unrestricted source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                    operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
                     echo_info "$status_current_camera_type unrestricted: hide."
                     status_update_camera_type single
                 fi
@@ -2830,14 +2829,14 @@
 
                     # Camera is hidden.
                     elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
-                        operation_socket --client unrestricted source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
+                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
                         echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
-                        operation_socket --client unrestricted source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
+                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
                         echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
 
-                        operation_socket --client unrestricted source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
+                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
                         echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
-                        operation_socket --client unrestricted source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
+                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
                         echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
 
                         status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
@@ -2864,14 +2863,14 @@
 
                 # Camera is hidden.
                 elif [[ "$status_current_camera_single" != "$1" ]]; then
-                    operation_socket --client unrestricted source show "single_restricted" "${1}_restricted"
+                    operation_socket --client unrestricted_uncut source show "single_restricted" "${1}_restricted"
                     echo_info "single_restricted: show ${1}_restricted."
-                    operation_socket --client unrestricted source show "single_unrestricted" "${1}_unrestricted"
+                    operation_socket --client unrestricted_uncut source show "single_unrestricted" "${1}_unrestricted"
                     echo_info "single_unrestricted: show ${1}_unrestricted."
 
-                    operation_socket --client unrestricted source hide "single_restricted" "${status_current_camera_single}_restricted"
+                    operation_socket --client unrestricted_uncut source hide "single_restricted" "${status_current_camera_single}_restricted"
                     echo_info "single_restricted: hide ${status_current_camera_single}_restricted."
-                    operation_socket --client unrestricted source hide "single_unrestricted" "${status_current_camera_single}_unrestricted"
+                    operation_socket --client unrestricted_uncut source hide "single_unrestricted" "${status_current_camera_single}_unrestricted"
                     echo_info "single_unrestricted: hide ${status_current_camera_single}_unrestricted."
 
                     status_update_camera_single $1
@@ -2994,7 +2993,7 @@
             }
                 setting_update_censor_bathroom_censored() {
                     
-                    operation_socket --client unrestricted source show "censor_bathroom" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_bathroom" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3008,7 +3007,7 @@
                 }
                 setting_update_censor_bed_censored() {
                     
-                    operation_socket --client unrestricted source show "censor_bed" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3022,7 +3021,7 @@
                 }
                 setting_update_censor_desk_censored() {
                     
-                    operation_socket --client unrestricted source show "censor_desk" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3036,7 +3035,7 @@
                 }
                 setting_update_censor_studio_censored() {
                     
-                    operation_socket --client unrestricted source show "censor_studio" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3058,7 +3057,7 @@
             }
                 setting_update_censor_bathroom_uncensored() {
                     
-                    operation_socket --client unrestricted source hide "censor_bathroom" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_bathroom" "censor"
                     exit_1=$?
 
 
@@ -3073,7 +3072,7 @@
                 }
                 setting_update_censor_bed_uncensored() {
                     
-                    operation_socket --client unrestricted source hide "censor_bed" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_bed" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3087,7 +3086,7 @@
                 }
                 setting_update_censor_desk_uncensored() {
                     
-                    operation_socket --client unrestricted source hide "censor_desk" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_desk" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3101,7 +3100,7 @@
                 }
                 setting_update_censor_studio_uncensored() {
                     
-                    operation_socket --client unrestricted source hide "censor_studio" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_studio" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3907,7 +3906,7 @@
             }
                 setting_update_restriction_bathroom_restricted() {
                     
-                    operation_socket --client unrestricted source show "censor_bathroom_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3921,7 +3920,7 @@
                 }
                 setting_update_restriction_bed_restricted() {
                     
-                    operation_socket --client unrestricted source show "censor_bed_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3935,7 +3934,7 @@
                 }
                 setting_update_restriction_desk_restricted() {
                     
-                    operation_socket --client unrestricted source show "censor_desk_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3949,7 +3948,7 @@
                 }
                 setting_update_restriction_studio_restricted() {
                     
-                    operation_socket --client unrestricted source show "censor_studio_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source show "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3971,7 +3970,7 @@
             }
                 setting_update_restriction_bathroom_unrestricted() {
                     
-                    operation_socket --client unrestricted source hide "censor_bathroom_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_bathroom_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3985,7 +3984,7 @@
                 }
                 setting_update_restriction_bed_unrestricted() {
                     
-                    operation_socket --client unrestricted source hide "censor_bed_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_bed_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -3999,7 +3998,7 @@
                 }
                 setting_update_restriction_desk_unrestricted() {
                     
-                    operation_socket --client unrestricted source hide "censor_desk_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_desk_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -4013,7 +4012,7 @@
                 }
                 setting_update_restriction_studio_unrestricted() {
                     
-                    operation_socket --client unrestricted source hide "censor_studio_unrestricted" "censor"
+                    operation_socket --client unrestricted_uncut source hide "censor_studio_unrestricted" "censor"
                     exit_1=$?
 
                     if [[ $exit_1 -eq 0 ]]; then
@@ -4499,7 +4498,7 @@
         }
             setting_update_input_obs_restricted_mute_microphone_1() {
 
-                operation_socket --client restricted input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4511,7 +4510,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_2() {
 
-                operation_socket --client restricted input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4523,7 +4522,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_3() {
 
-                operation_socket --client restricted input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4535,7 +4534,7 @@
             }
             setting_update_input_obs_restricted_mute_microphone_4() {
 
-                operation_socket --client restricted input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4562,7 +4561,7 @@
         }
             setting_update_input_obs_unrestricted_mute_microphone_1() {
 
-                operation_socket --client unrestricted input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4574,7 +4573,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_2() {
 
-                operation_socket --client unrestricted input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4586,7 +4585,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_3() {
 
-                operation_socket --client unrestricted input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4598,7 +4597,7 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_4() {
 
-                operation_socket --client unrestricted input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4697,7 +4696,7 @@
         }
             setting_update_input_obs_restricted_unmute_microphone_1() {
 
-                operation_socket --client restricted input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4709,7 +4708,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_2() {
 
-                operation_socket --client restricted input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4721,7 +4720,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_3() {
 
-                operation_socket --client restricted input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4733,7 +4732,7 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_4() {
 
-                operation_socket --client restricted input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4760,7 +4759,7 @@
         }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4772,7 +4771,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_2() {
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4784,7 +4783,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_3() {
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -4796,7 +4795,7 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_4() {
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
@@ -5111,7 +5110,7 @@
 
             # ydotool key 125:1 68:1 68:0 125:0
 
-            operation_socket --client restricted hotkey trigger key OBS_KEY_F10
+            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F10
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -5124,7 +5123,7 @@
         setting_update_output_obs_unrestricted_mute() {
 
             # ydotool key 125:1 88:1 88:0 125:0
-            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F12
+            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F12
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -5355,7 +5354,7 @@
         setting_update_output_obs_restricted_unmute() {
 
             # ydotool key 125:1 67:1 67:0 125:0
-            operation_socket --client restricted hotkey trigger key OBS_KEY_F9
+            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F9
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -5368,7 +5367,7 @@
         setting_update_output_obs_unrestricted_unmute() {
 
             # ydotool key 125:1 87:1 87:0 125:0
-            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
+            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F11
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
@@ -5393,7 +5392,7 @@
         }
             setting_update_output_obs_unrestricted_unmute_output_1() {
 
-                operation_socket --client unrestricted output list "$input_device_output_1_name_obs"
+                operation_socket --client unrestricted_uncut output list "$input_device_output_1_name_obs"
                 exit_1=$?
 
                 if [[ $exit_1 -eq 0 ]]; then
