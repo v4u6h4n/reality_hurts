@@ -522,7 +522,7 @@
 
                 command scene quad anja bed vaughan studio
 
-                command profile uc ur m m
+                command profile uncensored unrestricted unmuted unmuted
 
             # Debug.
             # elif [[ $current_hour -eq 14 ]]; then
@@ -3165,7 +3165,7 @@
 
                     # Error.
                     else
-                        echo_error "status_current_output_device_default."
+                        echo_error_speak "Output device error. Reset speakers to fix."
                     fi
 
                 # Paused.
@@ -3282,7 +3282,7 @@
                     
                     # Error.
                     else
-                        echo_error "status_current_output_device_default."
+                        echo_error_speak "Output device error. Reset speakers to fix."
                     fi
 
             # Paused.
@@ -3563,7 +3563,7 @@
                     
                     # Error.
                     else
-                        echo_error "status_current_output_device_default."
+                        echo_error_speak "Output device error. Reset speakers to fix."
                     fi
 
                     # Alert played.
@@ -3690,7 +3690,7 @@
                         
                     # Error.
                     else
-                        echo_error "status_current_output_device_default."
+                        echo_error_speak "Output device error. Reset speakers to fix."
                     fi
 
                 # Paused.
@@ -3777,7 +3777,7 @@
                     
                     # Error.
                     else
-                        echo_error "status_current_output_device_default."
+                        echo_error_speak "Output device error. Reset speakers to fix."
                     fi
 
                 # Error.
@@ -4193,15 +4193,18 @@
         position_right
 
         # Type.
+
+        # Passive.
         if [[ "$arg_stream_type" == "passive" ]]; then
             command permission input select couchsurfer
+        # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
+        # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
-            command permission stream select owner
-            
+            command permission stream select owner 
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi
