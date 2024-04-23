@@ -1,0 +1,9 @@
+[Unit]
+Description=v4l2loopback
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 card_label='OBS Virtual Camera' video_nr=99
+
+[Install]
+WantedBy=default.target

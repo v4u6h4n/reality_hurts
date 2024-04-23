@@ -1,0 +1,12 @@
+[Unit]
+Description=Socket Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/dev/services/socket_server.py'
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

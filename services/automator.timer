@@ -1,0 +1,12 @@
+[Unit]
+Description=Stream
+
+[Timer]
+# Activity: morning.
+OnCalendar=*-*-* 05:02:00
+# Activity: sleeping.
+OnCalendar=*-*-* 21:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
