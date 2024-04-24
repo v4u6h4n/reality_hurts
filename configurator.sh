@@ -3132,6 +3132,8 @@
             # Muted, unmuted.
             if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
                 echo_debug "Muted, unmuted."
+                setting_update_input_obs_restricted_mute
+                setting_update_input_obs_unrestricted_mute
 
             # Unmuted, muted.
             elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
@@ -3187,7 +3189,7 @@
                     else
                         echo_error "arg_profile_restriction, status_check_profile_restriction."
                     fi
-                
+        
                 # Error.
                 else
                     echo_error "current_status_playback."
@@ -3195,31 +3197,26 @@
 
             # Muted, muted.
             elif [[ ("$arg_profile_input" == "muted" || -z "$arg_profile_input") && "$status_check_profile_input" == "muted" ]]; then
-                
-                echo_debug "Input: muted (unchanged)."
+                echo_debug "Muted, muted."
+                setting_update_input_obs_restricted_mute
+                setting_update_input_obs_unrestricted_mute
 
             # Unmuted, unmuted.
             elif [[ ("$arg_profile_input" == "unmuted" || -z "$arg_profile_input") && "$status_check_profile_input" == "unmuted" ]]; then
-
                 echo_debug "Unmuted, unmuted."
 
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
-
                     echo_debug "Playing."
 
                     # Null sink 1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-
                         echo_debug "Output device default: ${status_current_output_device_default}."
 
                         # Alert played.
                         if [[ "$flag_alert_played" == "yes" ]]; then
-                            
                             echo_debug "Alert played."
-
                             echo_info "Input: muted (unchanged)."
-
                         fi
 
                         # Playback toggle.
@@ -3284,10 +3281,10 @@
                     else
                         echo_error_speak "Output device error. Reset speakers to fix."
                     fi
-
-            # Paused.
-            elif [[ "$current_status_playback" != "Playing" ]]; then
-                    echo_debug "Paused."
+            
+                # Paused.
+                elif [[ "$current_status_playback" != "Playing" ]]; then
+                        echo_debug "Paused."
 
                     # Null sink 1.
                     if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
@@ -3613,7 +3610,9 @@
             # Muted, muted.
             elif [[ ("$arg_profile_output" == "muted" || -z "$arg_profile_output" ) && "$status_check_profile_output" == "muted" ]]; then
                 echo_debug "Muted, muted."
-
+                setting_update_output_obs_restricted_mute
+                setting_update_output_obs_unrestricted_mute
+                
                 # Playing.
                 if [[ "$current_status_playback" == "Playing" ]]; then
                     echo_debug "Playing."
