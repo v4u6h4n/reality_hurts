@@ -522,7 +522,7 @@
 
                 command scene quad anja bed vaughan studio
 
-                command profile uncensored unrestricted unmuted unmuted
+                command profile uncensored unrestricted muted muted
 
             # Debug.
             # elif [[ $current_hour -eq 14 ]]; then
