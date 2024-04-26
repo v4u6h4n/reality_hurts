@@ -3,7 +3,8 @@ Description=v4l2loopback
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 video_nr=89,99 card_label="Virtual Logitech","OBS Virtual Camera"
+# ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 video_nr=89,99 card_label="Virtual Logitech","OBS Virtual Camera"
+ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 video_nr=99 card_label="OBS Virtual Camera"
 
 [Install]
 WantedBy=default.target

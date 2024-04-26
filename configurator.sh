@@ -2642,6 +2642,17 @@
 
         }
 
+        # Desktop.
+        setting_update_desktop() {
+
+            :
+
+        }
+            setting_update_desktop_stream_type() {
+
+                "/media/storage/Streaming/Software/scripts/dev/services/hyprland.sh" stream_type_$1
+
+            }
         # Camera.
         setting_update_camera() {
 
@@ -4195,14 +4206,17 @@
 
         # Passive.
         if [[ "$arg_stream_type" == "passive" ]]; then
+            setting_update_desktop_stream_type passive
             command permission input select couchsurfer
         # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
+            setting_update_desktop_stream_type active
         # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
+            setting_update_desktop_stream_type active
             command permission stream select owner 
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."

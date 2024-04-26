@@ -2,10 +2,11 @@
 
 # Variables.
 
+screen_1="DP-1"
 window_title_camera="mpv_camera"
-window_title_chat="Chatterino "
+window_title_chat="twt"
 
-# Functions.
+# Prerequisites.
     lock_check() {
 
         while [ -e /tmp/workspace.lock ]; do
@@ -20,21 +21,25 @@ window_title_chat="Chatterino "
         rm /tmp/workspace.lock
 
     }
+
+# Setting update.
+
     workspace_switch() {
 
         hyprctl dispatch workspace $arg_workspace_change
-        workspace_active_id
 
-        if ((workspace_active_id >= 7 && workspace_active_id <= 16)); then
-            hyprctl dispatch movetoworkspacesilent $workspace_active_id,address:"$(window_address "$window_title_chat")"
-            hyprctl dispatch movetoworkspacesilent $workspace_active_id,address:"$(window_address "$window_title_camera")"
+        if [[ "$(workspace_active_id)" -ge "7" && "$(workspace_active_id)" -le "16" && "$(stream_status)" == "active" ]]; then
+        #if (($(workspace_active_id) >= 7 && $(workspace_active_id) <= 16)); then
+            
+            hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_chat)"
+            hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_camera)"
             
 
             if [[ "$(workspace_active_window_count)" -ge 3 ]]; then
 
                 hyprctl dispatch layoutmsg focusmaster master
 
-                while hyprctl activewindow | grep chatterino || hyprctl activewindow | grep mpv_camera; do
+                while hyprctl activewindow | grep twt || hyprctl activewindow | grep mpv_camera; do
                     #hyprctl dispatch movewindow l
                     hyprctl dispatch layoutmsg swapprev
                     hyprctl dispatch layoutmsg focusmaster master
@@ -87,6 +92,43 @@ window_title_chat="Chatterino "
 
     }
 
+# Status.
+
+    stream_status() {
+
+        if [[ "$(window_workspace_id $window_title_camera)" == "17" || "$(window_workspace_id $window_title_chat)" == "17" ]]; then
+            echo passive
+        else
+            echo active
+        fi
+
+    }
+    stream_status_update() {
+
+        # Passive.
+        if [[ "$1" == "passive" && "$(stream_status)" == "active" ]]; then
+
+            hyprctl dispatch setfloating address:$(window_address $window_title_camera)
+            hyprctl dispatch setfloating address:$(window_address $window_title_chat)
+            hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_chat")"
+            hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_camera")"
+            hyprctl dispatch movewindowpixel exact 0% 0%,address:"$(window_address "$window_title_chat")"
+            hyprctl dispatch movewindowpixel exact 0% 0%,address:"$(window_address "$window_title_camera")"
+        elif [[ "$1" == "active" && "$(stream_status)" == "passive" ]]; then
+            hyprctl dispatch settiled address:$(window_address $window_title_camera)
+            hyprctl dispatch settiled address:$(window_address $window_title_chat)
+            hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_chat")"
+            hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_camera")"
+            arg_workspace_change="$(workspace_active_id)"k
+            workspace_switch
+        fi
+
+    }
+    monitor_workspace_active_id() {
+
+        hyprctl monitors | grep "$1" -A 6 | grep "active workspace:" | awk '{print $3}' | cut -d',' -f1
+
+    }
     window_position_horizontal() {
 
         hyprctl clients | grep "$1" -A 3 | grep "at:" | awk '{print $2}' | cut -d',' -f1
@@ -114,7 +156,7 @@ window_title_chat="Chatterino "
     }
     workspace_active_id() {
 
-        workspace_active_id=$(hyprctl activeworkspace | grep -oP 'workspace ID \K\w+')
+        hyprctl activeworkspace | grep "workspace ID" | awk '{print $3}' | cut -d',' -f1
 
     }
     workspace_active_window_count() {
@@ -134,6 +176,10 @@ elif [[ "$1" == "previous" ]]; then
     workspace_switch
 elif [[ "$1" == "swap" ]]; then
     window_swap
+elif [[ "$1" == "stream_type_passive" ]]; then
+    stream_status_update passive
+elif [[ "$1" == "stream_type_active" ]]; then
+    stream_status_update active
 fi
 
 lock_remove

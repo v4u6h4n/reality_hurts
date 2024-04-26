@@ -4,6 +4,7 @@
 
 # gst-launch-1.0 -v pipewiresrc ! videoconvert ! autovideosink
 # mpv av://v4l2:/dev/video0 --osc=no --title="mpv_camera" & disown
+# sudo v4l2loopback-ctl add -x 0 -n "virtual_desk_vaughan" /dev/video98
 
 ## CODE
 
