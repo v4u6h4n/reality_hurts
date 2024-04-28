@@ -2638,7 +2638,7 @@
                     setting_update_application_camera_1_close
                     setting_update_application_camera_1_open
                 # Start.
-                if [[ "$arg_application_action" == "start" ]]; then
+                elif [[ "$arg_application_action" == "start" ]]; then
                     setting_update_application_chat_open
                     setting_update_application_camera_1_open
                 # Stop.
@@ -2659,7 +2659,7 @@
         }
             setting_update_application_loopback_start() {
 
-                ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51
+                ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
             }
             setting_update_application_loopback_stop() {
@@ -2669,12 +2669,12 @@
             }
             setting_update_application_chat_open() {
 
-                flatpak run com.chatterino.chatterino
+                flatpak run com.chatterino.chatterino & disown
 
             }
             setting_update_application_chat_close() {
 
-                flatpak kill com.chatterino.chatterino
+                flatpak kill com.chatterino.chatterino & disown
 
             }
             setting_update_application_camera_1_open() {
