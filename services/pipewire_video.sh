@@ -4,6 +4,8 @@
 
 # gst-launch-1.0 -v pipewiresrc ! videoconvert ! autovideosink
 # mpv av://v4l2:/dev/video0 --osc=no --title="mpv_camera" & disown
+# mpv av://v4l2:/dev/video99 --osc=no --stop-screensaver=no --panscan=1 --title="mpv_camera" & disown
+# ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 -pix_fmt yuv420p -f v4l2 /dev/video99
 # sudo v4l2loopback-ctl add -x 0 -n "virtual_desk_vaughan" /dev/video98
 
 ## CODE

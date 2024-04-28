@@ -4,7 +4,7 @@
 
 screen_1="DP-1"
 window_title_camera="mpv_camera"
-window_title_chat="twt"
+window_title_chat="Chatterino"
 
 # Prerequisites.
     lock_check() {
@@ -34,7 +34,6 @@ window_title_chat="twt"
             hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_chat)"
             hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_camera)"
             
-
             if [[ "$(workspace_active_window_count)" -ge 3 ]]; then
 
                 hyprctl dispatch layoutmsg focusmaster master
@@ -55,12 +54,11 @@ window_title_chat="twt"
     }
     window_swap() {
 
-        workspace_active_id
-
-        if [[ "$(window_workspace_id $window_title_camera)" == "$workspace_active_id" ]]; then
+        if [[ "$(window_workspace_id $window_title_camera)" == "$(workspace_active_id)" ]]; then
 
             # Webcam is child.
             if [[ "$(window_position_horizontal $window_title_camera )" -ge "2577" ]]; then
+                echo "Webcam is child"
                 window_active_change $(window_address "$window_title_camera")
                 hyprctl dispatch swapwindow l
                 hyprctl dispatch cyclenext next
@@ -69,13 +67,14 @@ window_title_chat="twt"
 
             # Webcam is parent.
             else
+                echo "Webcam is parent"
                 window_active_change $(window_address "$window_title_camera")
-                hyprctl dispatch cyclenext next
+                hyprctl dispatch cyclenext prev
                 hyprctl dispatch swapwindow l
                 # 871 490
                 # 871,113
                 #hyprctl dispatch "resizewindowpixel -10 -10,title:mpv_camera"
-                hyprctl dispatch "resizeactive 0 -100"
+                # hyprctl dispatch "resizeactive 0 -100"
                 hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
                 hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
                 hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
@@ -86,7 +85,8 @@ window_title_chat="twt"
 
         else
 
-            hyprctl dispatch layoutmsg swapnext
+            echo "Stream is passive"
+            hyprctl dispatch layoutmsg rollnext
 
         fi
 
@@ -112,14 +112,16 @@ window_title_chat="twt"
             hyprctl dispatch setfloating address:$(window_address $window_title_chat)
             hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_chat")"
             hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_camera")"
-            hyprctl dispatch movewindowpixel exact 0% 0%,address:"$(window_address "$window_title_chat")"
-            hyprctl dispatch movewindowpixel exact 0% 0%,address:"$(window_address "$window_title_camera")"
+            hyprctl dispatch movewindowpixel exact 5% 5%,address:"$(window_address "$window_title_chat")"
+            hyprctl dispatch resizewindowpixel exact 871 1347,address:"$(window_address "$window_title_camera")"
+            hyprctl dispatch movewindowpixel exact 5% 5%,address:"$(window_address "$window_title_camera")"
+            hyprctl dispatch resizewindowpixel exact 1920 1080,address:"$(window_address "$window_title_camera")"
         elif [[ "$1" == "active" && "$(stream_status)" == "passive" ]]; then
             hyprctl dispatch settiled address:$(window_address $window_title_camera)
             hyprctl dispatch settiled address:$(window_address $window_title_chat)
             hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_chat")"
             hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_camera")"
-            arg_workspace_change="$(workspace_active_id)"k
+            arg_workspace_change="$(workspace_active_id)"
             workspace_switch
         fi
 
@@ -141,7 +143,8 @@ window_title_chat="twt"
     }
     window_address() {
 
-        hyprctl clients | grep -oP "Window \K[0-9a-f]+(?= -> $1)" | sed 's/^/0x/'
+        echo "0x$(hyprctl clients | grep "$1" | grep "Window" | awk '{print $2}' | cut -d',' -f1)"
+        #hyprctl clients | grep -oP "Window \K[0-9a-f]+(?= -> $1)" | sed 's/^/0x/'
 
     }
     window_active_address() {
