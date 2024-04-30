@@ -87,6 +87,7 @@
             directory_data_private="${directory_script}../../data/"
             directory_data_public="${directory_script}data/"
             directory_log="${directory_script}../../logs/"
+            directory_service="${directory_script}services/"
 
         }
         prerequisite_permission() {
@@ -2638,16 +2639,19 @@
             elif [[ "$arg_application" == "stream_applications" ]]; then
                 # Reset.
                 if [[ "$arg_application_action" == "reset" ]]; then
-                    setting_update_application_camera_1_close
-                    setting_update_application_camera_1_open
+                    "$(directory_service)hyprland.sh" stream_type_reset
+                    # setting_update_application_camera_1_close
+                    # setting_update_application_camera_1_open
                 # Start.
                 elif [[ "$arg_application_action" == "start" ]]; then
-                    setting_update_application_chat_open
-                    setting_update_application_camera_1_open
+                    "$(directory_service)hyprland.sh" stream_type_active
+                    # setting_update_application_chat_open
+                    # setting_update_application_camera_1_open
                 # Stop.
                 elif [[ "$arg_application_action" == "stop" ]]; then
-                    setting_update_application_chat_close
-                    setting_update_application_camera_1_close
+                    "$(directory_service)hyprland.sh" stream_type_passive
+                    # setting_update_application_chat_close
+                    # setting_update_application_camera_1_close
                 # Error.
                 else
                     echo_error  "setting_update_application, stream_applications, arg_application_action: $arg_application_action."

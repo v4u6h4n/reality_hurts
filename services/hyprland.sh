@@ -76,6 +76,14 @@
                 hyprctl dispatch movetoworkspacesilent $temp_workspace_id
             done
 
+        elif [[ "$1" == "reset" && "$(stream_status)" == "active" ]]; then
+
+            stream_status_update passive
+
+            sleep 0.5
+
+            stream_status_update active
+
         fi
 
     }
@@ -209,6 +217,8 @@
         stream_status_update passive
     elif [[ "$1" == "stream_type_active" ]]; then
         stream_status_update active
+    elif [[ "$1" == "stream_type_reset" ]]; then
+        stream_status_update reset
     fi
 
     lock_remove
