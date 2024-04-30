@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Variables.
+# Startup.
 
-screen_1="DP-1"
-window_title_camera="mpv_camera"
-window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
+    variables() {
 
-# Prerequisites.
+        window_title_camera="mpv_camera"
+        window_title_chat="Chatterino"
+        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris")  
+
+    }
     lock_check() {
 
         while [ -e /tmp/workspace.lock ]; do
@@ -22,122 +24,124 @@ window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
 
     }
 
-# Setting update.
+# Functions.
 
-    workspace_switch() {
+    monitor_workspace_active_id() {
 
-        hyprctl dispatch workspace $arg_workspace_change
-        hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",title:"transparent_kitty"
-
-
-        # if [[ "$(workspace_active_id)" -ge "7" && "$(workspace_active_id)" -le "16" && "$(stream_status)" == "active" ]]; then
-        # #if (($(workspace_active_id) >= 7 && $(workspace_active_id) <= 16)); then
-            
-             #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_chat)"
-             #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_camera)"
-            
-        #     if [[ "$(workspace_active_window_count)" -ge 3 ]]; then
-
-        #         hyprctl dispatch layoutmsg focusmaster master
-
-        #         while hyprctl activewindow | grep twt || hyprctl activewindow | grep mpv_camera; do
-        #             #hyprctl dispatch movewindow l
-        #             hyprctl dispatch layoutmsg swapprev
-        #             hyprctl dispatch layoutmsg focusmaster master
-        #         done
-
-        #         hyprctl dispatch resizewindowpixel 0 174,title:"mpv_camera"
-        #         hyprctl dispatch splitratio exact 0.65
-
-        #     fi
-
-        # fi
+        hyprctl monitors | grep "$1" -A 6 | grep "active workspace:" | awk '{print $3}' | cut -d',' -f1
 
     }
-    window_swap() {
-
-        hyprctl dispatch layoutmsg togglesplit
-
-        # if [[ "$(window_workspace_id $window_title_camera)" == "$(workspace_active_id)" ]]; then
-
-        #     # Webcam is child.
-        #     if [[ "$(window_position_horizontal $window_title_camera )" -ge "2577" ]]; then
-        #         echo "Webcam is child"
-        #         window_active_change $(window_address "$window_title_camera")
-        #         hyprctl dispatch swapwindow l
-        #         hyprctl dispatch cyclenext next
-        #         #hyprctl dispatch resizeactive 0 400
-        #         #hyprctl dispatch splitratio exact 0.80
-
-        #     # Webcam is parent.
-        #     else
-        #         echo "Webcam is parent"
-        #         window_active_change $(window_address "$window_title_camera")
-        #         hyprctl dispatch cyclenext prev
-        #         hyprctl dispatch swapwindow l
-        #         # 871 490
-        #         # 871,113
-        #         #hyprctl dispatch "resizewindowpixel -10 -10,title:mpv_camera"
-        #         # hyprctl dispatch "resizeactive 0 -100"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -77,title:mpv_camera"
-        #         #hyprctl dispatch splitratio exact 0.65
-
-        #     fi
-
-        # else
-
-        #     echo "Stream is passive"
-        #     hyprctl dispatch layoutmsg rollnext
-
-        # fi
-
-    }
-
-# Status.
 
     stream_status() {
 
-        if [[ "$(window_workspace_id $window_title_camera)" == "17" || "$(window_workspace_id $window_title_chat)" == "17" ]]; then
+
+        if ! hyprctl clients | grep -q mpv_camera; then
             echo passive
-        else
+        elif hyprctl clients | grep -q mpv_camera; then
             echo active
         fi
 
     }
     stream_status_update() {
 
-        # Passive.
-        if [[ "$1" == "passive" && "$(stream_status)" == "active" ]]; then
+        echo "Stream status update."
 
-            hyprctl dispatch setfloating address:$(window_address $window_title_camera)
-            hyprctl dispatch setfloating address:$(window_address $window_title_chat)
-            hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_chat")"
-            hyprctl dispatch movetoworkspacesilent 17,address:"$(window_address "$window_title_camera")"
-            hyprctl dispatch movewindowpixel exact 5% 5%,address:"$(window_address "$window_title_chat")"
-            hyprctl dispatch resizewindowpixel exact 871 1347,address:"$(window_address "$window_title_camera")"
-            hyprctl dispatch movewindowpixel exact 5% 5%,address:"$(window_address "$window_title_camera")"
-            hyprctl dispatch resizewindowpixel exact 1920 1080,address:"$(window_address "$window_title_camera")"
-        elif [[ "$1" == "active" && "$(stream_status)" == "passive" ]]; then
-            hyprctl dispatch settiled address:$(window_address $window_title_camera)
-            hyprctl dispatch settiled address:$(window_address $window_title_chat)
-            hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_chat")"
-            hyprctl dispatch movetoworkspacesilent $(monitor_workspace_active_id $screen_1),address:"$(window_address "$window_title_camera")"
-            arg_workspace_change="$(workspace_active_id)"
-            workspace_switch
+
+
+        # Passive.
+        if [[ "$1" == "active" && $(stream_status) == "passive" ]]; then
+
+            echo "Active"
+
+            for application_title in "${application_titles[@]}"; do
+                hyprctl dispatch setfloating address:$(window_address $application_title)
+                hyprctl dispatch resizewindowpixel exact 1639 1347,address:$(window_address $application_title)
+                hyprctl dispatch movewindowpixel exact 2576 16,address:$(window_address $application_title)
+            done
+
+            flatpak run com.chatterino.chatterino & disown
+            mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
+
+        elif [[ "$1" == "passive" && "$(stream_status)" == "active" ]]; then
+
+            echo "Passive"
+
+            flatpak kill com.chatterino.chatterino
+            kill $(hyprctl clients | grep "mpv_camera" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+            for application_title in "${application_titles[@]}"; do
+                temp_workspace_id=$(window_workspace_id $application_title)
+                hyprctl dispatch togglefloating address:$(window_address $application_title)
+                hyprctl dispatch focuswindow address:$(window_address $application_title)
+                hyprctl dispatch movetoworkspacesilent $temp_workspace_id
+            done
+
         fi
 
     }
-    monitor_workspace_active_id() {
 
-        hyprctl monitors | grep "$1" -A 6 | grep "active workspace:" | awk '{print $3}' | cut -d',' -f1
+    window_swap() {
+
+
+        # Passive.
+        if [[ $(stream_status) == "passive" || "$(workspace_active_monitor)" != "0" ]]; then
+            hyprctl dispatch layoutmsg swapsplit
+        
+        # Active.
+        elif [[ "$(stream_status)" == "active" ]]; then
+
+            # Large.
+            if [[ "$(window_size_width $window_title_camera)" == "870" ]]; then
+
+                workspace_id_temp="$(workspace_active_id)"
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "mpv_camera" && $2 != "Chatterino" {print $2; exit}')"
+                echo "$window_title_temp"
+                hyprctl dispatch movewindowpixel exact 905 16,address:$(window_address "$window_title_temp")
+                
+                sleep 0.2
+
+                # sleep 0.3
+
+                hyprctl dispatch movewindowpixel exact 4634 16,address:$(window_address $window_title_chat)
+                hyprctl dispatch resizewindowpixel exact 470 1347,address:$(window_address $window_title_chat)
+
+                hyprctl dispatch resizewindowpixel exact 2042 1347,address:$(window_address $window_title_camera)
+                hyprctl dispatch movewindowpixel exact 2576 16,address:$(window_address $window_title_camera)
+
+                sleep 0.3
+
+                hyprctl dispatch resizewindowpixel exact 470 1347,address:$(window_address $window_title_chat)
+
+            # Small.
+            elif [[ "$(window_size_width $window_title_camera)" != "870" ]]; then
+                
+                sleep 0.3
+
+                hyprctl dispatch resizewindowpixel exact 870 489,address:$(window_address $window_title_camera)
+                hyprctl dispatch movewindowpixel exact 4234 874,address:$(window_address $window_title_camera)
+                
+                hyprctl dispatch resizewindowpixel exact 870 842,address:$(window_address $window_title_chat)
+                hyprctl dispatch movewindowpixel exact 4234 16,address:$(window_address $window_title_chat)
+
+                sleep 0.2
+
+                workspace_id_temp="$(workspace_active_id)"
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "mpv_camera" && $2 != "Chatterino" {print $2; exit}')"
+                hyprctl dispatch movewindowpixel exact 2576 16,address:$(window_address $window_title_temp)
+
+            fi
+        
+        fi
 
     }
     window_position_horizontal() {
 
         hyprctl clients | grep "$1" -A 3 | grep "at:" | awk '{print $2}' | cut -d',' -f1
+
+    }
+    window_size_width() {
+
+        hyprctl clients | grep "$1" -A 4 | grep "size:" | awk '{print $2}x{print $3}' | cut -d',' -f1
 
     }
     window_workspace_id() {
@@ -161,9 +165,15 @@ window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
         hyprctl dispatch focuswindow address:$1
 
     }
+
     workspace_active_id() {
 
         hyprctl activeworkspace | grep "workspace ID" | awk '{print $3}' | cut -d',' -f1
+
+    }
+    workspace_active_monitor() {
+
+        hyprctl activeworkspace | grep "monitorID:" | awk '{print $2}'
 
     }
     workspace_active_window_count() {
@@ -171,22 +181,34 @@ window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
         hyprctl activeworkspace | awk '/windows:/ { if (/windows:/) { print $2; exit } }'
 
     }
+    workspace_switch() {
+
+        if [[ "$(stream_status)" == "active" && "$(window_size_width $window_title_camera)" != "870" ]]; then
+            window_swap
+            sleep 0.6
+        fi
+            0.4
+            hyprctl dispatch workspace $arg_workspace_change
+
+    }
 
 # Operations.
-lock_check
 
-if [[ "$1" == "next" ]]; then
-    arg_workspace_change="m+1"
-    workspace_switch
-elif [[ "$1" == "previous" ]]; then
-    arg_workspace_change="m-1"
-    workspace_switch
-elif [[ "$1" == "swap" ]]; then
-    window_swap
-elif [[ "$1" == "stream_type_passive" ]]; then
-    stream_status_update passive
-elif [[ "$1" == "stream_type_active" ]]; then
-    stream_status_update active
-fi
+    lock_check
+    variables
 
-lock_remove
+    if [[ "$1" == "next" ]]; then
+        arg_workspace_change="m+1"
+        workspace_switch
+    elif [[ "$1" == "previous" ]]; then
+        arg_workspace_change="m-1"
+        workspace_switch
+    elif [[ "$1" == "swap" ]]; then
+        window_swap
+    elif [[ "$1" == "stream_type_passive" ]]; then
+        stream_status_update passive
+    elif [[ "$1" == "stream_type_active" ]]; then
+        stream_status_update active
+    fi
+
+    lock_remove
