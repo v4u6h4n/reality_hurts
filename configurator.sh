@@ -2639,17 +2639,18 @@
             elif [[ "$arg_application" == "stream_applications" ]]; then
                 # Reset.
                 if [[ "$arg_application_action" == "reset" ]]; then
-                    "$(directory_service)hyprland.sh" stream_type_reset
+                    "${directory_service}hyprland.sh" stream_type_reset
                     # setting_update_application_camera_1_close
                     # setting_update_application_camera_1_open
                 # Start.
                 elif [[ "$arg_application_action" == "start" ]]; then
-                    "$(directory_service)hyprland.sh" stream_type_active
+                    "${directory_service}hyprland.sh" stream_type_active
                     # setting_update_application_chat_open
                     # setting_update_application_camera_1_open
                 # Stop.
                 elif [[ "$arg_application_action" == "stop" ]]; then
-                    "$(directory_service)hyprland.sh" stream_type_passive
+                    echo "${directory_service}hyprland.sh"
+                    "${directory_service}hyprland.sh" stream_type_passive
                     # setting_update_application_chat_close
                     # setting_update_application_camera_1_close
                 # Error.
