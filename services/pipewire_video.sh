@@ -11,6 +11,12 @@
 ## CODE
 
 
+# hyprctl dispatch resizewindowpixel exact 870 489,title:mpv_camera
+# hyprctl dispatch movewindowpixel exact 4234 874,title:mpv_camera
+# hyprctl dispatch resizewindowpixel exact 870 842,pid:493255
+# hyprctl dispatch movewindowpixel exact 4234 16,pid:493255
+# hyprctl dispatch pin title:mpv_camera
+
 # Create a new Pipewire virtual device
 pw-metadata -n camera /dev/video0 &
 VDVICE_ID=$!

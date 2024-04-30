@@ -4,7 +4,7 @@
 
 screen_1="DP-1"
 window_title_camera="mpv_camera"
-window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
+window_title_chat="Chatterino"
 
 # Prerequisites.
     lock_check() {
@@ -27,72 +27,69 @@ window_title_chat="Chatterino Nightly 2.4.6 - reality_hurts"
     workspace_switch() {
 
         hyprctl dispatch workspace $arg_workspace_change
-        hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",title:"transparent_kitty"
 
-
-        # if [[ "$(workspace_active_id)" -ge "7" && "$(workspace_active_id)" -le "16" && "$(stream_status)" == "active" ]]; then
-        # #if (($(workspace_active_id) >= 7 && $(workspace_active_id) <= 16)); then
+        if [[ "$(workspace_active_id)" -ge "7" && "$(workspace_active_id)" -le "16" && "$(stream_status)" == "active" ]]; then
+        #if (($(workspace_active_id) >= 7 && $(workspace_active_id) <= 16)); then
             
-             #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_chat)"
-             #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_camera)"
+            #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_chat)"
+            #hyprctl dispatch movetoworkspacesilent "$(workspace_active_id)",address:"$(window_address $window_title_camera)"
             
-        #     if [[ "$(workspace_active_window_count)" -ge 3 ]]; then
+            if [[ "$(workspace_active_window_count)" -ge 3 ]]; then
 
-        #         hyprctl dispatch layoutmsg focusmaster master
+                hyprctl dispatch layoutmsg focusmaster master
 
-        #         while hyprctl activewindow | grep twt || hyprctl activewindow | grep mpv_camera; do
-        #             #hyprctl dispatch movewindow l
-        #             hyprctl dispatch layoutmsg swapprev
-        #             hyprctl dispatch layoutmsg focusmaster master
-        #         done
+                while hyprctl activewindow | grep twt || hyprctl activewindow | grep mpv_camera; do
+                    #hyprctl dispatch movewindow l
+                    hyprctl dispatch layoutmsg swapprev
+                    hyprctl dispatch layoutmsg focusmaster master
+                done
 
-        #         hyprctl dispatch resizewindowpixel 0 174,title:"mpv_camera"
-        #         hyprctl dispatch splitratio exact 0.65
+                hyprctl dispatch resizewindowpixel 0 174,title:"mpv_camera"
+                hyprctl dispatch splitratio exact 0.65
 
-        #     fi
+            fi
 
-        # fi
+        fi
 
     }
+
     window_swap() {
 
-        hyprctl dispatch layoutmsg togglesplit
+        if [[ "$(window_workspace_id $window_title_camera)" == "$(workspace_active_id)" ]]; then
 
-        # if [[ "$(window_workspace_id $window_title_camera)" == "$(workspace_active_id)" ]]; then
+            # Webcam is child.
+            if [[ "$(window_position_horizontal $window_title_camera )" -ge "2577" ]]; then
+                echo "Webcam is child"
+                window_active_change $(window_address "$window_title_camera")
+                hyprctl dispatch swapwindow l
+                hyprctl dispatch cyclenext next
+                hyprctl dispatch resizeactive 0 400
+                hyprctl dispatch splitratio exact 0.80
 
-        #     # Webcam is child.
-        #     if [[ "$(window_position_horizontal $window_title_camera )" -ge "2577" ]]; then
-        #         echo "Webcam is child"
-        #         window_active_change $(window_address "$window_title_camera")
-        #         hyprctl dispatch swapwindow l
-        #         hyprctl dispatch cyclenext next
-        #         #hyprctl dispatch resizeactive 0 400
-        #         #hyprctl dispatch splitratio exact 0.80
+            # Webcam is parent.
+            else
+                echo "Webcam is parent"
+                window_active_change $(window_address "$window_title_camera")
+                hyprctl dispatch cyclenext prev
+                hyprctl dispatch swapwindow l
+                # 871 490
+                # 871,113
+                #hyprctl dispatch "resizewindowpixel -10 -10,title:mpv_camera"
+                # hyprctl dispatch "resizeactive 0 -100"
+                hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
+                hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
+                hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
+                hyprctl dispatch "resizewindowpixel 0 -77,title:mpv_camera"
+                hyprctl dispatch splitratio exact 0.65
 
-        #     # Webcam is parent.
-        #     else
-        #         echo "Webcam is parent"
-        #         window_active_change $(window_address "$window_title_camera")
-        #         hyprctl dispatch cyclenext prev
-        #         hyprctl dispatch swapwindow l
-        #         # 871 490
-        #         # 871,113
-        #         #hyprctl dispatch "resizewindowpixel -10 -10,title:mpv_camera"
-        #         # hyprctl dispatch "resizeactive 0 -100"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -100,title:mpv_camera"
-        #         #hyprctl dispatch "resizewindowpixel 0 -77,title:mpv_camera"
-        #         #hyprctl dispatch splitratio exact 0.65
+            fi
 
-        #     fi
+        else
 
-        # else
+            echo "Stream is passive"
+            hyprctl dispatch layoutmsg rollnext
 
-        #     echo "Stream is passive"
-        #     hyprctl dispatch layoutmsg rollnext
-
-        # fi
+        fi
 
     }
 

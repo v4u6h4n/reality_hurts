@@ -1072,6 +1072,7 @@
             operation_sleep 5
             
             command profile uc ur m m
+            command profile uc ur m m
             command scene quad anja studio vaughan desk
 
         }
@@ -1266,6 +1267,8 @@
 
             if [[ "$2" == "obs_studio" || "$2" == "o" ]]; then
                 argument="obs_studio"
+            elif [[ "$2" == "stream_applications" ]]; then
+                argument="stream_applications"
             else
                 echo_error "translate_argument, application, invalid argument: ${2}."
             fi
@@ -2679,7 +2682,7 @@
             }
             setting_update_application_camera_1_open() {
 
-                mpv av://v4l2:/dev/video99 --osc=no --stop-screensaver=no --panscan=1 --title="mpv_camera" & disown
+                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
 
             }
             setting_update_application_camera_1_close() {
@@ -3037,7 +3040,7 @@
 
             # Uncensored, uncensored.
             elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                echo_info "Censor: already uncensored, skipping."
+                setting_update_censor_all_uncensored
 
             # Error.
             else
@@ -3412,7 +3415,7 @@
                     
                     # Error.
                     else
-                        echo_error "output device default."
+                        echo_error_espeak "Reset speakers."
                     fi
                 
                 # Error.
