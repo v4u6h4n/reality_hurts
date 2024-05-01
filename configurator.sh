@@ -1073,6 +1073,9 @@
             operation_sleep 5
             
             command profile uc ur m m
+
+            sleep 5
+            
             command profile uc ur m m
             command scene quad anja studio vaughan desk
 
