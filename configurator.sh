@@ -659,7 +659,7 @@
                     setting_update_input_device_mute $arg_input_device
 
                 # Toggle.
-                elif [[ "$arg_playback_action" == "toggle" ]]; then
+                elif [[ "$arg_input_action" == "toggle" ]]; then
                     setting_update_input_device_mute_toggle $arg_input_device
                     alert_request input
                     alert_play
