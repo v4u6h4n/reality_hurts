@@ -430,26 +430,6 @@
         fi
 
     }
-        command_application() {
-
-            translate_argument application $1
-            arg_application="${argument}"
-
-            translate_argument application_profile $2
-            arg_application_profile="${argument}"
-
-            translate_argument action $3
-            arg_application_action="${argument}"
-
-            echo_info "Application: ${arg_application_1} ${arg_application_profile_1}"
-
-            position_right
-
-            setting_update application
-
-            position_left
-
-        }
         command_activity() {
 
             echo_info "Activity:"
@@ -510,7 +490,7 @@
 
                 command stream refresh twitch reality_hurts
 
-                command stream info twitch reality_hurts unrestricted passive passive channel_under_construction
+                command stream info twitch reality_hurts unrestricted passive passive maintenance
 
                 command scene quad anja studio vaughan desk
 
@@ -1060,14 +1040,14 @@
             setting_update_output_device_unmute speaker_1 speaker_2 speaker_3 null_sink_1
             setting_update_output_device_volume speaker_1 0.35 speaker_2 0.4 speaker_3 0.4 null_sink_1 1
 
-            setting_update_application_loopback_start
+            setting_update_system_loopback_start
 
             # Start OBS.
             operation_sleep 30
-            command application obs_studio unrestricted_uncut start
+            command system obs_studio unrestricted_uncut start
 
             operation_sleep 5
-            command application obs_studio restricted_uncut start
+            command system obs_studio restricted_uncut start
 
             # Mute OBS.
             operation_sleep 5
@@ -1124,7 +1104,6 @@
 
                 arg_stream_category="$6"
 
-                #translate_argument activity $7
                 arg_stream_activity="$7"
 
                 setting_update_stream_info
@@ -1135,6 +1114,30 @@
             fi
 
             position_left
+
+        }
+        command_system() {
+
+            arg_system="$1"
+            position_right
+
+            # Application.
+            if [[ "$arg_system" == "application" ]]; then
+                arg_system_application="$2"
+                arg_system_application_profile="$3"
+                arg_system_application_action="$4"
+            
+                setting_update system
+
+            # Window manager.
+            elif [[ "$arg_system" == "window_manager" ]]; then
+                
+                setting_update_system "${@:2}"
+            
+            # Error.
+            else
+                echo_error "command_system, arg_system: $arg_system."
+            fi
 
         }
         command_verbose() {
@@ -1149,7 +1152,7 @@
 
         # Arguments: [argument position (1, 2, 3, etc.)] [argument type (execute, mute, source, etc.)] [argument (${1}, ${2}, ${3}, etc.)]
 
-        echo_debug "Translate argument:"
+        echo_debug "Translate argument: $1"
 
         position_right
 
@@ -1265,19 +1268,19 @@
         #         echo_error "translate_argument, title, invalid argument: ${2}."
         #     fi
 
-        # Application.
-        elif [[ "$1" == "application" ]]; then
+        # System.
+        elif [[ "$1" == "system" ]]; then
 
             if [[ "$2" == "obs_studio" || "$2" == "o" ]]; then
                 argument="obs_studio"
-            elif [[ "$2" == "stream_applications" ]]; then
-                argument="stream_applications"
+            elif [[ "$2" == "window_manager" ]]; then
+                argument="window_manager"
             else
-                echo_error "translate_argument, application, invalid argument: ${2}."
+                echo_error "translate_argument, system, invalid argument: ${2}."
             fi
 
-        # Application profile.
-        elif [[ "$1" == "application_profile" ]]; then
+        # System profile.
+        elif [[ "$1" == "system_profile" ]]; then
 
             if [[ "$2" == "restricted" ]]; then
                 argument="restricted"
@@ -1290,7 +1293,7 @@
             elif [[ "$2" == "none" ]]; then
                 argument="none"  
             else
-                echo_error "translate_argument, application_profile, invalid argument: ${2}."
+                echo_error "translate_argument, system_profile, invalid argument: ${2}."
             fi
 
         # Attribute.
@@ -1375,8 +1378,8 @@
 
             if [[ "$2" == "--activity" || "$2" == "activity" || "$2" == "-a" || "$2" == "a" ]]; then
                 argument="activity"
-            elif [[ "$2" == "--application" || "$2" == "application" || "$2" == "-ap" || "$2" == "ap" ]]; then
-                argument="application"
+            elif [[ "$2" == "--system" || "$2" == "system" || "$2" == "-ap" || "$2" == "ap" ]]; then
+                argument="system"
             elif [[ "$2" == "--automation" || "$2" == "automation" || "$2" == "-au" || "$2" == "au" ]]; then
                 argument="automation"
             elif [[ "$2" == "--censor" || "$2" == "censor" || "$2" == "-c" || "$2" == "c" ]]; then
@@ -2017,8 +2020,6 @@
 
         }
 
-
-
     alert_request_skip() {
 
         flag_alert_request_skip="yes"
@@ -2132,7 +2133,6 @@
 
     }
 
-
                         alert_request_restriction_restricted_all() {
 
                             alert_request_restriction="restricted_all"
@@ -2216,11 +2216,9 @@
 
     }
 
-
 # INTERPRET ######################################################################################################################################################################################
 
     # Alerting.
-
 
     interpret_alert_all() {
 
@@ -2568,153 +2566,6 @@
         position_left
 
     }
-
-        # Application.
-        setting_update_application() {
-
-            echo_info "Application:"
-            position_right
-
-            # OBS Studio.
-            if [[ "$arg_application" == "obs_studio" ]]; then
-
-                # Start.
-                if [[ "$arg_application_action" == "start" ]]; then
-
-                    # Restricted uncut.
-                    if [[ "$arg_application_profile" == "restricted" ]]; then
-                        status_check_obs_websocket 2
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                        exit_1=$?
-                        systemctl --user restart obs_cli
-                        if [[ $1 -eq 0 ]]; then
-                            echo_info "OBS Studio (Restricted)."
-                        else
-                            echo_error_urgent "OBS failed to launch."
-                        fi
-
-                    # Restricted uncut.
-                    elif [[ "$arg_application_profile" == "restricted_uncut" ]]; then
-                        status_check_obs_websocket 2
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                        exit_1=$?
-                        systemctl --user restart obs_cli
-                        if [[ $1 -eq 0 ]]; then
-                            echo_info "OBS Studio (Restricted)."
-                        else
-                            echo_error_urgent "OBS failed to launch."
-                        fi
-
-                    # Unrestricted.
-                    elif [[ "$arg_application_profile" == "unrestricted" ]]; then
-                        status_check_obs_websocket 1
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                        exit_1=$?
-                        systemctl --user restart obs_cli
-                        if [[ $1 -eq 0 ]]; then
-                            echo_info "OBS Studio (Unrestricted)."
-                        else
-                            echo_error_urgent "OBS failed to launch."
-                        fi
-
-                    # Unrestricted uncut.
-                    elif [[ "$arg_application_profile" == "unrestricted_uncut" ]]; then
-                        status_check_obs_websocket 1
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                        exit_1=$?
-                        systemctl --user restart obs_cli
-                        if [[ $1 -eq 0 ]]; then
-                            echo_info "OBS Studio (Unrestricted)."
-                        else
-                            echo_error_urgent "OBS failed to launch."
-                        fi
-                    # Error.
-                    else
-                        echo_error  "setting_update_application, arg_application_profile: $arg_application_profile."
-                    fi
-                # Error.
-                else
-                    echo_error  "setting_update_application, arg_application_action: $arg_application_action."
-                fi
-
-            # Camera 1.
-            elif [[ "$arg_application" == "stream_applications" ]]; then
-                # Reset.
-                if [[ "$arg_application_action" == "reset" ]]; then
-                    "${directory_service}hyprland.sh" stream_type_reset
-                    # setting_update_application_camera_1_close
-                    # setting_update_application_camera_1_open
-                # Start.
-                elif [[ "$arg_application_action" == "start" ]]; then
-                    "${directory_service}hyprland.sh" stream_type_active
-                    # setting_update_application_chat_open
-                    # setting_update_application_camera_1_open
-                # Stop.
-                elif [[ "$arg_application_action" == "stop" ]]; then
-                    echo "${directory_service}hyprland.sh"
-                    "${directory_service}hyprland.sh" stream_type_passive
-                    # setting_update_application_chat_close
-                    # setting_update_application_camera_1_close
-                # Error.
-                else
-                    echo_error  "setting_update_application, stream_applications, arg_application_action: $arg_application_action."
-                fi
-            # Error.
-            else
-                echo_error  "setting_update_application, arg_application: $arg_application."
-            fi
-
-            position_left
-
-        }
-            setting_update_application_loopback_start() {
-
-                ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-
-            }
-            setting_update_application_loopback_stop() {
-
-                kill $(pgrep ffmpeg)
-
-            }
-            setting_update_application_chat_open() {
-
-                flatpak run com.chatterino.chatterino & disown
-
-            }
-            setting_update_application_chat_close() {
-
-                flatpak kill com.chatterino.chatterino & disown
-
-            }
-            setting_update_application_camera_1_open() {
-
-                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
-
-            }
-            setting_update_application_camera_1_close() {
-
-                kill $(hyprctl clients | grep "mpv_camera" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_application_v4l2loopback_reset() {
-
-                setting_update_application_camera_1_close
-
-                sleep 0.5
-
-                # setting_update_application_loopback_stop
-                # setting_update_application_loopback_start
-                setting_update_application_camera_1_open
-
-            }
-
-        # Desktop.
-            setting_update_desktop_stream_type() {
-
-                "/media/storage/Streaming/Software/scripts/dev/services/hyprland.sh" stream_type_$1
-
-            }
 
         # Camera.
         setting_update_camera() {
@@ -4098,6 +3949,142 @@
 
                 }
 
+        # System.
+        setting_update_system() {
+
+            echo_info "System:"
+            position_right
+
+            # Application.
+            if [[ "$arg_system" == "application" ]]; then
+                
+                # OBS Studio.
+                if [[ "$arg_system_application" == "obs_studio" ]]; then
+
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+
+                        # Restricted uncut.
+                        if [[ "$arg_system_application_profile" == "restricted" ]]; then
+                            status_check_obs_websocket 2
+                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            exit_1=$?
+                            systemctl --user restart obs_cli
+                            if [[ $1 -eq 0 ]]; then
+                                echo_info "OBS Studio (Restricted)."
+                            else
+                                echo_error_urgent "OBS failed to launch."
+                            fi
+
+                        # Restricted uncut.
+                        elif [[ "$arg_system_application_profile" == "restricted_uncut" ]]; then
+                            status_check_obs_websocket 2
+                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            exit_1=$?
+                            systemctl --user restart obs_cli
+                            if [[ $1 -eq 0 ]]; then
+                                echo_info "OBS Studio (Restricted)."
+                            else
+                                echo_error_urgent "OBS failed to launch."
+                            fi
+
+                        # Unrestricted.
+                        elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
+                            status_check_obs_websocket 1
+                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            exit_1=$?
+                            systemctl --user restart obs_cli
+                            if [[ $1 -eq 0 ]]; then
+                                echo_info "OBS Studio (Unrestricted)."
+                            else
+                                echo_error_urgent "OBS failed to launch."
+                            fi
+
+                        # Unrestricted uncut.
+                        elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
+                            status_check_obs_websocket 1
+                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            exit_1=$?
+                            systemctl --user restart obs_cli
+                            if [[ $1 -eq 0 ]]; then
+                                echo_info "OBS Studio (Unrestricted)."
+                            else
+                                echo_error_urgent "OBS failed to launch."
+                            fi
+                        # Error.
+                        else
+                            echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
+                        fi
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+                # Error.
+                else
+                    echo_error "setting_update_system, arg_system_application: $arg_system_application."
+                fi
+
+            # Window manager.
+            elif [[ "$arg_system" == "window_manager" ]]; then
+                echo "Window manager:"
+                position_right
+                "${directory_service}hyprland.sh" "$@"
+
+            # Error.
+            else
+                echo_error  "setting_update_system, arg_system: $arg_system."
+            fi
+
+            position_left
+
+        }
+            setting_update_system_loopback_start() {
+
+                # Desk Vaughan.
+                ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+
+                # Bed tripod.
+                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 -pix_fmt yuv420p -f v4l2 /dev/video60 -pix_fmt yuv420p -f v4l2 /dev/video61 & disown
+
+            }
+            setting_update_system_loopback_stop() {
+
+                kill $(pgrep ffmpeg)
+
+            }
+            setting_update_system_chat_open() {
+
+                flatpak run com.chatterino.chatterino & disown
+
+            }
+            setting_update_system_chat_close() {
+
+                flatpak kill com.chatterino.chatterino & disown
+
+            }
+            setting_update_system_camera_1_open() {
+
+                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
+
+            }
+            setting_update_system_camera_1_close() {
+
+                kill $(hyprctl clients | grep "mpv_camera" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+            }
+            setting_update_system_v4l2loopback_reset() {
+
+                setting_update_system_camera_1_close
+
+                sleep 0.5
+
+                # setting_update_system_loopback_stop
+                # setting_update_system_loopback_start
+                setting_update_system_camera_1_open
+
+            }
+
+        # Scene.
         setting_update_scene() {
 
             # Quad.
@@ -4269,18 +4256,22 @@
 
         # Passive.
         if [[ "$arg_stream_type" == "passive" ]]; then
-            setting_update_desktop_stream_type passive
+            command system window_manager none stop
+            command permission stream select couchsurfer
+            command permission scene select couchsurfer
             command permission input select couchsurfer
         # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-            setting_update_desktop_stream_type active
+            command system window_manager none start
         # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
-            setting_update_desktop_stream_type active
-            command permission stream select owner 
+            command system window_manager none start
+            command permission stream select owner
+            command permission scene select couchsurfer
+            command permission input select couchsurfer
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi

@@ -279,6 +279,10 @@ def record_toggle(client):
 def hotkey_trigger_key(client, key):
     return client.trigger_hot_key_by_key_sequence(key, pressShift=False, pressCtrl=False, pressAlt=False, pressCmd=False)
 
+# def open_source_projector():
+#     OpenSourceProjector
+
+
 
 def handle_command(command, clients):
     try:

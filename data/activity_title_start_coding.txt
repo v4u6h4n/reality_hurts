@@ -1,3 +1,2 @@
 Coding
-Nerdy Linux Stuff
-BASHing my head against a wall
+Programming
