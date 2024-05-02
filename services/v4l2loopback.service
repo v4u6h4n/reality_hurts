@@ -3,7 +3,7 @@ Description=v4l2loopback
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 video_nr=50,51,99 card_label="virtual_desk_vaughan_1","virtual_desk_vaughan_2","OBS Virtual Camera"
+ExecStart=/usr/bin/sudo /usr/bin/modprobe v4l2loopback exclusive_caps=1 video_nr=50,51,60,61,99 card_label="virtual_desk_vaughan_1","virtual_desk_vaughan_2","virtual_bed_tripod_1","virtual_bed_tripod_2","OBS Virtual Camera"
 
 [Install]
 WantedBy=default.target
