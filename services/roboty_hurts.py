@@ -79,7 +79,7 @@ class Bot(commands.Bot):
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
     async def help(self, ctx: commands.Context):
-        await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/chat_commands")
+        await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/viewer_commands")
 
     @commands.command(aliases=['social', 'links', 'link', 'discord'])
     async def socials(self, ctx: commands.Context):
