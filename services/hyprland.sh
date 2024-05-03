@@ -10,12 +10,10 @@
     }
     variables() {
 
-        camera_title="mpv_camera"
-        chat_title="Chatterino"
         application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris")  
 
-        camera=$(status_window_address $camera_title)
-        chat=$(status_window_address $chat_title)
+        camera_desk_vaughan=$(status_window_address "camera_desk_vaughan")
+        chat=$(status_window_address "Chatterino")
 
     }
     lock_check() {
@@ -68,12 +66,18 @@
                     hyprctl dispatch movewindowpixel exact 2576 16,address:$(status_window_address $application_title)
                 done
                 flatpak run com.chatterino.chatterino & disown
-                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
+                update_window_move_exact 1674 16 chat
+                update_window_size_exact 870 842 chat
+                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="camera_desk_vaughan" & disown
+                sleep 1
+                update_window_float camera_desk_vaughan
+                update_window_move_exact 1674 874 $(status_window_address "camera_desk_vaughan")
+                update_window_size_exact 870 489 $(status_window_address "camera_desk_vaughan")
             # Stop.
             elif [[ "$2" == "stop" ]]; then
                 echo "Stop."
                 flatpak kill com.chatterino.chatterino
-                kill $(hyprctl clients | grep "mpv_camera" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
             # Error.
             else
                 echo "Error: update_window_layout, stream_desk, invalid action: $3."
@@ -91,9 +95,9 @@
                     hyprctl dispatch movewindowpixel exact 2576 16,address:$(status_window_address $application_title)
                 done
                 flatpak run com.chatterino.chatterino & disown
-                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
+                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="camera_desk_vaughan" & disown
 
-                # mpv_camera: 	at: 3347,814 size: 1745,550
+                # camera_desk_vaughan: 	at: 3347,814 size: 1745,550
                 # bed_tripod at: 2573,811 size: 758,552
                 # chat 	at: 2584,14 size: 673,778
                 # fourth window at: 3273,15 size: 1835,776
@@ -124,19 +128,25 @@
     }
     update_window_order() {
 
+        echo "Update window layout:"
+
+        status_window_layout
 
         # Default.
         if [[ "$status_window_layout" == "default" || "$(workspace_active_monitor)" != "0" ]]; then
+            echo "Default"
             hyprctl dispatch layoutmsg swapsplit
         
         # Active.
         elif [[ "$status_window_layout" == "stream_desk" ]]; then
+            echo "Stream desk"
 
             # Maximise camera.
-            if [[ "$(window_size_width $window_title_camera)" == "870" ]]; then
+            if [[ "$(status_window_size_width $window_title_camera)" == "870" ]]; then
+                echo "Camera maximise"
 
                 workspace_id_temp="$(workspace_active_id)"
-                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "mpv_camera" && $2 != "Chatterino" {print $2; exit}')"
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "camera_desk_vaughan" && $2 != "Chatterino" {print $2; exit}')"
                 echo "$window_title_temp"
                 hyprctl dispatch movewindowpixel exact 905 16,address:$(status_window_address "$window_title_temp")
                 
@@ -165,8 +175,9 @@
                 hyprctl dispatch resizewindowpixel exact 470 1347,address:$(status_window_address $window_title_chat)
 
             # Minimise camera.
-            elif [[ "$(window_size_width $window_title_camera)" != "870" ]]; then
-                
+            elif [[ "$(status_window_size $window_title_camera)" != "870" ]]; then
+                echo "Camera minimise"
+
                 sleep 0.3
 
                 hyprctl dispatch resizewindowpixel exact 870 489,address:$(status_window_address $window_title_camera)
@@ -178,7 +189,7 @@
                 sleep 0.2
 
                 workspace_id_temp="$(workspace_active_id)"
-                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "mpv_camera" && $2 != "Chatterino" {print $2; exit}')"
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_id_temp" -A 4 | grep "title:" | awk '$2 != "camera_desk_vaughan" && $2 != "Chatterino" {print $2; exit}')"
                 hyprctl dispatch movewindowpixel exact 2576 16,address:$(status_window_address $window_title_temp)
 
             fi
@@ -186,9 +197,19 @@
         fi
 
     }
-    update_window_size_exact() {
+    update_window_float() {
+
+        hyprctl dispatch setfloating address:$1
+
+    }
+    update_window_move_exact() {
 
         hyprctl dispatch movewindowpixel exact $1 $2,address:$3
+
+    }
+    update_window_size_exact() {
+
+        hyprctl dispatch resizewindowpixel exact $1 $2,address:$3
 
     }
     update_workspace_active() {
@@ -209,7 +230,7 @@
         fi
 
         # Update workspace.
-        if [[ "$status_window_layout" == "stream_desk" && "$(window_size_width $window_title_camera)" != "870" ]]; then
+        if [[ "$status_window_layout" == "stream_desk" && "$(status_window_size_width $window_title_camera)" != "870" ]]; then
             update_window_order
             sleep 0.6
         fi
@@ -243,9 +264,19 @@
         hyprctl clients | grep "$1" -A 3 | grep "at:" | awk '{print $2}' | cut -d',' -f1
 
     }
-    window_size_width() {
+    status_window_size() {
 
-        hyprctl clients | grep "$1" -A 4 | grep "size:" | awk '{print $2}x{print $3}' | cut -d',' -f1
+        hyprctl clients | grep "$1" -A 4 | grep "size:" | awk '{print $2 $3}' | sed 's/,/x/g'
+
+    }
+    status_window_size_width() {
+
+        hyprctl clients | grep "$1" -A 4 | grep "size:" | awk '{print $2}' | cut -d',' -f1
+
+    }
+    status_window_size_height() {
+
+        hyprctl clients | grep "$1" -A 4 | grep "size:" | awk '{print $3}' | cut -d',' -f1
 
     }
     window_workspace_id() {
