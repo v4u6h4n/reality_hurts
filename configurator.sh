@@ -1044,10 +1044,10 @@
 
             # Start OBS.
             operation_sleep 30
-            command system obs_studio unrestricted_uncut start
+            command system application obs_studio unrestricted_uncut start
 
             operation_sleep 5
-            command system obs_studio restricted_uncut start
+            command system application obs_studio restricted_uncut start
 
             # Mute OBS.
             operation_sleep 5
