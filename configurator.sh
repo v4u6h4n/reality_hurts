@@ -2651,6 +2651,142 @@
         }
             setting_update_camera_input() {
 
+                status_check camera
+
+                # Quad.
+                if [[ "$arg_camera_type_1" == "quad_1" ||  "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
+
+                    # Bathroom.
+                    if [[ "$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom" ]]; then
+                        command input bathroom mute unmute
+                        # setting_update_input_device_unmute 4
+                    elif [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" ]]; then
+                        command input bathroom mute mute
+                        # setting_update_input_device_mute 4
+                    else
+                        echo_error "setting_update_camera_input, bathroom."
+                    fi
+
+                    # Desk.
+                    if [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" || "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                        command input desk mute unmute
+                        # setting_update_input_device_unmute 2
+                    elif [[ ("$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom") && ("$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen") ]]; then
+                        command input desk mute mute
+                        # setting_update_input_device_mute 2
+                    else
+                        echo_error "setting_update_camera_input, desk"
+                    fi
+
+                    # Kitchen.
+                    if [[ "$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen" ]]; then
+                        command input kitchen mute unmute
+                        # setting_update_input_device_unmute 3
+                    elif [[ "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                        command input kitchen mute mute
+                        # setting_update_input_device_mute 3
+                    else
+                        echo_error "setting_update_camera_input, kitchen."
+                    fi
+
+                # Single.
+                elif [[ "$arg_camera_type_1" == "single" ]]; then
+
+                    # Bathroom.
+                    if [[ "$status_current_camera_single" == "bathroom" ]]; then
+                        command input desk mute mute
+                        command input kitchen mute mute
+                        command input bathroom mute unmute
+                        # setting_update_input_device_mute 2
+                        # setting_update_input_device_mute 3
+                        # setting_update_input_device_unmute 4
+
+                    # Kitchen.
+                    elif [[ "$status_current_camera_single" == "kitchen" ]]; then
+                        command input desk mute mute
+                        command input kitchen mute unmute
+                        command input bathroom mute mute
+                        # setting_update_input_device_mute 2
+                        # setting_update_input_device_unmute 3
+                        # setting_update_input_device_mute 4
+
+                    # Desk.
+                    elif [[ "$status_current_camera_single" != "bathroom" && "$status_current_camera_single" != "kitchen" ]]; then
+                        command input desk mute unmute
+                        command input kitchen mute mute
+                        command input bathroom mute mute
+                        # setting_update_input_device_unmute 2
+                        # setting_update_input_device_mute 3
+                        # setting_update_input_device_mute 4
+
+                    # Error.
+                    else
+                        echo_error "status_current_camera_single: $status_current_camera_single."
+                    fi
+
+                # Error.    
+                else
+                    echo_error "setting_update_camera_input, arg_camera_type_1: $arg_camera_type_1."
+                fi
+
+            }
+            setting_update_camera_quad() {
+
+
+                echo_info "Quad: $1"
+
+                position_right
+
+                for arg in "$@"; do
+
+                    if [[ "$arg" == "$arg_camera_type_1" ]]; then
+                        camera_number=1
+                    elif [[ "$arg" == "$arg_camera_type_2" ]]; then
+                        camera_number=2
+                    elif [[ "$arg" == "$arg_camera_type_3" ]]; then
+                        camera_number=3
+                    elif [[ "$arg" == "$arg_camera_type_4" ]]; then
+                        camera_number=4
+                    else
+                        echo_error "setting_update_camera_quad, arg_camera_type_x."
+                    fi
+
+                    quad_number="${arg//quad_/}"
+
+                    temp_status_current_camera_quad="status_current_camera_quad_$quad_number"
+                    
+                    temp_status_new_camera_quad="arg_camera_$camera_number"
+
+                    # Camera is already shown.
+                    if [[ "${!temp_status_current_camera_quad}" == "${!temp_status_new_camera_quad}" ]]; then
+                        echo_info "Quad $quad_number: is already ${!temp_status_new_camera_quad}, skipping."
+
+                    # Camera is hidden.
+                    elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
+                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
+                        echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
+                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
+                        echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
+
+                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
+                        echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
+                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
+                        echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
+
+                        status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
+
+                    # Error.
+                    else
+                        echo_error "setting_update_camera_quad."
+                    fi
+                
+                done
+
+                position_left
+
+            }
+            setting_update_camera_single() {
+
                 echo_info "Single:"
 
                 position_right
