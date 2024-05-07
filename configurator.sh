@@ -1062,6 +1062,7 @@
 
             sleep 5
 
+            setting_update_system_chat start
             setting_update_system_camera_desk_vaughan start
             setting_update_system_camera_bed_overhead start
             setting_update_system_camera_bed_tripod start
