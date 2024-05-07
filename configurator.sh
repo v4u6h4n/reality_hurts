@@ -330,7 +330,9 @@
 
         echo -e "${position}\e[1;31m${1}\e[0m" >&2
         paplay "${directory_alerts}debug_error.wav"
+        setting_update_output_device_volume_default 0.35
         espeak "${1}"
+        setting_update_output_device_volume_default $temp_output_device_volume_numerical
         lock_remove
         exit 1
 
@@ -485,8 +487,8 @@
             # Morning.
             if [[ $current_hour -eq 5 ]]; then
                 
-                command permission stream select couchsurfer
-                command permission scene select couchsurfer
+                # command permission stream select couchsurfer
+                # command permission scene select couchsurfer
 
                 command stream refresh twitch reality_hurts
 
@@ -497,12 +499,12 @@
             # Sleeping.
             elif [[ $current_hour -eq 21 ]]; then
 
-                command permission stream select owner
-                command permission scene select owner
+                # command permission stream select owner
+                # command permission scene select owner
 
                 command stream refresh twitch reality_hurts
 
-                command stream info twitch reality_hurts unrestricted passive sleeping sleeping
+                command stream info twitch reality_hurts unrestricted sleeping sleeping sleeping
 
                 command scene quad anja bed vaughan studio
 
@@ -1057,6 +1059,12 @@
             sleep 5
 
             command profile uc ur m m
+
+            sleep 5
+
+            setting_update_system_camera_desk_vaughan start
+            setting_update_system_camera_bed_overhead start
+            setting_update_system_camera_bed_tripod start
 
         }
         command_stream() {
@@ -2642,142 +2650,6 @@
         }
             setting_update_camera_input() {
 
-                status_check camera
-
-                # Quad.
-                if [[ "$arg_camera_type_1" == "quad_1" ||  "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
-
-                    # Bathroom.
-                    if [[ "$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom" ]]; then
-                        command input bathroom mute unmute
-                        # setting_update_input_device_unmute 4
-                    elif [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" ]]; then
-                        command input bathroom mute mute
-                        # setting_update_input_device_mute 4
-                    else
-                        echo_error "setting_update_camera_input, bathroom."
-                    fi
-
-                    # Desk.
-                    if [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" || "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
-                        command input desk mute unmute
-                        # setting_update_input_device_unmute 2
-                    elif [[ ("$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom") && ("$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen") ]]; then
-                        command input desk mute mute
-                        # setting_update_input_device_mute 2
-                    else
-                        echo_error "setting_update_camera_input, desk"
-                    fi
-
-                    # Kitchen.
-                    if [[ "$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen" ]]; then
-                        command input kitchen mute unmute
-                        # setting_update_input_device_unmute 3
-                    elif [[ "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
-                        command input kitchen mute mute
-                        # setting_update_input_device_mute 3
-                    else
-                        echo_error "setting_update_camera_input, kitchen."
-                    fi
-
-                # Single.
-                elif [[ "$arg_camera_type_1" == "single" ]]; then
-
-                    # Bathroom.
-                    if [[ "$status_current_camera_single" == "bathroom" ]]; then
-                        command input desk mute mute
-                        command input kitchen mute mute
-                        command input bathroom mute unmute
-                        # setting_update_input_device_mute 2
-                        # setting_update_input_device_mute 3
-                        # setting_update_input_device_unmute 4
-
-                    # Kitchen.
-                    elif [[ "$status_current_camera_single" == "kitchen" ]]; then
-                        command input desk mute mute
-                        command input kitchen mute unmute
-                        command input bathroom mute mute
-                        # setting_update_input_device_mute 2
-                        # setting_update_input_device_unmute 3
-                        # setting_update_input_device_mute 4
-
-                    # Desk.
-                    elif [[ "$status_current_camera_single" != "bathroom" && "$status_current_camera_single" != "kitchen" ]]; then
-                        command input desk mute unmute
-                        command input kitchen mute mute
-                        command input bathroom mute mute
-                        # setting_update_input_device_unmute 2
-                        # setting_update_input_device_mute 3
-                        # setting_update_input_device_mute 4
-
-                    # Error.
-                    else
-                        echo_error "status_current_camera_single: $status_current_camera_single."
-                    fi
-
-                # Error.    
-                else
-                    echo_error "setting_update_camera_input, arg_camera_type_1: $arg_camera_type_1."
-                fi
-
-            }
-            setting_update_camera_quad() {
-
-
-                echo_info "Quad: $1"
-
-                position_right
-
-                for arg in "$@"; do
-
-                    if [[ "$arg" == "$arg_camera_type_1" ]]; then
-                        camera_number=1
-                    elif [[ "$arg" == "$arg_camera_type_2" ]]; then
-                        camera_number=2
-                    elif [[ "$arg" == "$arg_camera_type_3" ]]; then
-                        camera_number=3
-                    elif [[ "$arg" == "$arg_camera_type_4" ]]; then
-                        camera_number=4
-                    else
-                        echo_error "setting_update_camera_quad, arg_camera_type_x."
-                    fi
-
-                    quad_number="${arg//quad_/}"
-
-                    temp_status_current_camera_quad="status_current_camera_quad_$quad_number"
-                    
-                    temp_status_new_camera_quad="arg_camera_$camera_number"
-
-                    # Camera is already shown.
-                    if [[ "${!temp_status_current_camera_quad}" == "${!temp_status_new_camera_quad}" ]]; then
-                        echo_info "Quad $quad_number: is already ${!temp_status_new_camera_quad}, skipping."
-
-                    # Camera is hidden.
-                    elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
-                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
-                        echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
-                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
-                        echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
-
-                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
-                        echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
-                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
-                        echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
-
-                        status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
-
-                    # Error.
-                    else
-                        echo_error "setting_update_camera_quad."
-                    fi
-                
-                done
-
-                position_left
-
-            }
-            setting_update_camera_single() {
-
                 echo_info "Single:"
 
                 position_right
@@ -4043,8 +3915,26 @@
                 # Desk Vaughan.
                 ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
+                # Bed overhead.
+                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video2 \
+                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                    -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
+                    -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
+                    & disown
+
+                    # -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                    # -map "[out]" \
+                    # -pix_fmt yuv420p -f v4l2 /dev/video71
+                    # & disown
+
                 # Bed tripod.
-                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 -pix_fmt yuv420p -f v4l2 /dev/video60 -pix_fmt yuv420p -f v4l2 /dev/video61 & disown
+                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video10 \
+                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                    -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
+                    -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
+                    & disown
 
             }
             setting_update_system_loopback_stop() {
@@ -4052,35 +3942,48 @@
                 kill $(pgrep ffmpeg)
 
             }
-            setting_update_system_chat_open() {
+            setting_update_system_chat() {
 
-                flatpak run com.chatterino.chatterino & disown
-
-            }
-            setting_update_system_chat_close() {
-
-                flatpak kill com.chatterino.chatterino & disown
-
-            }
-            setting_update_system_camera_1_open() {
-
-                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --title="mpv_camera" & disown
+                if [[ "$1" == "start" ]]; then
+                    flatpak run com.chatterino.chatterino & disown
+                elif [[ "$1" == "stop" ]]; then
+                    kill $(hyprctl clients | grep "Chatterino" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                else
+                    echo_error "setting_update_system_camera_desk_vaughan."
+                fi
 
             }
-            setting_update_system_camera_1_close() {
+            setting_update_system_camera_desk_vaughan() {
 
-                kill $(hyprctl clients | grep "mpv_camera" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                if [[ "$1" == "start" ]]; then
+                    mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
+                elif [[ "$1" == "stop" ]]; then
+                    kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                else
+                    echo_error "setting_update_system_camera_desk_vaughan."
+                fi
 
             }
-            setting_update_system_v4l2loopback_reset() {
+            setting_update_system_camera_bed_overhead() {
 
-                setting_update_system_camera_1_close
+                if [[ "$1" == "start" ]]; then
+                    mpv av://v4l2:/dev/video71 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
+                elif [[ "$1" == "stop" ]]; then
+                    kill $(hyprctl clients | grep "camera_bed_overhead" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                else
+                    echo_error "setting_update_system_camera_bed_overhead."
+                fi
 
-                sleep 0.5
+            }
+            setting_update_system_camera_bed_tripod() {
 
-                # setting_update_system_loopback_stop
-                # setting_update_system_loopback_start
-                setting_update_system_camera_1_open
+                if [[ "$1" == "start" ]]; then
+                    mpv av://v4l2:/dev/video61 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_tripod" & disown
+                elif [[ "$1" == "stop" ]]; then
+                    kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                else
+                    echo_error "setting_update_system_camera_bed_tripod."
+                fi
 
             }
 
@@ -4256,22 +4159,28 @@
 
         # Passive.
         if [[ "$arg_stream_type" == "passive" ]]; then
-            command system window_manager none stop
             command permission stream select couchsurfer
             command permission scene select couchsurfer
             command permission input select couchsurfer
+            command system window_manager window_layout default start
         # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-            command system window_manager none start
+            command system window_manager window_layout stream_desk start
         # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
-            command system window_manager none start
             command permission stream select owner
             command permission scene select couchsurfer
             command permission input select couchsurfer
+            command system window_manager window_layout default start
+        # Sleeping.
+        elif [[ "$arg_stream_type" == "sleeping" ]]; then
+            command permission stream select owner
+            command permission scene select owner
+            command permission input select owner
+            command system window_manager window_layout default start
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi
@@ -5512,6 +5421,20 @@
                 echo_info "Device 4: not requested."
             fi
 
+            position_left
+
+        }
+        setting_update_output_device_volume_default() {
+
+            echo_info "Volume default output devices:"
+            position_right
+
+            temp_output_device_default_ID=$(wpctl inspect @DEFAULT_AUDIO_SINK@ | awk '/^id [0-9]+,/ {gsub("[^0-9]", "", $arg_2); print $arg_2}')
+            temp_output_device_volume=$(wpctl get-volume $temp_output_device_default_ID)
+            temp_output_device_volume_numerical=$(echo "$temp_output_device_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
+            wpctl set-volume $temp_output_device_default_ID $1
+            
+            echo_info "Default output device volume: $1."
             position_left
 
         }
