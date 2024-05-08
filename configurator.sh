@@ -1062,10 +1062,14 @@
 
             sleep 5
 
-            setting_update_system_chat start
-            setting_update_system_camera_desk_vaughan start
-            setting_update_system_camera_bed_overhead start
-            setting_update_system_camera_bed_tripod start
+            setting_update_system application chat none start
+            setting_update_system application camera_desk_vaughan none start
+            setting_update_system application camera_bed_overhead none start
+            setting_update_system application camera_bed_tripod none start
+
+            sleep 1
+
+            setting_update_system window_manager default default_default
 
         }
         command_stream() {
@@ -1108,7 +1112,6 @@
                 translate_argument profile $4
                 arg_stream_restriction="${argument}"
 
-                translate_argument stream_type $5
                 arg_stream_type="${argument}"
 
                 arg_stream_category="$6"
@@ -1602,18 +1605,18 @@
                 echo_error "translate_argument, source, invalid argument: ${2}."
             fi
 
-        # Stream type.
-        elif [[ "$1" == "stream_type" ]]; then
+        # # Stream type.
+        # elif [[ "$1" == "stream_type" ]]; then
 
-            if [[ "$2" == "active" || "$2" == "a" ]]; then
-                argument="active"
-            elif [[ "$2" == "normal" || "$2" == "n" ]]; then
-                argument="normal"
-            elif [[ "$2" == "passive" || "$2" == "p" ]]; then
-                argument="passive"
-            else
-                echo_error "translate_argument, stream_type, invalid argument: ${2}."
-            fi
+        #     if [[ "$2" == "active" || "$2" == "a" ]]; then
+        #         argument="active"
+        #     elif [[ "$2" == "normal" || "$2" == "n" ]]; then
+        #         argument="normal"
+        #     elif [[ "$2" == "passive" || "$2" == "p" ]]; then
+        #         argument="passive"
+        #     else
+        #         echo_error "translate_argument, stream_type, invalid argument: ${2}."
+        #     fi
 
         # Utility.
         elif [[ "$1" == "utility" ]]; then
@@ -4028,6 +4031,79 @@
                     else
                         echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
                     fi
+                
+                # Chat.
+                elif [[ "$arg_system_application" == "chat" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_chat_start
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_chat_stop
+                    # Reset.
+                    elif [[ "$arg_system_application_action" == "reset" ]]; then
+                        setting_update_system_chat_stop
+                        sleep 1
+                        setting_update_system_chat_start
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
+                # Camera: desk Vaughan.
+                elif [[ "$arg_system_application" == "camera_desk_vaughan" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_camera_desk_vaughan_start
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_camera_desk_vaughan_stop
+                    # Reset.
+                    elif [[ "$arg_system_application_action" == "reset" ]]; then
+                        setting_update_system_camera_desk_vaughan_stop
+                        sleep 1
+                        setting_update_system_camera_desk_vaughan_start
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
+                # Camera: bed overhead.
+                elif [[ "$arg_system_application" == "camera_bed_overhead" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_camera_bed_overhead_start
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_camera_bed_overhead_stop
+                    # Reset.
+                    elif [[ "$arg_system_application_action" == "reset" ]]; then
+                        setting_update_system_camera_bed_overhead_stop
+                        sleep 1
+                        setting_update_system_camera_bed_overhead_start
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
+                # Camera: bed tripod.
+                elif [[ "$arg_system_application" == "camera_bed_tripod" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_camera_bed_tripod_start
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_camera_bed_tripod_stop
+                    # Reset.
+                    elif [[ "$arg_system_application_action" == "reset" ]]; then
+                        setting_update_system_camera_bed_tripod_stop
+                        sleep 1
+                        setting_update_system_camera_bed_tripod_start
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
                 # Error.
                 else
                     echo_error "setting_update_system, arg_system_application: $arg_system_application."
@@ -4079,49 +4155,45 @@
                 kill $(pgrep ffmpeg)
 
             }
-            setting_update_system_chat() {
+            setting_update_system_chat_start() {
 
-                if [[ "$1" == "start" ]]; then
-                    flatpak run com.chatterino.chatterino & disown
-                elif [[ "$1" == "stop" ]]; then
-                    kill $(hyprctl clients | grep "Chatterino" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-                else
-                    echo_error "setting_update_system_camera_desk_vaughan."
-                fi
+                flatpak run com.chatterino.chatterino & disown
 
             }
-            setting_update_system_camera_desk_vaughan() {
+            setting_update_system_chat_stop() {
 
-                if [[ "$1" == "start" ]]; then
-                    mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
-                elif [[ "$1" == "stop" ]]; then
-                    kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-                else
-                    echo_error "setting_update_system_camera_desk_vaughan."
-                fi
+                kill $(hyprctl clients | grep "Chatterino" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
 
             }
-            setting_update_system_camera_bed_overhead() {
+            setting_update_system_camera_desk_vaughan_start() {
 
-                if [[ "$1" == "start" ]]; then
-                    kitty --title camera_bed_overhead & disown
-                    # mpv av://v4l2:/dev/video71 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
-                elif [[ "$1" == "stop" ]]; then
-                    kill $(hyprctl clients | grep "camera_bed_overhead" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-                else
-                    echo_error "setting_update_system_camera_bed_overhead."
-                fi
+                mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
 
             }
-            setting_update_system_camera_bed_tripod() {
+            setting_update_system_camera_desk_vaughan_stop() {
 
-                if [[ "$1" == "start" ]]; then
-                    mpv av://v4l2:/dev/video61 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_tripod" & disown
-                elif [[ "$1" == "stop" ]]; then
-                    kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-                else
-                    echo_error "setting_update_system_camera_bed_tripod."
-                fi
+                kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+            }
+            setting_update_system_camera_bed_overhead_start() {
+
+                kitty --title camera_bed_overhead & disown
+                # mpv av://v4l2:/dev/video71 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
+
+            }
+            setting_update_system_camera_bed_overhead_stop() {
+
+                kill $(hyprctl clients | grep "camera_bed_overhead" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+            }
+            setting_update_system_camera_bed_tripod_start() {
+
+                mpv av://v4l2:/dev/video61 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_tripod" & disown
+
+            }
+            setting_update_system_camera_bed_tripod_stop() {
+
+                kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
 
             }
 
@@ -4300,25 +4372,31 @@
             command permission stream select couchsurfer
             command permission scene select couchsurfer
             command permission input select couchsurfer
-            command system window_manager window_layout default start
+            command system window_manager window_layout default none
         # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-            command system window_manager window_layout stream_desk start
+            command system window_manager window_layout stream_single_desk none
         # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
             command permission stream select owner
             command permission scene select couchsurfer
             command permission input select couchsurfer
-            command system window_manager window_layout default start
+            command system window_manager window_layout stream_quad_desk none
+        # Maintenance.
+        elif [[ "$arg_stream_type" == "maintenance" ]]; then
+            command permission stream select owner
+            command permission scene select couchsurfer
+            command permission input select couchsurfer
+            command system window_manager window_layout default none
         # Sleeping.
         elif [[ "$arg_stream_type" == "sleeping" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-            command system window_manager window_layout default start
+            command system window_manager window_layout default none
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi
