@@ -492,7 +492,7 @@
 
                 command stream refresh twitch reality_hurts
 
-                command stream info twitch reality_hurts unrestricted passive passive maintenance
+                command stream info all all unrestricted maintenance maintenance maintenance
 
                 command scene quad anja studio vaughan desk
 
@@ -532,8 +532,9 @@
                 translate_argument camera_type $1
                 arg_camera_type_1="${argument}"
 
-                translate_argument camera $2
-                arg_camera_1="${argument}"
+                # translate_argument camera $2
+                # arg_camera_1="${argument}"
+                arg_camera_1="$2"
 
             else
                 echo_error "command_camera, not enough arguments: \$1 \$2."
@@ -545,8 +546,9 @@
                 translate_argument camera_type $3
                 arg_camera_type_2="${argument}"
 
-                translate_argument camera $4
-                arg_camera_2="${argument}"
+                # translate_argument camera $4
+                # arg_camera_2="${argument}"
+                arg_camera_2="$4"
 
             else
                 echo_info "No more arguments, skipping."
@@ -558,8 +560,9 @@
                 translate_argument camera_type $5
                 arg_camera_type_3="${argument}"
 
-                translate_argument camera $6
-                arg_camera_3="${argument}"
+                # translate_argument camera $6
+                # arg_camera_3="${argument}"
+                arg_camera_3="$6"
 
             else
                 echo_info "No more arguments, skipping."
@@ -571,8 +574,9 @@
                 translate_argument camera_type $7
                 arg_camera_type_4="${argument}"
 
-                translate_argument camera $8
-                arg_camera_4="${argument}"
+                # translate_argument camera $8
+                # arg_camera_4="${argument}"
+                arg_camera_4="$8"
 
             else
                 echo_info "No more arguments, skipping."
@@ -1112,7 +1116,7 @@
                 translate_argument profile $4
                 arg_stream_restriction="${argument}"
 
-                arg_stream_type="${argument}"
+                arg_stream_type="$5"
 
                 arg_stream_category="$6"
 
@@ -4373,30 +4377,47 @@
             command permission scene select couchsurfer
             command permission input select couchsurfer
             command system window_manager window_layout default none
+            SexualThemes="false"
+            ViolentGraphic="false"
         # Normal.
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
             command system window_manager window_layout stream_single_desk none
+            SexualThemes="false"
+            ViolentGraphic="false"
         # Active.
         elif [[ "$arg_stream_type" == "active" ]]; then
             command permission stream select owner
             command permission scene select couchsurfer
             command permission input select couchsurfer
             command system window_manager window_layout stream_quad_desk none
+            SexualThemes="false"
+            ViolentGraphic="false"
         # Maintenance.
         elif [[ "$arg_stream_type" == "maintenance" ]]; then
             command permission stream select owner
             command permission scene select couchsurfer
             command permission input select couchsurfer
             command system window_manager window_layout default none
+            SexualThemes="false"
+            ViolentGraphic="false"
         # Sleeping.
         elif [[ "$arg_stream_type" == "sleeping" ]]; then
             command permission stream select owner
             command permission scene select owner
             command permission input select owner
-            command system window_manager window_layout default none
+            SexualThemes="false"
+            ViolentGraphic="false"
+        # Sleeping.
+        elif [[ "$arg_stream_type" == "therapy" ]]; then
+            command permission stream select owner
+            command permission scene select owner
+            command permission input select owner
+            SexualThemes="false"
+            ViolentGraphic="true"
+        # Error.
         else
             echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
         fi
@@ -4454,12 +4475,27 @@
 
             status_check_channel access_token client_id user_id
 
+            # curl -X PATCH \
+            #     -H "Client-ID: $client_id" \
+            #     -H "Authorization: Bearer $access_token" \
+            #     -H "Content-Type: application/json" \
+            #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag]}" \
+            #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+
+            # curl -X PATCH \
+            #     -H "Client-ID: $client_id" \
+            #     -H "Authorization: Bearer $access_token" \
+            #     -H "Content-Type: application/json" \
+            #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": true}]}" \
+            #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+
             curl -X PATCH \
                 -H "Client-ID: $client_id" \
                 -H "Authorization: Bearer $access_token" \
                 -H "Content-Type: application/json" \
-                -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag]}" \
+                -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": $ViolentGraphic}, {\"id\": \"SexualThemes\", \"is_enabled\": $SexualThemes}]}" \
                 https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+
 
             position_left
 
