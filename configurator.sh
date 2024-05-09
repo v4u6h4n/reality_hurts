@@ -1066,10 +1066,10 @@
 
             sleep 5
 
-            setting_update_system application chat none start
-            setting_update_system application camera_desk_vaughan none start
-            setting_update_system application camera_bed_overhead none start
-            setting_update_system application camera_bed_tripod none start
+            command system application chat none start
+            command system application camera_desk_vaughan none start
+            command system application camera_bed_overhead none start
+            command system application camera_bed_tripod none start
 
             sleep 1
 
