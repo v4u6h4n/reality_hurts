@@ -88,6 +88,7 @@
             directory_data_public="${directory_script}data/"
             directory_log="${directory_script}../../logs/"
             directory_service="${directory_script}services/"
+            directory_video="${directory_script}../../../Videos/"
 
         }
         prerequisite_permission() {
@@ -1073,7 +1074,7 @@
 
             sleep 1
 
-            setting_update_system window_manager default default_default
+            command system window_manager default default_default
 
         }
         command_stream() {
@@ -4147,7 +4148,7 @@
 
                 # Bed tripod.
                 ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 \
-                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                    -i "${directory_video}gamma.mp4" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
                     -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
@@ -4498,6 +4499,15 @@
 
 
             position_left
+
+        }
+        setting_update_stream_twitch_message() {
+
+            curl -X POST "https://api.twitch.tv/helix/chat/messages" \
+                -H "Authorization: Bearer $access_token" \
+                -H "Client-Id: $client_id" \
+                -H "Content-Type: application/json" \
+                -d "{\"broadcaster_id\": \"$user_id\", \"sender_id\": \"$user_id\", \"message\": \"$message\"}"
 
         }
 
