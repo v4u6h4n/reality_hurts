@@ -3,7 +3,10 @@ Description=Roboty Hurts
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/main/services/roboty_hurts.py'
+# ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/main/services/roboty_hurts.py'
+
+ExecStart=/bin/bash -c 'kitty --config "/home/v4u6h4n/.config/kitty/kitty_2.conf" --hold sh -c "source ~/.venvs/bin/activate; python \'/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts copy.py\'"'
+
 Restart=always
 RestartSec=10
 
