@@ -1074,7 +1074,7 @@
 
             sleep 1
 
-            command system window_manager default default_default
+            command system window_manager window_layout default default_default
 
         }
         command_stream() {
@@ -4173,6 +4173,11 @@
             setting_update_system_camera_desk_vaughan_start() {
 
                 mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
+
+            }
+            test_test() {
+
+                kitty --title "roboty_hurts" --config "/home/v4u6h4n/.config/kitty/kitty_2.conf" --hold sh -c "source ~/.venvs/bin/activate; python '/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts copy.py'" & disown
 
             }
             setting_update_system_camera_desk_vaughan_stop() {
