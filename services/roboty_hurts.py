@@ -3,6 +3,16 @@ import subprocess
 import shlex
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import time
+from terminaltexteffects.effects.effect_beams import Beams
+from terminaltexteffects.effects.effect_binarypath import BinaryPath
+from terminaltexteffects.effects.effect_decrypt import Decrypt
+from terminaltexteffects.effects.effect_errorcorrect import ErrorCorrect
+from terminaltexteffects.effects.effect_print import Print
+from terminaltexteffects.effects.effect_scattered import Scattered
+from terminaltexteffects.effects.effect_slide import Slide
+from terminaltexteffects.effects.effect_spray import Spray
+from terminaltexteffects.effects.effect_vhstape import VHSTape
 from datetime import datetime
 from twitchio.ext import commands
 import os
@@ -49,15 +59,40 @@ class Bot(commands.Bot):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
         subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
+
+    def print_effect(self, banner_padding, banner_message):
+
+        print("\033c", end="")
+
+        effect = Beams(banner_message)
+        effect.effect_config.final_gradient_stops = ("ffffff", "000000")
+
+        # effect = Decrypt(banner_message)
+        # effect = ErrorCorrect(banner_message)
+        # effect = BinaryPath(banner_message)
+        # effect = Print(banner_message)
+        # effect = VHSTape(banner_message)
+        # effect = Scattered(banner_message)
+        # effect = Spray(banner_message)
+
+        effect.terminal_config.terminal_dimensions = (80, 2)
+        with effect.terminal_output() as terminal:
+            for frame in effect:
+                print(banner_padding, frame, end='\r')
+                time.sleep(0.01)
+
+
     def get_access_token(self):
         print("Getting access token...")
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
         with open(token_file, "r") as file:
             return file.read().strip()
 
+
     async def event_ready(self):
         self.log_message(f'Logged in as {self.nick}')
         self.loop.create_task(self.run_refresh_access_token_periodically())
+
 
     async def event_message(self, message):
         if message.echo:
@@ -68,26 +103,65 @@ class Bot(commands.Bot):
         else:
             log_message = f"CHAT     | {message.author.name}: {message.content}"
 
-        print(f'{message.author.name}: {message.content}')
         self.log_message(log_message)
         await self.handle_commands(message)
+
         
     async def run_refresh_access_token_periodically(self):
         while True:
             await asyncio.sleep(1800)
             self.refresh_access_token()
 
+
+    @commands.command(aliases=['b'])
+    async def banner(self, ctx: commands.Context):
+
+        # permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_banner.txt')
+        # with open(permission_file, "r") as file:
+        #     permission_banner = file.read().strip()
+
+        # if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_banner]:
+        #     if permission_banner == 'owner':
+        #             response_message = "Banner command locked."
+        #             await ctx.send(response_message)
+        #             self.log_message(f"RESPONSE | {response_message}")
+        #     if permission_banner != 'owner':
+        #         response_message = "Permission denied."
+        #         await ctx.send(response_message)
+        #         self.log_message(f"RESPONSE | {response_message}")
+        #     return
+
+        #self.print_effect(banner_content)
+        
+        banner_message_split = ctx.message.content.split()
+        banner_message_prune = banner_message_split[1:]
+        banner_message = ' '.join(banner_message_prune)
+
+        if len(banner_message) > 80:
+            banner_message = banner_message[:80]
+            banner_padding = ""
+        elif len(banner_message) == 80:
+            banner_padding = ""
+        elif len(banner_message) < 79:
+            banner_padding_amount = (80 - len(banner_message)) // 2
+            banner_padding = " " * banner_padding_amount
+        
+        self.print_effect(banner_padding, banner_message)
+
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
     async def help(self, ctx: commands.Context):
         await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/viewer_commands")
+
 
     @commands.command(aliases=['social', 'links', 'link', 'discord'])
     async def socials(self, ctx: commands.Context):
         await ctx.send("Rules: https://lnk.bio/reality_hurts")
 
+
     @commands.command(aliases=['r'])
     async def rules(self, ctx: commands.Context):
         await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
+
 
     @commands.command(aliases=['a'])
     @commands.cooldown(1, 10, commands.Bucket.channel)
@@ -147,6 +221,7 @@ class Bot(commands.Bot):
         self.log_message("EXECUTE  | " + ' '.join(command))
         # Execute the command
         subprocess.run(command)
+
 
     @commands.command(aliases=['s'])
     @commands.cooldown(1, 2, commands.Bucket.channel)
