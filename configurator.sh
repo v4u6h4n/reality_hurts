@@ -1049,8 +1049,20 @@
 
             setting_update_system_loopback_start
 
+            sleep 5
+
+            command system application bot none start
+            command system application chat none start
+            command system application camera_desk_vaughan none start
+            command system application camera_bed_overhead none start
+            command system application camera_bed_tripod none start
+
+            sleep 1
+
+            command system window_manager window_layout default default_default
+
             # Start OBS.
-            operation_sleep 30
+            operation_sleep 25
             command system application obs_studio unrestricted_uncut start
 
             operation_sleep 5
@@ -1064,17 +1076,6 @@
             sleep 5
 
             command profile uc ur m m
-
-            sleep 5
-
-            command system application chat none start
-            command system application camera_desk_vaughan none start
-            command system application camera_bed_overhead none start
-            command system application camera_bed_tripod none start
-
-            sleep 1
-
-            command system window_manager window_layout default default_default
 
         }
         command_stream() {
@@ -1751,12 +1752,15 @@
             # Set speaker volumes.
             output_speaker_1_volume=$(wpctl get-volume $output_device_speaker_1_ID)
             output_speaker_1_volume_numerical=$(echo "$output_speaker_1_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
+            echo test1
             wpctl set-volume $output_device_speaker_1_ID $default_speaker_1_volume
             output_speaker_2_volume=$(wpctl get-volume $output_device_speaker_2_ID)
             output_speaker_2_volume_numerical=$(echo "$output_speaker_2_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
+            echo test2
             wpctl set-volume $output_device_speaker_2_ID $default_speaker_2_volume
             output_speaker_3_volume=$(wpctl get-volume $output_device_speaker_3_ID)
             output_speaker_3_volume_numerical=$(echo "$output_speaker_3_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
+            echo test3
             wpctl set-volume $output_device_speaker_3_ID $default_speaker_3_volume
 
             echo_info "Update settings:"
@@ -4036,7 +4040,25 @@
                     else
                         echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
                     fi
-                
+
+                # Bot.
+                elif [[ "$arg_system_application" == "bot" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_bot_start
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_bot_stop
+                    # Reset.
+                    elif [[ "$arg_system_application_action" == "reset" ]]; then
+                        setting_update_system_bot_stop
+                        sleep 1
+                        setting_update_system_bot_start
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
                 # Chat.
                 elif [[ "$arg_system_application" == "chat" ]]; then
                     # Start.
@@ -4148,7 +4170,7 @@
 
                 # Bed tripod.
                 ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 \
-                    -i "${directory_video}gamma.mp4" \
+                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
                     -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
@@ -4158,6 +4180,18 @@
             setting_update_system_loopback_stop() {
 
                 kill $(pgrep ffmpeg)
+
+            }
+            setting_update_system_bot_start() {
+
+                systemctl --user start roboty_hurts
+                # kitty --title "roboty_hurts" --config "${directory_data_public}bot_kitty.conf" --hold sh -c "source ~/.venvs/bin/activate; python '/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts.py'" & disown
+
+            }
+            setting_update_system_bot_stop() {
+
+                systemctl --user stop roboty_hurts
+                # kill $(hyprctl clients | grep "roboty_hurts" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
 
             }
             setting_update_system_chat_start() {
@@ -4173,11 +4207,6 @@
             setting_update_system_camera_desk_vaughan_start() {
 
                 mpv av://v4l2:/dev/video51 --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
-
-            }
-            test_test() {
-
-                kitty --title "roboty_hurts" --config "/home/v4u6h4n/.config/kitty/kitty_2.conf" --hold sh -c "source ~/.venvs/bin/activate; python '/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts copy.py'" & disown
 
             }
             setting_update_system_camera_desk_vaughan_stop() {

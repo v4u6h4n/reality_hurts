@@ -14,6 +14,7 @@
         camera_bed_overhead="camera_bed_overhead"
         camera_bed_tripod="camera_bed_tripod"
         camera_desk_vaughan="camera_desk_vaughan"
+        banner="roboty_hurts"
         chat="Chatterino"
 
     }
@@ -183,7 +184,7 @@
 
 # Setting update.
     update_window_layout() {
-        
+
         echo_info "Current window layout: $1."
         echo_info "Current window order: $2"
         position_right
@@ -281,7 +282,7 @@
                     echo_error "update_window_layout, new_window_order, default."
                 fi
 
-            # Stre.
+            # Stream quad desk.
             elif [[ "$new_window_layout" == "stream_quad_desk" ]]; then
                 update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
 
