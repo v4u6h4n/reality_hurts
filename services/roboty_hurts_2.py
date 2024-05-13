@@ -20,6 +20,7 @@ from terminaltexteffects.effects.effect_slide import Slide
 from terminaltexteffects.effects.effect_spray import Spray
 from terminaltexteffects.effects.effect_vhstape import VHSTape
 from terminaltexteffects.effects.effect_wipe import Wipe
+from rgbprint import gradient_scroll, Color
 from datetime import datetime
 from twitchio.ext import commands
 import os
@@ -67,91 +68,33 @@ class Bot(commands.Bot):
         subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
 
-    def print_effect(self, banner_padding, banner_message):
+    def print_banner(self, banner_padding, banner_message):
 
         def animation_thread():
             while getattr(self, 'running', False):
                 
-                # # Beams.
-                # def effect_beams():
-                #     effect = Beams(banner_message)
-                #     effect.effect_config.final_gradient_stops = ("FFFFFF", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Decrypt.
-                # def effect_decrypt():
-                #     effect = Decrypt(banner_message) 
-                #     effect.effect_config.ciphertext_colors = ("b5e5ff", "e1a9f6", "ffd3b6")
-                #     effect.effect_config.final_gradient_stops = ("FFFFFF", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # ErrorCorrect.
-                # def effect_error_correct():
-                #     effect = ErrorCorrect(banner_message)
-                #     effect.effect_config.error_color = "ff8b94"
-                #     effect.effect_config.correct_color = "a8e6cf"
-                #     effect.effect_config.error_pairs = 0.25
-                #     effect.effect_config.final_gradient_stops = ("BCBCBC", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Expand.
-                # def effect_expand():
-                #     effect = Expand(banner_message)
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # MiddleOut.
-                # def effect_middle_out():
-                #     effect = MiddleOut(banner_message)
-                #     effect.effect_config.starting_color = "FFFFFF"
-                #     effect.effect_config.final_gradient_stops = ("BCBCBC", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Print.
-                # def effect_print():
-                #     effect = Print(banner_message)
-                #     effect.effect_config.final_gradient_stops = ("000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # RandomSequence.
-                # def effect_random_sequence():
-                #     effect = RandomSequence(banner_message)
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # effect_functions = [effect_error_correct, effect_expand, effect_decrypt, effect_middle_out, effect_print, effect_random_sequence]
-                
-                # ["Beams", "BinaryPath", "Decrypt", "Expand", "ErrorCorrect", "MiddleOut", "Pour", "Print", "Rain", "RandomSequence", "Scattered", "Slide", "Spray", "VHSTape", "Wipe"]
-
-                # print("\033c", end="")
-                # effect_beams()
-                # time.sleep(1)
-
                 while True:
 
-                    for effect_function in effect_functions:
-                        print("\033c", end="")
-                        effect_function()
-                        time.sleep(1)
+                    print("\033c", end="")
+
+                    # gradient_scroll(
+                    #     banner_padding + banner_message, 
+                    #     start_color=0x4BBEE3, 
+                    #     end_color=Color.medium_violet_red,
+                    #     times=1
+                    # )
+
+                    gradient_scroll(
+                        *values, 
+                        start_color: Optional[ColorType] = None, 
+                        end_color: Optional[ColorType] = None,
+                        delay: float = 0.03,
+                        times: int = 4,
+                        reverse: bool = False,
+                        sep: str = " ", 
+                        end: str = "\n",
+                    ) -> None
+
 
         self.running = True
         self.current_effect_thread = threading.Thread(target=animation_thread)
@@ -189,42 +132,6 @@ class Bot(commands.Bot):
             self.refresh_access_token()
 
 
-    # @commands.command(aliases=['b'])
-    # async def banner(self, ctx: commands.Context):
-
-    #     permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_banner.txt')
-    #     with open(permission_file, "r") as file:
-    #         permission_banner = file.read().strip()
-
-    #     if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_banner]:
-    #         if permission_banner == 'owner':
-    #                 response_message = "Banner command locked."
-    #                 await ctx.send(response_message)
-    #                 self.log_message(f"RESPONSE | {response_message}")
-    #         if permission_banner != 'owner':
-    #             response_message = "Permission denied."
-    #             await ctx.send(response_message)
-    #             self.log_message(f"RESPONSE | {response_message}")
-    #         return
-
-    #     self.print_effect(banner_content)
-        
-    #     banner_message_split = ctx.message.content.split()
-    #     banner_message_prune = banner_message_split[1:]
-    #     banner_message = ' '.join(banner_message_prune)
-
-    #     if len(banner_message) > 70:
-    #         banner_message = banner_message[:70]
-    #         banner_padding = ""
-    #     elif len(banner_message) == 70:
-    #         banner_padding = ""
-    #     elif len(banner_message) < 69:
-    #         banner_padding_amount = (70 - len(banner_message)) // 2
-    #         banner_padding = " " * banner_padding_amount
-        
-    #     self.print_effect(banner_padding, banner_message)
-
-
     @commands.command(aliases=['b'])
     async def banner(self, ctx: commands.Context):
         # Bot command: banner
@@ -244,8 +151,8 @@ class Bot(commands.Bot):
             banner_padding_amount = (70 - len(banner_message)) // 2
             banner_padding = " " * banner_padding_amount
 
-        # Call print_effect method to start the animation
-        self.print_effect(banner_padding, banner_message)
+        # Call print_banner method to start the animation
+        self.print_banner(banner_padding, banner_message)
 
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
