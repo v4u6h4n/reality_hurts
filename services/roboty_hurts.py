@@ -4,24 +4,11 @@ import shlex
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
+from rgbprint import gradient_scroll, Color
 import time
-from terminaltexteffects.effects.effect_beams import Beams
-from terminaltexteffects.effects.effect_binarypath import BinaryPath
-from terminaltexteffects.effects.effect_decrypt import Decrypt
-from terminaltexteffects.effects.effect_errorcorrect import ErrorCorrect
-from terminaltexteffects.effects.effect_expand import Expand
-from terminaltexteffects.effects.effect_middleout import MiddleOut
-from terminaltexteffects.effects.effect_pour import Pour
-from terminaltexteffects.effects.effect_print import Print
-from terminaltexteffects.effects.effect_rain import Rain
-from terminaltexteffects.effects.effect_random_sequence import RandomSequence
-from terminaltexteffects.effects.effect_scattered import Scattered
-from terminaltexteffects.effects.effect_slide import Slide
-from terminaltexteffects.effects.effect_spray import Spray
-from terminaltexteffects.effects.effect_vhstape import VHSTape
-from terminaltexteffects.effects.effect_wipe import Wipe
 from datetime import datetime
 from twitchio.ext import commands
+import sys
 import os
 
 # Bot.
@@ -67,97 +54,6 @@ class Bot(commands.Bot):
         subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
 
-    def print_effect(self, banner_padding, banner_message):
-
-        def animation_thread():
-            while getattr(self, 'running', False):
-                
-                # # Beams.
-                # def effect_beams():
-                #     effect = Beams(banner_message)
-                #     effect.effect_config.final_gradient_stops = ("FFFFFF", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Decrypt.
-                # def effect_decrypt():
-                #     effect = Decrypt(banner_message) 
-                #     effect.effect_config.ciphertext_colors = ("b5e5ff", "e1a9f6", "ffd3b6")
-                #     effect.effect_config.final_gradient_stops = ("FFFFFF", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # ErrorCorrect.
-                # def effect_error_correct():
-                #     effect = ErrorCorrect(banner_message)
-                #     effect.effect_config.error_color = "ff8b94"
-                #     effect.effect_config.correct_color = "a8e6cf"
-                #     effect.effect_config.error_pairs = 0.25
-                #     effect.effect_config.final_gradient_stops = ("BCBCBC", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Expand.
-                # def effect_expand():
-                #     effect = Expand(banner_message)
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # MiddleOut.
-                # def effect_middle_out():
-                #     effect = MiddleOut(banner_message)
-                #     effect.effect_config.starting_color = "FFFFFF"
-                #     effect.effect_config.final_gradient_stops = ("BCBCBC", "5B5B5B", "000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # Print.
-                # def effect_print():
-                #     effect = Print(banner_message)
-                #     effect.effect_config.final_gradient_stops = ("000000")
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # # RandomSequence.
-                # def effect_random_sequence():
-                #     effect = RandomSequence(banner_message)
-                #     with effect.terminal_output() as terminal:
-                #         for frame in effect:
-                #             print(banner_padding, frame, end='\r')
-                #             time.sleep(0.01)
-
-                # effect_functions = [effect_error_correct, effect_expand, effect_decrypt, effect_middle_out, effect_print, effect_random_sequence]
-                
-                # ["Beams", "BinaryPath", "Decrypt", "Expand", "ErrorCorrect", "MiddleOut", "Pour", "Print", "Rain", "RandomSequence", "Scattered", "Slide", "Spray", "VHSTape", "Wipe"]
-
-                # print("\033c", end="")
-                # effect_beams()
-                # time.sleep(1)
-
-                while True:
-
-                    for effect_function in effect_functions:
-                        print("\033c", end="")
-                        effect_function()
-                        time.sleep(1)
-
-        self.running = True
-        self.current_effect_thread = threading.Thread(target=animation_thread)
-        self.current_effect_thread.start()
-
-
     def get_access_token(self):
         print("Getting access token...")
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
@@ -189,52 +85,37 @@ class Bot(commands.Bot):
             self.refresh_access_token()
 
 
-    # @commands.command(aliases=['b'])
-    # async def banner(self, ctx: commands.Context):
-
-    #     permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_banner.txt')
-    #     with open(permission_file, "r") as file:
-    #         permission_banner = file.read().strip()
-
-    #     if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_banner]:
-    #         if permission_banner == 'owner':
-    #                 response_message = "Banner command locked."
-    #                 await ctx.send(response_message)
-    #                 self.log_message(f"RESPONSE | {response_message}")
-    #         if permission_banner != 'owner':
-    #             response_message = "Permission denied."
-    #             await ctx.send(response_message)
-    #             self.log_message(f"RESPONSE | {response_message}")
-    #         return
-
-    #     self.print_effect(banner_content)
-        
-    #     banner_message_split = ctx.message.content.split()
-    #     banner_message_prune = banner_message_split[1:]
-    #     banner_message = ' '.join(banner_message_prune)
-
-    #     if len(banner_message) > 70:
-    #         banner_message = banner_message[:70]
-    #         banner_padding = ""
-    #     elif len(banner_message) == 70:
-    #         banner_padding = ""
-    #     elif len(banner_message) < 69:
-    #         banner_padding_amount = (70 - len(banner_message)) // 2
-    #         banner_padding = " " * banner_padding_amount
-        
-    #     self.print_effect(banner_padding, banner_message)
-
-
     @commands.command(aliases=['b'])
-    async def banner(self, ctx: commands.Context):
-        # Bot command: banner
+    async def banner(self, ctx: commands.Context, *, banner_message: str = None):
+        permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_banner.txt')
+        with open(permission_file, "r") as file:
+            permission_banner = file.read().strip()
 
-        # Extract banner message from command arguments
-        banner_message_split = ctx.message.content.split()
-        banner_message_prune = banner_message_split[1:]
-        banner_message = ' '.join(banner_message_prune)
+        if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_banner]:
+            if permission_banner == 'owner':
+                    response_message = "Banner command locked."
+                    await ctx.send(response_message)
+                    self.log_message(f"RESPONSE | {response_message}")
+            if permission_banner != 'owner':
+                response_message = "Permission denied."
+                await ctx.send(response_message)
+                self.log_message(f"RESPONSE | {response_message}")
+            return
 
-        # Adjust banner message length and padding
+        banner_type = banner_message.split()[0]
+        banner_types = ["normal", "alert"]
+        
+        if banner_type not in banner_types:
+            response_message = "Invalid banner type."
+            await ctx.send(response_message)
+            self.log_message(f"RESPONSE | {response_message}")
+            return
+        elif banner_type in banner_types:
+            banner_message = ' '.join(banner_message.split()[1:])
+
+        if banner_message is None:
+            banner_message = " "
+
         if len(banner_message) > 70:
             banner_message = banner_message[:70]
             banner_padding = ""
@@ -244,8 +125,33 @@ class Bot(commands.Bot):
             banner_padding_amount = (70 - len(banner_message)) // 2
             banner_padding = " " * banner_padding_amount
 
-        # Call print_effect method to start the animation
-        self.print_effect(banner_padding, banner_message)
+        if hasattr(self, 'banner_task') and not self.banner_task.done():
+            self.banner_task.cancel()
+
+        async def animate_banner():
+            while True:
+                print("\033c", end="")
+                sys.stdout.write("\x1b[?25l")
+                sys.stdout.flush()
+                if banner_type == 'normal':
+                    gradient_scroll(
+                        banner_padding + banner_message, 
+                        start_color=0x4BBEE3, 
+                        end_color=Color.medium_violet_red,
+                        delay=0.05,
+                        times=1
+                    )
+                elif banner_type == 'alert':
+                    gradient_scroll(
+                        banner_padding + banner_message, 
+                        start_color="ff5349",
+                        end_color="e32227",
+                        delay=0.02,
+                        times=1
+                    )
+                await asyncio.sleep(0.001)
+
+        self.banner_task = asyncio.create_task(animate_banner())
 
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
@@ -266,12 +172,11 @@ class Bot(commands.Bot):
     @commands.command(aliases=['a'])
     @commands.cooldown(1, 10, commands.Bucket.channel)
     async def activity(self, ctx: commands.Context):
-        # Read the permission level string from the text file
+
         permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_stream.txt')
         with open(permission_file, "r") as file:
             permission_scene = file.read().strip()
 
-        # Check permission level
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
             if permission_scene == 'owner':
                     response_message = "Activity command locked."
@@ -283,13 +188,10 @@ class Bot(commands.Bot):
                 self.log_message(f"RESPONSE | {response_message}")
             return
 
-        # Parse the content of the message to extract arguments
         arguments_chat = shlex.split(ctx.message.content)[1:]
 
-        # Count number of arguments passed.
         number_arguments_chat = len(arguments_chat)
 
-        # Check number of arguments passed.
         if number_arguments_chat == 1 and arguments_chat[0] in ["a", "admin", "c", "chores", "ch", "chilling", "co", "coding", "c_b", "cooking_breakfast", "c_l", "cooking_lunch", "c_d", "cooking_dinner", "cr", "crafts", "d", "dancing", "e_b", "eating_breakfast", "e_l", "eating_lunch", "e_d", "eating_dinner", "f", "fitness", "m", "morning", "p", "painting", "r", "relationship", "se", "sewing", "s", "socialising", "t_i", "therapy_informal", "w", "waking_up"]:
                 pass
         else:
@@ -309,29 +211,22 @@ class Bot(commands.Bot):
         elif self.get_permission_level(ctx.author.name) == 0:
             temp_source = "rb_h_c"
 
-        # Append custom static arguments to the list
         arguments_scene = ["--source", temp_source, "--verbose", "--stream", "info", "twitch", "reality_hurts", "passive", "p"]
 
-        # Combine parsed arguments and static arguments
         arguments = arguments_scene + arguments_chat
-        # Construct the command to run the script with combined arguments
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
         command = [script_path] + arguments
-        # Print the constructed command for debugging purposes
         self.log_message("EXECUTE  | " + ' '.join(command))
-        # Execute the command
         subprocess.run(command)
 
 
     @commands.command(aliases=['s'])
     @commands.cooldown(1, 2, commands.Bucket.channel)
     async def scene(self, ctx: commands.Context):
-        # Read the permission level string from the text file
         permission_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'permission_scene.txt')
         with open(permission_file, "r") as file:
             permission_scene = file.read().strip()
 
-        # Check permission level
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
             if permission_scene == 'owner':
                     response_message = "Scene command locked."
@@ -343,13 +238,10 @@ class Bot(commands.Bot):
                 self.log_message(f"RESPONSE | {response_message}")
             return
 
-        # Parse the content of the message to extract arguments
         arguments_chat = shlex.split(ctx.message.content)[1:]
 
-        # Count number of arguments passed.
         number_arguments_chat = len(arguments_chat)
 
-        # Check number of arguments passed.
         if number_arguments_chat == 2 and arguments_chat[0] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
                 pass
         elif number_arguments_chat == 4 and arguments_chat[0] in ["a", "v"] and arguments_chat[2] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"] and arguments_chat[3] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
