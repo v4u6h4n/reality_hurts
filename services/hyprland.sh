@@ -30,6 +30,7 @@
     lock_remove() {
 
         rm /tmp/workspace.lock
+        exit 0
 
     }
     position() {
@@ -624,7 +625,7 @@
         status_workspace_active_monitor
 
         # Monitor 0.
-        if [[ "$workspace_active_monitor" -eq 0 ]]; then
+        if [[ "$workspace_active_monitor" -eq 0 || "$workspace_active_monitor" -eq 3 ]]; then
             echo_info "Active monitor is $workspace_active_monitor."
 
             # Stream desk.
@@ -657,16 +658,16 @@
             echo_info "Active monitor is $workspace_active_monitor."
             workspace_id_start="1"
             workspace_id_end="6"
-        
+
         # Monitor 2.
         elif [[ "$workspace_active_monitor" -eq 2 ]]; then
             echo_info "Active monitor is $workspace_active_monitor, skipping."
-            exit 0
+            lock_remove
         
-        # Monitor 3.
-        elif [[ "$workspace_active_monitor" -eq 3 ]]; then
-            echo_info "Active monitor is $workspace_active_monitor, skipping."
-            exit 0
+        # # Monitor 3.
+        # elif [[ "$workspace_active_monitor" -eq 3 ]]; then
+        #     echo_info "Active monitor is $workspace_active_monitor, skipping."
+        #     lock_remove
         
         # Error.
         else
