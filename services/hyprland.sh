@@ -10,7 +10,7 @@
     }
     variables() {
 
-        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris")  
+        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris" "Kasts")  
         camera_bed_overhead="camera_bed_overhead"
         camera_bed_tripod="camera_bed_tripod"
         camera_desk_vaughan="camera_desk_vaughan"
@@ -265,6 +265,10 @@
                         update_window_tile $application_title
                         update_window_workspace_silent $temp_workspace_id $application_title
                     done
+                    # for application_title in "${application_titles[@]}"; do
+                    #     temp_workspace_id=$(window_workspace_id $application_title)
+                    #     update_window_tile_toggle $application_title
+                    # done
 
                 #Swap.
                 elif [[ "$new_window_order" == "next" ]]; then
@@ -559,6 +563,24 @@
         hyprctl dispatch setfloating title:$1 >/dev/null 2>&1
 
     }
+    update_window_float_toggle() {
+
+        status_window_floating $1
+
+        if [[ $status_window_floating -eq 0 ]]; then
+            hyprctl dispatch togglefloating title:$1 >/dev/null 2>&1
+        fi
+
+    }
+    update_window_tile_toggle() {
+
+        status_window_floating $1
+
+        if [[ $status_window_floating -eq 1 ]]; then
+            hyprctl dispatch togglefloating title:$1 >/dev/null 2>&1
+        fi
+
+    }
     update_window_opacity() {
 
         hyprctl keyword windowrule opacity $2,title:$1
@@ -711,6 +733,11 @@
     status_window_address() {
 
         echo "0x$(hyprctl clients | grep "$1" | grep "Window" | awk '{print $2}' | cut -d',' -f1)"
+
+    }
+    status_window_floating() {
+
+        status_window_floating=$(hyprctl clients | grep "$1" -A 6 | grep "floating:" | awk '{print $2}' | cut -d',' -f1)
 
     }
     status_window_pid() {
