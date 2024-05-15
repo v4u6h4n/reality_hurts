@@ -213,6 +213,10 @@
 
     lock_check() {
 
+        if [[ "$1" == "lock_remove" ]]; then
+            lock_remove
+        fi
+
         echo_debug "Checking lock file..."
 
         while [ -e /tmp/configurator.lock ]; do
@@ -220,21 +224,20 @@
         done
 
         position_right
-        echo_debug "Creating lock file..."
+        echo_debug "Lock file: created."
         touch /tmp/configurator.lock
         position_left
 
     }
     lock_remove() {
 
-        if [[ "$flag_script_obs_cli" == "executed" ]]; then
-            deactivate
+        rm /tmp/configurator.lock
+
+        if [[ $? -eq 0 ]]; then
+            echo_debug "Lock file: removed."
         fi
 
-        rm /tmp/configurator.lock
-        if [[ $? -eq 0 ]]; then
-        echo_debug "Lock file: removed."
-        fi
+        exit 0
 
     }
 
@@ -661,6 +664,21 @@
                     echo_error "command_input, arg_input_action: $arg_input_action."
                 fi
             
+            # Default.
+            elif [[ "$argument_current_atribute" == "default" ]]; then
+
+                # Select.
+                if [[ "$arg_input_action" == "select" ]]; then
+                    status_update_profile_input_default
+                    alert_request profile_input_default
+                    alert_play
+                    setting_update input
+
+                # Error.
+                else
+                    echo_error "command_input, arg_input_action: $arg_input_action."
+                fi
+
             # Error.
             else
                 echo_error "command_light, argument_current_light."
@@ -952,19 +970,16 @@
             translate_argument profile $4
             arg_profile_output="${argument}"
 
-            echo_info "Profile: ${argument_current_censor_1} ${arg_profile_restriction} ${arg_profile_input} ${arg_profile_output}"
+            #arg_profile_stream_type="$5"
 
+            echo_info "Profile: ${argument_current_censor_1} ${arg_profile_restriction} ${arg_profile_input} ${arg_profile_output}"
             position_right
 
             status_check_profile censor restriction input output
             interpret_alert_all censor restriction input
             alert_play
-
             setting_update censor restriction input output
-
             status_update profile_censor profile_restriction profile_input profile_output
-
-            # setting_update_streamdeck_page
 
             position_left
 
@@ -1321,6 +1336,8 @@
                 argument="brightness"
             elif [[ "$2" == "mute" || "$2" == "m" ]]; then
                 argument="mute"
+            elif [[ "$2" == "default" || "$2" == "d" ]]; then
+                argument="default"
             elif [[ "$2" == "power" || "$2" == "p" ]]; then
                 argument="power"
             elif [[ "$2" == "seek" || "$2" == "se" ]]; then
@@ -1473,6 +1490,18 @@
                 argument="input_device_3"
             elif [[ "$2" == "$microphone_4" ]]; then
                 argument="input_device_4"
+            elif [[ "$2" == "all" ]]; then
+                argument="all"
+            elif [[ "$2" == "rode_obs" ]]; then
+                argument="rode_obs"
+            elif [[ "$2" == "ambient" ]]; then
+                argument="ambient"
+            elif [[ "$2" == "desk_obs" ]]; then
+                argument="desk_obs"
+            elif [[ "$2" == "kitchen_obs" ]]; then
+                argument="kitchen_obs"
+            elif [[ "$2" == "bathroom_obs" ]]; then
+                argument="bathroom_obs"
             else
                 echo_error "translate_argument, input, invalid argument: ${2}."
             fi
@@ -1658,22 +1687,6 @@
 
     }
 
-    script_obs_cli() {
-
-        # status_check_obs_websocket ${1}
-
-        status_check_obs_websocket $1
-
-        if [[ "$flag_script_obs_cli" != "executed" ]]; then
-
-            flag_script_obs_cli="executed"
-            source ~/.venvs/bin/activate
-
-        fi
-
-        python "${directory_script}obs_cli_old.py" --port "$obs_websocket_port" --password "$obs_websocket_password" "$2" "$3" "$4" "$5" "$6"
-
-    }
     operation_random() {
 
         echo_debug "Random:"
@@ -1752,15 +1765,12 @@
             # Set speaker volumes.
             output_speaker_1_volume=$(wpctl get-volume $output_device_speaker_1_ID)
             output_speaker_1_volume_numerical=$(echo "$output_speaker_1_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
-            echo test1
             wpctl set-volume $output_device_speaker_1_ID $default_speaker_1_volume
             output_speaker_2_volume=$(wpctl get-volume $output_device_speaker_2_ID)
             output_speaker_2_volume_numerical=$(echo "$output_speaker_2_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
-            echo test2
             wpctl set-volume $output_device_speaker_2_ID $default_speaker_2_volume
             output_speaker_3_volume=$(wpctl get-volume $output_device_speaker_3_ID)
             output_speaker_3_volume_numerical=$(echo "$output_speaker_3_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
-            echo test3
             wpctl set-volume $output_device_speaker_3_ID $default_speaker_3_volume
 
             echo_info "Update settings:"
@@ -1961,6 +1971,14 @@
                 flag_alert_played="yes"
             fi
 
+            # Profile input default.
+            if [[ -n "$alert_request_profile_input_default" ]]; then
+                echo_info "Profile: input ${alert_request_profile_input_default}."
+                paplay "${directory_alerts}profile_input_default_${alert_request_profile_input_default}.wav"
+                alert_request_profile_input_default=""
+                flag_alert_played="yes"
+            fi
+
             # Censor.
             if [[ -n "$alert_request_censor" ]]; then
                 echo_info "Censor: ${alert_request_censor}."
@@ -2038,6 +2056,14 @@
 
             alert_request_input="${arg_input_device}_${!temp_mute_status}"
             echo_info "${arg_input_device}_${!temp_mute_status}"
+
+        }
+        alert_request_profile_input_default() {
+
+            status_check_profile_input_default
+
+            alert_request_profile_input_default="$status_check_profile_input_default"
+            echo_info "$status_check_profile_input_default"
 
         }
 
@@ -4182,6 +4208,26 @@
                 kill $(pgrep ffmpeg)
 
             }
+            setting_update_pipeware_restart() {
+
+                echo_info "Restarting pipewire..."
+                systemctl --user restart pipewire
+
+                sleep 2
+
+                killall -e xdg-desktop-portal-hyprland
+                killall -e xdg-desktop-portal-wlr
+                killall xdg-desktop-portal
+
+                echo_info "Restarting Hyprland portal..."
+                /usr/lib/xdg-desktop-portal-hyprland & disown
+                
+                sleep 2
+                
+                echo_info "Restarting portal..."
+                /usr/lib/xdg-desktop-portal & disown
+
+            }
             setting_update_system_bot_start() {
 
                 systemctl --user start roboty_hurts
@@ -4760,7 +4806,6 @@
         setting_update_input_obs_restricted_mute() {
 
             echo_info "Input OBS restricted mute:"
-
             position_right
 
             setting_update_input_obs_restricted_mute_microphone_1
@@ -4823,7 +4868,6 @@
         setting_update_input_obs_unrestricted_mute() {
 
             echo_info "Input OBS unrestricted mute:"
-
             position_right
 
             setting_update_input_obs_unrestricted_mute_microphone_1
@@ -4958,13 +5002,37 @@
         setting_update_input_obs_restricted_unmute() {
 
             echo_info "Input OBS restricted unmute:"
-
             position_right
 
-            setting_update_input_obs_restricted_unmute_microphone_1
-            setting_update_input_obs_restricted_unmute_microphone_2
-            setting_update_input_obs_restricted_unmute_microphone_3
-            setting_update_input_obs_restricted_unmute_microphone_4
+            status_check_profile_input_default
+            
+            # Ambient.
+            if [[ "$status_check_profile_input_default" == "ambient" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_2
+                setting_update_input_obs_restricted_unmute_microphone_3
+                setting_update_input_obs_restricted_unmute_microphone_4
+            # All.
+            elif [[ "$status_check_profile_input_default" == "all" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_1
+                setting_update_input_obs_restricted_unmute_microphone_2
+                setting_update_input_obs_restricted_unmute_microphone_3
+                setting_update_input_obs_restricted_unmute_microphone_4
+            # Rode.
+            elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_1
+            # Desk.
+            elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_2
+            # Kitchen.
+            elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_3
+            # Bathroom.
+            elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
+                setting_update_input_obs_restricted_unmute_microphone_4
+            # Error.
+            else
+                echo_error "setting_update_input_obs_restricted_unmute."
+            fi
 
             position_left
 
@@ -5021,13 +5089,37 @@
         setting_update_input_obs_unrestricted_unmute() {
 
             echo_info "Input OBS unrestricted unmute:"
-
             position_right
 
-            setting_update_input_obs_unrestricted_unmute_microphone_1
-            setting_update_input_obs_unrestricted_unmute_microphone_2
-            setting_update_input_obs_unrestricted_unmute_microphone_3
-            setting_update_input_obs_unrestricted_unmute_microphone_4
+            status_check_profile_input_default
+            
+            # Ambient.
+            if [[ "$status_check_profile_input_default" == "ambient" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_2
+                setting_update_input_obs_unrestricted_unmute_microphone_3
+                setting_update_input_obs_unrestricted_unmute_microphone_4
+            # All.
+            elif [[ "$status_check_profile_input_default" == "all" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_1
+                setting_update_input_obs_unrestricted_unmute_microphone_2
+                setting_update_input_obs_unrestricted_unmute_microphone_3
+                setting_update_input_obs_unrestricted_unmute_microphone_4
+            # Rode.
+            elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_1
+            # Desk.
+            elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_2
+            # Kitchen.
+            elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_3
+            # Bathroom.
+            elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
+                setting_update_input_obs_unrestricted_unmute_microphone_4
+            # Error.
+            else
+                echo_error "setting_update_input_obs_unrestricted_unmute."
+            fi
 
             position_left
 
@@ -6394,6 +6486,12 @@
                 echo_info "Input: ${status_check_profile_input}."
 
             }
+                status_check_profile_input_default() {
+
+                    status_check_profile_input_default=$(cat "${directory_data_private}profile_input_default.txt")
+                    echo_info "Input default: $status_check_profile_input_default."
+
+                }
             status_check_profile_output() {
 
                 status_check_profile_output=$(cat "${directory_data_private}profile_output.txt")
@@ -6527,6 +6625,18 @@
                 fi
 
             }
+        status_update_profile_input_default() {
+
+            echo "$arg_input_device" > "${directory_data_private}profile_input_default.txt"
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "Input default: $arg_input_device."
+            elif [[ $exit_1 -ne 0 ]]; then
+                echo_error "Input default failed."
+            fi
+
+        }
         status_update_profile_output() {
 
             # Requested status muted, checked status unmuted.
