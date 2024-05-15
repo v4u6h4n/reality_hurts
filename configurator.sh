@@ -781,15 +781,17 @@
 
                 status_check_output_device all
 
+                initial_default_output=$status_current_output_device_default
+
                 setting_update_output_device_unlink all
                 setting_update_output_device_link all
 
                 setting_update_output_device_default speaker_1
-                setting_update_output_device_default null_sink_1
+                setting_update_output_device_default $initial_default_output
 
                 alert_request_output_link_reset
                 alert_play
-
+                
                 setting_update input output
 
             # Error.
@@ -1091,7 +1093,7 @@
 
             operation_sleep 1
 
-            command scene quad anja studio vaughan desk
+            command camera quad_1 desk_vaughan quad_2 studio quad_3 screen_vaughan_1 quad_4 window
             
             sleep 5
 
@@ -3325,7 +3327,7 @@
                     
                     # Error.
                     else
-                        echo_error_espeak "Reset speakers."
+                        echo_error_speak "Reset speakers."
                     fi
                 
                 # Error.
