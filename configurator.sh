@@ -1084,8 +1084,13 @@
             command system application obs_studio restricted_uncut start
 
             # Mute OBS.
-            operation_sleep 5
+            operation_sleep 4
             
+            operation_socket --client unrestricted_uncut stream status status
+            operation_socket --client restricted_uncut stream status status
+
+            operation_sleep 1
+
             command scene quad anja studio vaughan desk
             
             sleep 5
