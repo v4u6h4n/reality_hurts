@@ -175,7 +175,7 @@ def get_inputs(cl):
 
 
 def get_input_settings(client, input):
-    return client.get_input_settings(input).input_settings
+    return print(client.get_input_settings(input).input_settings)
 
 
 def set_input_setting(client, input, key, value):
