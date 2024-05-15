@@ -220,7 +220,7 @@ def toggle_filter(client, source, filter):
     return client.set_source_filter_enabled(source, filter, not enabled)
 
 def get_hotkeys(client):
-    return client.get_hot_key_list().hotkeys
+    return print(client.get_hot_key_list().hotkeys)
 
 def trigger_hotkey(client, hotkey):
     return client.trigger_hot_key_by_name(hotkey)
@@ -238,7 +238,7 @@ def virtual_camera_toggle(client):
     return client.toggle_virtual_cam()
 
 def stream_status(client):
-    return client.get_stream_status().output_active
+    return print(client.get_stream_status().output_active)
 
 def stream_start(client):
     return client.start_stream()
@@ -309,6 +309,11 @@ def handle_command(command, clients):
         scene_parser.add_argument('scene', type=str, help='Scene name.')
 
 
+        stream_parser = subparsers.add_parser('stream', help='Stream subcommand.')
+        stream_parser.add_argument('subcommand', choices=['status'], help='Subcommand')
+        stream_parser.add_argument('status', type=str, help='Stream status.')
+
+
         hotkey_parser = subparsers.add_parser('hotkey', help='Hotkey subcommand.')
         hotkey_subparsers = hotkey_parser.add_subparsers(dest='subcommand', help='Subcommand')
 
@@ -346,11 +351,17 @@ def handle_command(command, clients):
             elif args.operation == 'hotkey':
                 if args.subcommand == 'list':
                     print("Not implemented.")
+                    get_hotkeys(client)
                 elif args.subcommand == 'trigger':
                     if args.trigger_subcommand == 'key':
                         hotkey_trigger_key(client, args.key)
                 else:
                     print("Invalid hotkey subcommand: " + args.subcommand)
+            elif args.operation == 'stream':
+                if args.subcommand == 'status':
+                    stream_status(client)
+                else:
+                    print("Invalid stream subcommand: " + args.subcommand)
             else:
                 print("Invalid argument.")
                 return
