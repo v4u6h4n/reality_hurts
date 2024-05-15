@@ -1086,17 +1086,9 @@
             command system application obs_studio restricted_uncut start
 
             # Mute OBS.
-            operation_sleep 4
-            
-            operation_socket --client unrestricted_uncut stream status status
-            operation_socket --client restricted_uncut stream status status
-
-            operation_sleep 1
+            operation_sleep 10
 
             command camera quad_1 desk_vaughan quad_2 studio quad_3 screen_vaughan_1 quad_4 window
-            
-            sleep 5
-
             command profile uc ur m m
 
         }
