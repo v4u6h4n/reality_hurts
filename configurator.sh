@@ -1074,7 +1074,7 @@
 
             sleep 1
 
-            command system window_manager window_layout default default_default
+            command system window_manager window_layout default startup
 
             # Start OBS.
             operation_sleep 25
