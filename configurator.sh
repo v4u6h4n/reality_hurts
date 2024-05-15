@@ -4456,7 +4456,6 @@
         if [[ "$arg_stream_type" == "passive" ]]; then
             command permission stream select couchsurfer
             command permission scene select couchsurfer
-            command permission input select couchsurfer
             command system window_manager window_layout default none
             SexualThemes="false"
             ViolentGraphic="false"
@@ -4464,7 +4463,6 @@
         elif [[ "$arg_stream_type" == "normal" ]]; then
             command permission stream select owner
             command permission scene select owner
-            command permission input select owner
             command system window_manager window_layout stream_single_desk none
             SexualThemes="false"
             ViolentGraphic="false"
@@ -4472,7 +4470,6 @@
         elif [[ "$arg_stream_type" == "active" ]]; then
             command permission stream select owner
             command permission scene select couchsurfer
-            command permission input select couchsurfer
             command system window_manager window_layout stream_quad_desk none
             SexualThemes="false"
             ViolentGraphic="false"
@@ -4480,7 +4477,6 @@
         elif [[ "$arg_stream_type" == "maintenance" ]]; then
             command permission stream select owner
             command permission scene select couchsurfer
-            command permission input select couchsurfer
             command system window_manager window_layout default none
             SexualThemes="false"
             ViolentGraphic="false"
@@ -4488,14 +4484,12 @@
         elif [[ "$arg_stream_type" == "sleeping" ]]; then
             command permission stream select owner
             command permission scene select owner
-            command permission input select owner
             SexualThemes="false"
             ViolentGraphic="false"
         # Sleeping.
         elif [[ "$arg_stream_type" == "therapy" ]]; then
             command permission stream select owner
             command permission scene select owner
-            command permission input select owner
             SexualThemes="false"
             ViolentGraphic="true"
         # Error.
