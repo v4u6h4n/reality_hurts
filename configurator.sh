@@ -1076,12 +1076,12 @@
             command system application camera_bed_overhead none start
             command system application camera_bed_tripod none start
 
-            sleep 1
+            sleep 5
 
             command system window_manager window_layout default startup
 
             # Start OBS.
-            operation_sleep 25
+            operation_sleep 20
             command system application obs_studio unrestricted_uncut start
 
             operation_sleep 5
