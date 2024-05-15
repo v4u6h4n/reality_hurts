@@ -1066,6 +1066,8 @@
 
             setting_update_system_loopback_start
 
+            cp "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout copy.json" "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout.json"
+
             sleep 5
 
             command system application bot none start

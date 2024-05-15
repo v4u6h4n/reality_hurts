@@ -5,7 +5,7 @@ Description=Roboty Hurts
 Type=simple
 ExecStart=/bin/bash -c 'source ~/.venvs/bin/activate && python /media/storage/Streaming/Software/scripts/main/services/obs_cli.py'
 Restart=always
-RestartSec=10
+RestartSec=5
 
 [Install]
 WantedBy=default.target
