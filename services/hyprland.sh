@@ -239,7 +239,7 @@
          if [[ "$new_window_order" == "$current_window_order" ]]; then
             echo_info "Window order is already $current_window_order, skipping."
             position_right
-         
+
          # New window order.
          elif [[ "$new_window_order" != "$current_window_order" ]]; then
 
@@ -250,7 +250,7 @@
                 update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
 
                 # None.
-                if [[ "$new_window_order" == "none" ]]; then
+                if [[ "$new_window_order" == "none" || "$new_window_order" == "startup" ]]; then
                     new_window_order="default_default"
                 fi
 
