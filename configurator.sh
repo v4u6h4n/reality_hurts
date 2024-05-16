@@ -1086,6 +1086,8 @@
 
             operation_sleep 5
             command system application obs_studio restricted_uncut start
+            command system application obs_studio unrestricted start
+            command system application obs_studio restricted start
 
             # Mute OBS.
             operation_sleep 10
@@ -4014,14 +4016,14 @@
 
                         # Restricted uncut.
                         if [[ "$arg_system_application_profile" == "restricted" ]]; then
-                            status_check_obs_websocket 2
+                            status_check_obs_websocket 4
                             flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (Restricted)."
+                                echo_info "OBS Studio (restricted)."
                             else
-                                echo_error_urgent "OBS failed to launch."
+                                echo_error_urgent "OBS failed to launch (restricted)."
                             fi
 
                         # Restricted uncut.
@@ -4031,21 +4033,21 @@
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (Restricted)."
+                                echo_info "OBS Studio (restricted uncut)."
                             else
-                                echo_error_urgent "OBS failed to launch."
+                                echo_error_urgent "OBS failed to launch (restricted uncut)."
                             fi
 
                         # Unrestricted.
                         elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
-                            status_check_obs_websocket 1
-                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            status_check_obs_websocket 3
+                            flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (Unrestricted)."
+                                echo_info "OBS Studio (unrestricted)."
                             else
-                                echo_error_urgent "OBS failed to launch."
+                                echo_error_urgent "OBS failed to launch (unrestricted)."
                             fi
 
                         # Unrestricted uncut.
@@ -4055,9 +4057,9 @@
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (Unrestricted)."
+                                echo_info "OBS Studio (unrestricted uncut)."
                             else
-                                echo_error_urgent "OBS failed to launch."
+                                echo_error_urgent "OBS failed to launch (unrestricted uncut)."
                             fi
                         # Error.
                         else
@@ -4813,10 +4815,13 @@
         }
             setting_update_input_obs_restricted_mute_microphone_1() {
 
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_1_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 1: muted."
                 else
                     echo_error "setting_update_input_obs_restricted_mute_microphone_1."
@@ -4825,10 +4830,13 @@
             }
             setting_update_input_obs_restricted_mute_microphone_2() {
 
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_2_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 2: muted."
                 else
                     echo_error "setting_update_input_obs_restricted_mute_microphone_2."
@@ -4837,10 +4845,13 @@
             }
             setting_update_input_obs_restricted_mute_microphone_3() {
 
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_3_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 3: muted."
                 else
                     echo_error "setting_update_input_obs_restricted_mute_microphone_3."
@@ -4849,10 +4860,13 @@
             }
             setting_update_input_obs_restricted_mute_microphone_4() {
 
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input mute "$input_device_microphone_4_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 4: muted."
                 else
                     echo_error "setting_update_input_obs_restricted_mute_microphone_4."
@@ -4875,10 +4889,13 @@
         }
             setting_update_input_obs_unrestricted_mute_microphone_1() {
 
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_1_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 1: muted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_mute_microphone_1."
@@ -4887,10 +4904,13 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_2() {
 
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_2_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 2: muted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_mute_microphone_2."
@@ -4899,10 +4919,13 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_3() {
 
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_3_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 3: muted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_mute_microphone_3."
@@ -4911,10 +4934,13 @@
             }
             setting_update_input_obs_unrestricted_mute_microphone_4() {
 
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted input mute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_4_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 4: muted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_mute_microphone_4."
@@ -5034,10 +5060,13 @@
         }
             setting_update_input_obs_restricted_unmute_microphone_1() {
 
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_1_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 1: unmuted."
                 else
                     echo_error "setting_update_input_obs_restricted_unmute_microphone_1."
@@ -5046,10 +5075,13 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_2() {
 
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_2_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 2: unmuted."
                 else
                     echo_error "setting_update_input_obs_restricted_unmute_microphone_2."
@@ -5058,10 +5090,13 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_3() {
 
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_3_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 3: unmuted."
                 else
                     echo_error "setting_update_input_obs_restricted_unmute_microphone_3."
@@ -5070,10 +5105,13 @@
             }
             setting_update_input_obs_restricted_unmute_microphone_4() {
 
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client restricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client restricted_uncut input unmute "$input_device_microphone_4_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS restricted, microphone 4: unmuted."
                 else
                     echo_error "setting_update_input_obs_restricted_unmute_microphone_4."
@@ -5121,10 +5159,13 @@
         }
             setting_update_input_obs_unrestricted_unmute_microphone_1() {
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_1_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_1_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_1_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 1: unmuted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_unmute_microphone_1."
@@ -5133,10 +5174,13 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_2() {
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_2_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_2_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_2_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 2: unmuted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_unmute_microphone_2."
@@ -5145,10 +5189,13 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_3() {
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_3_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_3_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_3_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 3: unmuted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_unmute_microphone_3."
@@ -5157,10 +5204,13 @@
             }
             setting_update_input_obs_unrestricted_unmute_microphone_4() {
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_4_name_obs"
+                operation_socket --client unrestricted input unmute "$input_device_microphone_4_name_obs"
                 exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
+                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_4_name_obs"
+                exit_2=$?
+
+                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                     echo_info "OBS unrestricted, microphone 4: unmuted."
                 else
                     echo_error "setting_update_input_obs_unrestricted_unmute_microphone_4."
