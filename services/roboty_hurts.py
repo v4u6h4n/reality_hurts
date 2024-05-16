@@ -192,7 +192,7 @@ class Bot(commands.Bot):
 
         number_arguments_chat = len(arguments_chat)
 
-        if number_arguments_chat == 1 and arguments_chat[0] in ["a", "admin", "c", "chores", "ch", "chilling", "co", "coding", "c_b", "cooking_breakfast", "c_l", "cooking_lunch", "c_d", "cooking_dinner", "cr", "crafts", "d", "dancing", "e_b", "eating_breakfast", "e_l", "eating_lunch", "e_d", "eating_dinner", "f", "fitness", "m", "morning", "p", "painting", "r", "relationship", "se", "sewing", "s", "socialising", "t_i", "therapy_informal", "w", "waking_up"]:
+        if number_arguments_chat == 1 and arguments_chat[0] in ["admin", "chores", "chilling", "coding", "cooking_breakfast", "cooking_lunch", "cooking_dinner", "crafts", "dancing", "eating_breakfast", "eating_lunch", "eating_dinner", "fitness", "morning", "painting", "relationship", "sewing", "socialising", "therapy_informal", "waking_up"]:
                 pass
         else:
             response_message = "Invalid command."
