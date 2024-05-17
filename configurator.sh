@@ -4017,7 +4017,7 @@
                         # Restricted uncut.
                         if [[ "$arg_system_application_profile" == "restricted" ]]; then
                             status_check_obs_websocket 4
-                            flatpak mullvad-exclude run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
@@ -4029,7 +4029,7 @@
                         # Restricted uncut.
                         elif [[ "$arg_system_application_profile" == "restricted_uncut" ]]; then
                             status_check_obs_websocket 2
-                            flatpak mullvad-exclude run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
@@ -4041,7 +4041,7 @@
                         # Unrestricted.
                         elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
                             status_check_obs_websocket 3
-                            flatpak mullvad-exclude run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
@@ -4053,7 +4053,7 @@
                         # Unrestricted uncut.
                         elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
                             status_check_obs_websocket 1
-                            flatpak mullvad-exclude run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
                             exit_1=$?
                             systemctl --user restart obs_cli
                             if [[ $1 -eq 0 ]]; then
