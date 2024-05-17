@@ -1126,7 +1126,7 @@
 
                 setting_update_stream_refresh
                 
-            # Update.
+            # Info.
             elif [[ "$arg_stream_action" == "info" ]]; then
 
                 echo_info "Stream: info"
@@ -1203,6 +1203,10 @@
                 argument="reality_hurts_uncut"
             elif [[ "$2" == "all" || "$2" == "a" ]]; then
                 argument="all"
+            elif [[ "$2" == "uncut" ]]; then
+                argument="uncut"
+            elif [[ "$2" == "normal" ]]; then
+                argument="normal"
             elif [[ "$2" == "all_streams" || "$2" == "as" ]]; then
                 argument="all_streams"
             else
@@ -4065,6 +4069,15 @@
                         else
                             echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
                         fi
+                    
+                    # Stream start.
+                    elif [[ "$arg_system_application_action" == "stream_start" ]]; then
+                        setting_update_system_obs_stream_start $arg_system_application_profile
+
+                    # Stream stop.
+                    elif [[ "$arg_system_application_action" == "stream_stop" ]]; then
+                        setting_update_system_obs_stream_stop $arg_system_application_profile
+
                     # Error.
                     else
                         echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
@@ -4284,6 +4297,30 @@
             setting_update_system_camera_bed_tripod_stop() {
 
                 kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+            }
+            setting_update_system_obs_stream_start() {
+
+                operation_socket --client $1 stream start
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "OBS $1: stream started."
+                else
+                    echo_error "setting_update_system_obs_stream_start."
+                fi
+
+            }
+            setting_update_system_obs_stream_stop() {
+
+                operation_socket --client $1 stream stop
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "OBS $1: stream stopped."
+                else
+                    echo_error "setting_update_system_obs_stream_stop."
+                fi
 
             }
 
@@ -4508,17 +4545,75 @@
         elif [[ "$arg_stream_restriction" == "unrestricted" ]]; then
 
             # Platform.
+            # Twitch,
             if [[ "$arg_stream_platform" == "twitch" ]]; then
-                setting_update_stream_refresh
-                setting_update_stream_info_twitch
-            elif [[ "$arg_stream_platform" == "all" ]]; then
 
+                # All.
                 if [[ "$arg_stream_account" == "all" ]]; then
                     arg_stream_platform="twitch"
                     arg_stream_account="reality_hurts"
                     setting_update_stream_refresh
                     setting_update_stream_info_twitch
+                    # Transition arg_stream_platform="twitch"
+                    # Transition arg_stream_account="reality_hurts_uncut"
+                    # Transition setting_update_stream_refresh
+                    # Transition setting_update_stream_info_twitch
+                # Uncut.
+                elif [[ "$arg_stream_account" == "uncut" ]]; then
+                    arg_stream_platform="twitch" # Transition
+                    arg_stream_account="reality_hurts" # Transition
+                    setting_update_stream_refresh # Transition
+                    setting_update_stream_info_twitch # Transition
+                    # Transition arg_stream_platform="twitch"
+                    # Transition arg_stream_account="reality_hurts_uncut"
+                    # Transition setting_update_stream_refresh
+                    # Transition setting_update_stream_info_twitch
+                # Normal.
+                elif [[ "$arg_stream_account" == "normal" ]]; then
+                    arg_stream_platform="twitch"
+                    arg_stream_account="reality_hurts"
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
+                # Other.
+                else
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
                 fi
+
+            # All.
+            elif [[ "$arg_stream_platform" == "all" ]]; then
+
+                # All.
+                if [[ "$arg_stream_account" == "all" ]]; then
+                    arg_stream_platform="twitch"
+                    arg_stream_account="reality_hurts"
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
+                    # Transition arg_stream_account="reality_hurts_uncut"
+                    # Transition setting_update_stream_refresh
+                    # Transition setting_update_stream_info_twitch
+                # Uncut.
+                elif [[ "$arg_stream_account" == "uncut" ]]; then
+                    arg_stream_platform="twitch" # Transition
+                    arg_stream_account="reality_hurts" # Transition
+                    setting_update_stream_refresh # Transition
+                    setting_update_stream_info_twitch # Transition
+                    # Transition arg_stream_platform="twitch"
+                    # Transition arg_stream_account="reality_hurts_uncut"
+                    # Transition setting_update_stream_refresh
+                    # Transition setting_update_stream_info_twitch
+                # Normal.
+                elif [[ "$arg_stream_account" == "normal" ]]; then
+                    arg_stream_platform="twitch"
+                    arg_stream_account="reality_hurts"
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
+                # Other.
+                else
+                    setting_update_stream_refresh
+                    setting_update_stream_info_twitch
+                fi
+
             else
                 echo_error "setting_update_stream_info, setting_update_stream_info_twitch: $setting_update_stream_info_twitch."
             fi
@@ -4526,8 +4621,6 @@
         else
             echo_error "setting_update_stream_info, arg_stream_restriction: $arg_stream_restriction."
         fi
-
-
 
         position_left
 
