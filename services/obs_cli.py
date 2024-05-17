@@ -276,6 +276,7 @@ def record_stop(client):
 def record_toggle(client):
     return client.toggle_record()
 
+@logger.catch(reraise=True)
 def hotkey_trigger_key(client, key):
     return client.trigger_hot_key_by_key_sequence(key, pressShift=False, pressCtrl=False, pressAlt=False, pressCmd=False)
 
@@ -310,8 +311,7 @@ def handle_command(command, clients):
 
 
         stream_parser = subparsers.add_parser('stream', help='Stream subcommand.')
-        stream_parser.add_argument('subcommand', choices=['status'], help='Subcommand')
-        stream_parser.add_argument('status', type=str, help='Stream status.')
+        stream_parser.add_argument('subcommand', choices=['status', 'stop', 'start'], help='Subcommand')
 
 
         hotkey_parser = subparsers.add_parser('hotkey', help='Hotkey subcommand.')
@@ -360,6 +360,10 @@ def handle_command(command, clients):
             elif args.operation == 'stream':
                 if args.subcommand == 'status':
                     stream_status(client)
+                elif args.subcommand == 'stop':
+                    stream_stop(client)
+                elif args.subcommand == 'start':
+                    stream_start(client)
                 else:
                     print("Invalid stream subcommand: " + args.subcommand)
             else:
