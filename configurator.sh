@@ -5524,12 +5524,14 @@
 
             # ydotool key 125:1 68:1 68:0 125:0
 
-            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F10
+            operation_socket --client restricted hotkey trigger key OBS_KEY_F10
             exit_1=$?
+            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F10
+            exit_2=$?
 
-            if [[ $exit_1 -eq 0 ]]; then
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                 echo_info "Output: muted (restricted OBS)."
-            elif [[ $exit_1 -ne 0 ]]; then
+            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
                 echo_error "setting_update_output_obs_restricted_mute."
             fi
 
@@ -5537,12 +5539,14 @@
         setting_update_output_obs_unrestricted_mute() {
 
             # ydotool key 125:1 88:1 88:0 125:0
-            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F12
+            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F12
             exit_1=$?
+            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F12
+            exit_2=$?
 
-            if [[ $exit_1 -eq 0 ]]; then
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                 echo_info "Output: muted (unrestricted OBS)."
-            elif [[ $exit_1 -ne 0 ]]; then
+            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
                 echo_error "setting_update_output_obs_unrestricted_mute."
             fi
 
@@ -5768,12 +5772,15 @@
         setting_update_output_obs_restricted_unmute() {
 
             # ydotool key 125:1 67:1 67:0 125:0
-            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F9
+            operation_socket --client restricted hotkey trigger key OBS_KEY_F9
             exit_1=$?
 
-            if [[ $exit_1 -eq 0 ]]; then
+            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F9
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                 echo_info "Output: unmuted (restricted OBS)."
-            elif [[ $exit_1 -ne 0 ]]; then
+            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
                 echo_error "Output: unmuting (restricted OBS) failed."
             fi
 
@@ -5781,12 +5788,15 @@
         setting_update_output_obs_unrestricted_unmute() {
 
             # ydotool key 125:1 87:1 87:0 125:0
-            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F11
+            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
             exit_1=$?
 
-            if [[ $exit_1 -eq 0 ]]; then
+            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F11
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
                 echo_info "Output: unmuted (unrestricted OBS)."
-            elif [[ $exit_1 -ne 0 ]]; then
+            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
                 echo_error "Output: unmuting (unrestricted OBS) failed."
             fi
 
