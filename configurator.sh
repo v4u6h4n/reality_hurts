@@ -4182,10 +4182,10 @@
             setting_update_system_loopback_start() {
 
                 # Desk Vaughan.
-                ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
                 # Bed overhead.
-                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 \
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 \
                     -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
@@ -4198,7 +4198,7 @@
                     # & disown
 
                 # Bed tripod.
-                ffmpeg -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video10 \
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video10 \
                     -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
