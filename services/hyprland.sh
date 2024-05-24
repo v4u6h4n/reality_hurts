@@ -10,7 +10,7 @@
     }
     variables() {
 
-        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris" "Kasts")  
+        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris" "Kasts" "Zotero")  
         camera_bed_overhead="camera_bed_overhead"
         camera_bed_tripod="camera_bed_tripod"
         camera_desk_vaughan="camera_desk_vaughan"
@@ -186,12 +186,13 @@
 # Setting update.
     update_window_layout() {
 
-        echo_info "Current window layout: $1."
-        echo_info "Current window order: $2"
-        position_right
-
+        echo_info "New window layout: $1."
+        echo_info "New window order: $2"
         status_check window_layout
         status_check window_order
+        position_right
+
+        status_workspace_active_monitor
 
         new_window_layout="$1"
         new_window_order="$2"
@@ -235,302 +236,322 @@
             fi
         fi
 
-         # Current window order.
-         if [[ "$new_window_order" == "$current_window_order" ]]; then
-            echo_info "Window order is already $current_window_order, skipping."
-            position_right
+        # Current window order.
+        if [[ "$new_window_order" == "$current_window_order" ]]; then
+        echo_info "Window order is already $current_window_order, skipping."
+        position_right
 
-         # New window order.
-         elif [[ "$new_window_order" != "$current_window_order" ]]; then
+        # New window order.
+        elif [[ "$new_window_order" != "$current_window_order" ]]; then
 
-            # Default.
-            if [[ "$new_window_layout" == "default" ]]; then
+        # Monitor DP-2 and DP-3.
+        if [[ "$new_window_layout" == "$current_window_layout" && ("$workspace_active_monitor" == "1" || "$workspace_active_monitor" == "2") ]]; then
 
-                update_window_position_hide_up $chat
-                update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+            #Swap.
+            if [[ "$new_window_order" == "next" ]]; then
+                echo_info "Swap."
+                hyprctl dispatch layoutmsg swapsplit >/dev/null 2>&1
+                new_window_order="$current_window_order"
 
-                # None.
-                if [[ "$new_window_order" == "none" || "$new_window_order" == "startup" ]]; then
-                    new_window_order="default_default"
-                fi
-
-                echo_info "New window order: $new_window_order."
-                position_right
-
-                # Default.
-                if [[ "$new_window_order" == "default_default" ]]; then
-                    echo_info "Default."
-                    for application_title in "${application_titles[@]}"; do
-                        temp_workspace_id=$(window_workspace_id $application_title)
-                        update_window_tile $application_title
-                        update_window_workspace_silent $temp_workspace_id $application_title
-                    done
-                    # for application_title in "${application_titles[@]}"; do
-                    #     temp_workspace_id=$(window_workspace_id $application_title)
-                    #     update_window_tile_toggle $application_title
-                    # done
-
-                #Swap.
-                elif [[ "$new_window_order" == "next" ]]; then
-                    echo_info "Swap."
-                    hyprctl dispatch layoutmsg swapsplit >/dev/null 2>&1
-                    new_window_order="$current_window_order"
-
-                # Toggle.
-                elif [[ "$new_window_order" == "previous" ]]; then
-                    echo_info "Toggle."    
-                    hyprctl dispatch layoutmsg togglesplit >/dev/null 2>&1
-                    new_window_order="$current_window_order"
-
-                # Error.
-                else
-                    echo_error "update_window_layout, new_window_order, default."
-                fi
-
-            # Stream quad desk.
-            elif [[ "$new_window_layout" == "stream_quad_desk" ]]; then
-                update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
-
-                # None.
-                if [[ "$new_window_order" == "none" ]]; then
-                    new_window_order="stream_quad_desk_window_chat"
-                fi
-
-                echo_info "New window order: $new_window_order."
-                position_right
-
-                # Window, chat.
-                if [[ "$new_window_order" == "stream_quad_desk_window_chat" ]]; then
-                    echo_info "Window, chat."
-                    # Applications.
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_exact 2576 16 $application_title
-                        update_window_size 2042 1347 $application_title
-                    done
-                    # Chat.
-                    update_window_size 470 1347 Chatterino
-                    update_window_position_exact 4634 16 Chatterino
-
-                # Error.
-                else
-                    echo_error "update_window_layout, new_window_order, stream_quad_desk."
-                fi
-
-            # Stream desk.
-            elif [[ "$new_window_layout" == "stream_single_desk" ]]; then
-
-                update_window_position_hide_down $camera_bed_overhead $camera_bed_tripod
-
-                # None.
-                if [[ "$new_window_order" == "none" ]]; then
-                    new_window_order="stream_single_desk_window_chat_camera"
-                fi
-
-                echo_info "New window order: $new_window_order."
-                position_right
-
-                # Previous.
-                if [[ "$new_window_order" == "previous" ]]; then
-                    if [[ "$current_window_order" == "stream_single_desk_camera_chat" ]]; then
-                        new_window_order="stream_single_desk_window_chat_camera"
-                    elif [[ "$current_window_order" == "stream_single_desk_window_chat_camera" ]]; then
-                        new_window_order="stream_single_desk_camera_chat"
-                    else
-                        echo_error "update_window_layout, stream_single_desk, previous."
-                    fi
-
-                # Next.
-                elif [[ "$new_window_order" == "next" ]]; then
-                    if [[ "$current_window_order" == "stream_single_desk_camera_chat" ]]; then
-                        new_window_order="stream_single_desk_window_chat_camera"
-                    elif [[ "$current_window_order" == "stream_single_desk_window_chat_camera" ]]; then
-                        new_window_order="stream_single_desk_camera_chat"
-                    else
-                        echo_error "update_window_layout, stream_single_desk, next."
-                    fi
-                fi
-
-                # Window, chat, camera.
-                if [[ "$new_window_order" == "stream_single_desk_window_chat_camera" ]]; then
-                    echo_info "Window, chat, camera."
-                    # Chat.
-                    update_window_position_exact 4234 16 Chatterino
-                    update_window_size 870 842 Chatterino
-                    # Camera desk vaughan.
-                    update_window_position_exact 4234 874 $camera_desk_vaughan
-                    update_window_size 870 489 $camera_desk_vaughan
-                    # Applications.
-                    sleep 0.1
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_exact 2576 16 $application_title
-                        update_window_size 1639 1347 $application_title
-                    done
-                
-                # Camera, chat.
-                elif [[ "$new_window_order" == "stream_single_desk_camera_chat" ]]; then
-                    echo_info "Camera chat."
-                    status_workspace_active_id
-                    window_title_temp="$(hyprctl clients | grep "workspace: $workspace_active_id" -A 4 | grep "title:" | awk '$2 != "camera_desk_vaughan" && $2 != "camera_bed_overhead" && $2 != "camera_bed_tripod" && $2 != "Chatterino" {print $2; exit}')"
-                    update_window_position_exact 905 16 $window_title_temp
-                    sleep 0.1
-                    # Camera desk Vaughan.
-                    update_window_size 2042 1347 $camera_desk_vaughan
-                    update_window_position_exact 2576 16 $camera_desk_vaughan
-                    # Chat.
-                    update_window_size 470 1347 Chatterino
-                    update_window_position_exact 4634 16 Chatterino
-
-                # Error.
-                else
-                    echo_error "update_window_layout, new_window_order, stream_single_desk."
-                fi
-
-            # Stream therapy.
-            elif [[ "$new_window_layout" == "stream_therapy" ]]; then
-
-                update_window_position_hide_down $camera_desk_vaughan
-
-                # None.
-                if [[ "$new_window_order" == "none" ]]; then
-                    new_window_order="stream_therapy_tripod_chat"
-                fi
-
-                echo_info "New window order: $new_window_order."
-                position_right
-
-                # Previous.
-                if [[ "$new_window_order" == "previous" ]]; then
-                    if [[ "$current_window_order" == "stream_therapy_tripod_chat" ]]; then
-                        new_window_order="stream_therapy_overhead_chat"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod" ]]; then
-                        new_window_order="stream_therapy_tripod_chat"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
-                        new_window_order="stream_therapy_window_chat_tripod"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
-                        new_window_order="stream_therapy_window_chat_tripod_large"
-                    elif [[ "$current_window_order" == "stream_therapy_overhead_chat" ]]; then
-                        new_window_order="stream_therapy_window_chat_overhead_tripod"
-                    else
-                        echo_error "update_window_layout, stream_single_desk, previous."
-                    fi
-
-                # Next.
-                elif [[ "$new_window_order" == "next" ]]; then
-                    if [[ "$current_window_order" == "stream_therapy_tripod_chat" ]]; then
-                        new_window_order="stream_therapy_window_chat_tripod"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod" ]]; then
-                        new_window_order="stream_therapy_window_chat_tripod_large"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
-                        new_window_order="stream_therapy_window_chat_overhead_tripod"
-                    elif [[ "$current_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
-                        new_window_order="stream_therapy_overhead_chat"
-                    elif [[ "$current_window_order" == "stream_therapy_overhead_chat" ]]; then
-                        new_window_order="stream_therapy_tripod_chat"
-                    else
-                        echo_error "update_window_layout, stream_single_desk, next."
-                    fi
-                fi
-                
-                # Camera, chat.
-                if [[ "$new_window_order" == "stream_therapy_tripod_chat" ]]; then
-                    echo_info "Camera, chat."
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_hide_up $application_title
-                    done
-                    # Camera bed overhead.
-                    update_window_position_exact $(status_window_position_horizontal $camera_bed_overhead) 1456 $camera_bed_overhead
-                    # Chat.
-                    update_window_size 470 1347 Chatterino
-                    update_window_position_exact 4634 16 Chatterino
-                    # Camera bed tripod.
-                    update_window_size 2042 1347 $camera_bed_tripod
-                    update_window_position_exact 2576 16 $camera_bed_tripod
-
-                # Window, chat, camera.
-                elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod" ]]; then
-                    echo_info "Window, chat, camera."
-                    # Camera bed overhead.
-                    update_window_position_exact 3462 1456 $camera_bed_overhead
-                    # Applications.
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_exact 2576 16 $application_title
-                        update_window_size 1639 1347 $application_title
-                    done
-                    # Chat.
-                    update_window_position_exact 4234 16 Chatterino
-                    update_window_size 870 842 Chatterino
-                    # Camera bed tripod.
-                    update_window_position_exact 4234 874 $camera_bed_tripod
-                    update_window_size 870 489 $camera_bed_tripod
-                
-                # Window, camera, chat.
-                elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
-                    echo_info "Window, camera, chat."
-                    # Chat.
-                    update_window_position_exact 3824 16 Chatterino
-                    update_window_size 1280 611 Chatterino
-                    # Camera bed tripod.
-                    update_window_position_exact 3824 643 $camera_bed_tripod
-                    update_window_size 1280 720 $camera_bed_tripod
-                    # Applications.
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_exact 2576 16 $application_title
-                        update_window_size 1232 1347 $application_title
-                    done
-                    # Camera bed overhead.
-                    update_window_position_exact $(status_window_position_horizontal $camera_bed_overhead) 1456 $camera_bed_overhead
-                
-                # Window, chat, cameras.
-                elif [[ "$new_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
-                    echo_info "Window, chat, cameras."
-                    # Chat.
-                    update_window_position_exact 2576 16 Chatterino
-                    update_window_size 670 780 Chatterino
-                    # Camera bed tripod.
-                    update_window_position_exact 2576 812 $camera_bed_tripod
-                    update_window_size 870 551 $camera_bed_tripod
-                    # Applications.
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_exact 3262 16 $application_title
-                        update_window_size 1842 780 $application_title
-                    done
-                    # Camera bed overhead.
-                    update_window_position_exact 3462 812 $camera_bed_overhead
-                    update_window_size 1642 551 $camera_bed_overhead
-
-                # Bed camera, chat.
-                elif [[ "$new_window_order" == "stream_therapy_overhead_chat" ]]; then
-                    echo_info "Bed camera, chat."
-                    # Applications.
-                    for application_title in "${application_titles[@]}"; do
-                        update_window_float $application_title
-                        update_window_position_hide_up $application_title
-                        update_window_size 1842 780 $application_title
-                    done
-                    # Camera bed overhead.
-                    update_window_position_hide_down $camera_bed_tripod
-                    # Chat.
-                    update_window_size 470 1347 Chatterino
-                    update_window_position_exact 4634 16 Chatterino
-                    # Camera bed tripod.
-                    update_window_size 2042 1347 $camera_bed_overhead
-                    update_window_position_exact 2576 16 $camera_bed_overhead
-
-                # Error.
-                else
-                    echo_error "update_window_layout, new_window_order, stream_therapy."
-                fi
+            # Toggle.
+            elif [[ "$new_window_order" == "previous" ]]; then
+                echo_info "Toggle."    
+                hyprctl dispatch layoutmsg togglesplit >/dev/null 2>&1
+                new_window_order="$current_window_order"
 
             # Error.
             else
-                echo_error "update_window_layout, new_window_order."
+                echo_error "update_window_layout, new_window_order, default."
             fi
+
+        # Default.
+        elif [[ "$new_window_layout" == "default" ]]; then
+
+            update_window_position_hide_up $chat
+            update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+
+            # None.
+            if [[ "$new_window_order" == "none" || "$new_window_order" == "startup" ]]; then
+                new_window_order="default_default"
+            fi
+
+            echo_info "New window order: $new_window_order."
+            position_right
+
+            # Default.
+            if [[ "$new_window_order" == "default_default" ]]; then
+                echo_info "Default."
+                for application_title in "${application_titles[@]}"; do
+                    temp_workspace_id=$(window_workspace_id $application_title)
+                    update_window_tile $application_title
+                    update_window_workspace_silent $temp_workspace_id $application_title
+                done
+                # for application_title in "${application_titles[@]}"; do
+                #     temp_workspace_id=$(window_workspace_id $application_title)
+                #     update_window_tile_toggle $application_title
+                # done
+
+            #Swap.
+            elif [[ "$new_window_order" == "next" ]]; then
+                echo_info "Swap."
+                hyprctl dispatch layoutmsg swapsplit >/dev/null 2>&1
+                new_window_order="$current_window_order"
+
+            # Toggle.
+            elif [[ "$new_window_order" == "previous" ]]; then
+                echo_info "Toggle."    
+                hyprctl dispatch layoutmsg togglesplit >/dev/null 2>&1
+                new_window_order="$current_window_order"
+
+            # Error.
+            else
+                echo_error "update_window_layout, new_window_order, default."
+            fi
+
+        # Stream quad desk.
+        elif [[ "$new_window_layout" == "stream_quad_desk" ]]; then
+            update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+
+            # None.
+            if [[ "$new_window_order" == "none" ]]; then
+                new_window_order="stream_quad_desk_window_chat"
+            fi
+
+            echo_info "New window order: $new_window_order."
+            position_right
+
+            # Window, chat.
+            if [[ "$new_window_order" == "stream_quad_desk_window_chat" ]]; then
+                echo_info "Window, chat."
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 2042 1347 $application_title
+                done
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+
+            # Error.
+            else
+                echo_error "update_window_layout, new_window_order, stream_quad_desk."
+            fi
+
+        # Stream desk.
+        elif [[ "$new_window_layout" == "stream_single_desk" ]]; then
+
+            update_window_position_hide_down $camera_bed_overhead $camera_bed_tripod
+
+            # None.
+            if [[ "$new_window_order" == "none" ]]; then
+                new_window_order="stream_single_desk_window_chat_camera"
+            fi
+
+            echo_info "New window order: $new_window_order."
+            position_right
+
+            # Previous.
+            if [[ "$new_window_order" == "previous" ]]; then
+                if [[ "$current_window_order" == "stream_single_desk_camera_chat" ]]; then
+                    new_window_order="stream_single_desk_window_chat_camera"
+                elif [[ "$current_window_order" == "stream_single_desk_window_chat_camera" ]]; then
+                    new_window_order="stream_single_desk_camera_chat"
+                else
+                    echo_error "update_window_layout, stream_single_desk, previous."
+                fi
+
+            # Next.
+            elif [[ "$new_window_order" == "next" ]]; then
+                if [[ "$current_window_order" == "stream_single_desk_camera_chat" ]]; then
+                    new_window_order="stream_single_desk_window_chat_camera"
+                elif [[ "$current_window_order" == "stream_single_desk_window_chat_camera" ]]; then
+                    new_window_order="stream_single_desk_camera_chat"
+                else
+                    echo_error "update_window_layout, stream_single_desk, next."
+                fi
+            fi
+
+            # Window, chat, camera.
+            if [[ "$new_window_order" == "stream_single_desk_window_chat_camera" ]]; then
+                echo_info "Window, chat, camera."
+                # Chat.
+                update_window_position_exact 4234 16 Chatterino
+                update_window_size 870 842 Chatterino
+                # Camera desk vaughan.
+                update_window_position_exact 4234 874 $camera_desk_vaughan
+                update_window_size 870 489 $camera_desk_vaughan
+                # Applications.
+                sleep 0.1
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 1639 1347 $application_title
+                done
+            
+            # Camera, chat.
+            elif [[ "$new_window_order" == "stream_single_desk_camera_chat" ]]; then
+                echo_info "Camera chat."
+                status_workspace_active_id
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_active_id" -A 4 | grep "title:" | awk '$2 != "camera_desk_vaughan" && $2 != "camera_bed_overhead" && $2 != "camera_bed_tripod" && $2 != "roboty_hurts" && $2 != "Chatterino" {print $2; exit}')"
+                update_window_position_exact 905 16 $window_title_temp
+                sleep 0.1
+                # Camera desk Vaughan.
+                update_window_size 2042 1347 $camera_desk_vaughan
+                update_window_position_exact 2576 16 $camera_desk_vaughan
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+
+            # Error.
+            else
+                echo_error "update_window_layout, new_window_order, stream_single_desk."
+            fi
+
+        # Stream therapy.
+        elif [[ "$new_window_layout" == "stream_therapy" ]]; then
+
+            update_window_position_hide_down $camera_desk_vaughan
+
+            # None.
+            if [[ "$new_window_order" == "none" ]]; then
+                new_window_order="stream_therapy_tripod_chat"
+            fi
+
+            echo_info "New window order: $new_window_order."
+            position_right
+
+            # Previous.
+            if [[ "$new_window_order" == "previous" ]]; then
+                if [[ "$current_window_order" == "stream_therapy_tripod_chat" ]]; then
+                    new_window_order="stream_therapy_overhead_chat"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod" ]]; then
+                    new_window_order="stream_therapy_tripod_chat"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
+                    new_window_order="stream_therapy_window_chat_tripod"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
+                    new_window_order="stream_therapy_window_chat_tripod_large"
+                elif [[ "$current_window_order" == "stream_therapy_overhead_chat" ]]; then
+                    new_window_order="stream_therapy_window_chat_overhead_tripod"
+                else
+                    echo_error "update_window_layout, stream_single_desk, previous."
+                fi
+
+            # Next.
+            elif [[ "$new_window_order" == "next" ]]; then
+                if [[ "$current_window_order" == "stream_therapy_tripod_chat" ]]; then
+                    new_window_order="stream_therapy_window_chat_tripod"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod" ]]; then
+                    new_window_order="stream_therapy_window_chat_tripod_large"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
+                    new_window_order="stream_therapy_window_chat_overhead_tripod"
+                elif [[ "$current_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
+                    new_window_order="stream_therapy_overhead_chat"
+                elif [[ "$current_window_order" == "stream_therapy_overhead_chat" ]]; then
+                    new_window_order="stream_therapy_tripod_chat"
+                else
+                    echo_error "update_window_layout, stream_single_desk, next."
+                fi
+            fi
+            
+            # Camera, chat.
+            if [[ "$new_window_order" == "stream_therapy_tripod_chat" ]]; then
+                echo_info "Camera, chat."
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_hide_up $application_title
+                done
+                # Camera bed overhead.
+                update_window_position_exact $(status_window_position_horizontal $camera_bed_overhead) 1456 $camera_bed_overhead
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+                # Camera bed tripod.
+                update_window_size 2042 1347 $camera_bed_tripod
+                update_window_position_exact 2576 16 $camera_bed_tripod
+
+            # Window, chat, camera.
+            elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod" ]]; then
+                echo_info "Window, chat, camera."
+                # Camera bed overhead.
+                update_window_position_exact 3462 1456 $camera_bed_overhead
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 1639 1347 $application_title
+                done
+                # Chat.
+                update_window_position_exact 4234 16 Chatterino
+                update_window_size 870 842 Chatterino
+                # Camera bed tripod.
+                update_window_position_exact 4234 874 $camera_bed_tripod
+                update_window_size 870 489 $camera_bed_tripod
+            
+            # Window, camera, chat.
+            elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
+                echo_info "Window, camera, chat."
+                # Chat.
+                update_window_position_exact 3824 16 Chatterino
+                update_window_size 1280 611 Chatterino
+                # Camera bed tripod.
+                update_window_position_exact 3824 643 $camera_bed_tripod
+                update_window_size 1280 720 $camera_bed_tripod
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 1232 1347 $application_title
+                done
+                # Camera bed overhead.
+                update_window_position_exact $(status_window_position_horizontal $camera_bed_overhead) 1456 $camera_bed_overhead
+            
+            # Window, chat, cameras.
+            elif [[ "$new_window_order" == "stream_therapy_window_chat_overhead_tripod" ]]; then
+                echo_info "Window, chat, cameras."
+                # Chat.
+                update_window_position_exact 2576 16 Chatterino
+                update_window_size 670 780 Chatterino
+                # Camera bed tripod.
+                update_window_position_exact 2576 812 $camera_bed_tripod
+                update_window_size 870 551 $camera_bed_tripod
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 3262 16 $application_title
+                    update_window_size 1842 780 $application_title
+                done
+                # Camera bed overhead.
+                update_window_position_exact 3462 812 $camera_bed_overhead
+                update_window_size 1642 551 $camera_bed_overhead
+
+            # Bed camera, chat.
+            elif [[ "$new_window_order" == "stream_therapy_overhead_chat" ]]; then
+                echo_info "Bed camera, chat."
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_hide_up $application_title
+                    update_window_size 1842 780 $application_title
+                done
+                # Camera bed overhead.
+                update_window_position_hide_down $camera_bed_tripod
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+                # Camera bed tripod.
+                update_window_size 2042 1347 $camera_bed_overhead
+                update_window_position_exact 2576 16 $camera_bed_overhead
+
+            # Error.
+            else
+                echo_error "update_window_layout, new_window_order, stream_therapy."
+            fi
+
+        # Error.
+        else
+            echo_error "update_window_layout, new_window_order."
+        fi
 
             position_left
 
@@ -804,6 +825,8 @@
 
         temp_variable="current_$1"
         eval "${temp_variable}=$(cat "${directory_data_private}${1}.txt")"
+        temp_echo=$(eval echo "\$$temp_variable")
+        echo_info "Current $1: $temp_echo."
 
     }
 
@@ -847,10 +870,6 @@
     # Workspace.
     if [[ "$1" == "workspace_active" ]]; then
         update_workspace_active "${@:2}"
-
-    # Window swap.
-    elif [[ "$1" == "window_order" ]]; then
-        update_window_order
 
     # Stream.
     elif [[ "$1" == "window_layout" ]]; then
