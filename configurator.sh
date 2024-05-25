@@ -4273,12 +4273,19 @@ interpret_source_permission() {
             }
             setting_update_pipeware_restart() {
 
+                setting_update_system_obs_stream_stop unrestricted
+                setting_update_system_obs_stream_stop unrestricted_uncut
+
+                sleep 0.5
+
                 command system application obs_studio all stop
+
+                sleep 1
 
                 echo_info "Restarting pipewire..."
                 systemctl --user restart pipewire
 
-                sleep 0.5
+                sleep 1
 
                 killall -e xdg-desktop-portal-hyprland
                 killall -e xdg-desktop-portal-wlr
@@ -4292,11 +4299,7 @@ interpret_source_permission() {
                 echo_info "Restarting portal..."
                 /usr/lib/xdg-desktop-portal & disown
 
-                setting_update_output_device_create_null_sink_1
-
                 sleep 1
-
-                command output reset
 
                 command system application obs_studio unrestricted_uncut start
                 sleep 0.5
@@ -4305,6 +4308,14 @@ interpret_source_permission() {
                 command system application obs_studio restricted_uncut start
                 sleep 0.5
                 command system application obs_studio restricted start
+                
+                sleep 1
+
+                setting_update_output_device_create_null_sink_1
+
+                sleep 5
+
+                command output reset
 
                 espeak "Restart complete."
 
@@ -4384,6 +4395,11 @@ interpret_source_permission() {
                 else
                     echo_error "setting_update_system_obs_stream_stop."
                 fi
+
+            }
+            setting_update_system_obs_stream_status() {
+
+                operation_socket --client $1 stream status
 
             }
 
