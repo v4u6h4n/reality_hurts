@@ -121,7 +121,7 @@
 
     configurator() {
 
-        "/media/storage/Streaming/Software/scripts/dev/configurator.sh" --source terminal --verbose --system application $1 $2 $3
+        "/media/storage/Streaming/Software/scripts/main/configurator.sh" --source terminal --verbose --system application $1 $2 $3
 
     }
 
