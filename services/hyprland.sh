@@ -299,11 +299,13 @@
 
                 update_window_position_hide_down $camera_bed_overhead $camera_bed_tripod
 
-                configurator loopback_desk_vaughan none stop
-                sleep 0.5
-                configurator loopback_desk_vaughan none start_player
-                configurator loopback_bed_overhead none stop
-                configurator loopback_bed_tripod none stop
+                if [[ "$current_window_layout" != "stream_single_desk" ]]; then
+                    configurator loopback_desk_vaughan none stop
+                    sleep 0.5
+                    configurator loopback_desk_vaughan none start_player
+                    configurator loopback_bed_overhead none stop
+                    configurator loopback_bed_tripod none stop
+                fi
 
                 # None.
                 if [[ "$new_window_order" == "none" ]]; then
@@ -373,11 +375,13 @@
             # Stream therapy.
             elif [[ "$new_window_layout" == "stream_therapy" ]]; then
 
-                update_window_position_hide_down $camera_desk_vaughan
+                if [[ "$current_window_layout" != "stream_therapy" ]]; then
+                    update_window_position_hide_down $camera_desk_vaughan
 
-                configurator loopback_desk_vaughan none stop
-                configurator loopback_bed_overhead none start
-                configurator loopback_bed_tripod none start
+                    configurator loopback_desk_vaughan none stop
+                    configurator loopback_bed_overhead none start
+                    configurator loopback_bed_tripod none start
+                fi
 
                 # None.
                 if [[ "$new_window_order" == "none" ]]; then
