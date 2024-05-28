@@ -2614,561 +2614,533 @@ interpret_source_permission() {
 ## SETTING UPDATE ##
 ####################
 
-    setting_update() {
+setting_update() {
+
+    echo_info "Setting update:"
+
+    position_right
+
+    for arg in "$@"; do
+        temp_setting_update="setting_update_$arg"
+        $temp_setting_update
+    done
+
+    position_left
+
+}
+
+    setting_update_camera() {
+
+        echo_info "Camera:"
+
+        position_right
+
+        status_check camera
+
+        # Quad.
+        if [[ "$arg_camera_type_1" == "quad_1" || "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
+
+            echo_info "Camera type: quad"
+
+            position_right
+
+            # Current camera type is quad.
+            if [[ "$status_current_camera_type" == "quad" ]]; then
+                echo_info "Quad: already showing, skipping."
+
+            # Current camera type is not quad.
+            else
+                operation_socket --client unrestricted_uncut source show "restricted" "quad_restricted"
+                echo_info "Quad restricted: show."
+                operation_socket --client unrestricted_uncut source show "unrestricted" "quad_unrestricted"
+                echo_info "Quad unrestricted: show."
+                operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
+                echo_info "$status_current_camera_type restricted: hide."
+                operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                echo_info "$status_current_camera_type unrestricted: hide."
+                status_update_camera_type quad
+            fi
+
+            setting_update_camera_quad $arg_camera_type_1 $arg_camera_type_2 $arg_camera_type_3 $arg_camera_type_4
+
+            position_left
+
+        # Single.
+        elif [[ "$arg_camera_type_1" == "single" ]]; then
+
+            echo_info "Camera type: single"
+
+            position_right
+
+            # Current camera type is single.
+            if [[ "$status_current_camera_type" == "single" ]]; then
+                echo_info "Single: already showing, skipping."
+
+            # Current camera type is not single.
+            else
+                operation_socket --client unrestricted_uncut source show "restricted" "single_restricted"
+                echo_info "Single restricted: show."
+                operation_socket --client unrestricted_uncut source show "unrestricted" "single_unrestricted"
+                echo_info "Single unrestricted: show."
+                operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
+                echo_info "$status_current_camera_type restricted: hide."
+                operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
+                echo_info "$status_current_camera_type unrestricted: hide."
+                status_update_camera_type single
+            fi
+
+            setting_update_camera_single $arg_camera_1
+
+            position_left
+
+        # Error.
+        else
+            echo_error "setting_update_camera, arg_camera_type_1: $arg_camera_type_1."
+        fi
+
+        position_left
+
+    }
+        setting_update_camera_input() {
+
+            status_check camera
+
+            # Quad.
+            if [[ "$arg_camera_type_1" == "quad_1" ||  "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
+
+                # Bathroom.
+                if [[ "$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom" ]]; then
+                    command input bathroom mute unmute
+                    # setting_update_input_device_unmute 4
+                elif [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" ]]; then
+                    command input bathroom mute mute
+                    # setting_update_input_device_mute 4
+                else
+                    echo_error "setting_update_camera_input, bathroom."
+                fi
+
+                # Desk.
+                if [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" || "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                    command input desk mute unmute
+                    # setting_update_input_device_unmute 2
+                elif [[ ("$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom") && ("$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen") ]]; then
+                    command input desk mute mute
+                    # setting_update_input_device_mute 2
+                else
+                    echo_error "setting_update_camera_input, desk"
+                fi
+
+                # Kitchen.
+                if [[ "$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen" ]]; then
+                    command input kitchen mute unmute
+                    # setting_update_input_device_unmute 3
+                elif [[ "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
+                    command input kitchen mute mute
+                    # setting_update_input_device_mute 3
+                else
+                    echo_error "setting_update_camera_input, kitchen."
+                fi
+
+            # Single.
+            elif [[ "$arg_camera_type_1" == "single" ]]; then
+
+                # Bathroom.
+                if [[ "$status_current_camera_single" == "bathroom" ]]; then
+                    command input desk mute mute
+                    command input kitchen mute mute
+                    command input bathroom mute unmute
+                    # setting_update_input_device_mute 2
+                    # setting_update_input_device_mute 3
+                    # setting_update_input_device_unmute 4
+
+                # Kitchen.
+                elif [[ "$status_current_camera_single" == "kitchen" ]]; then
+                    command input desk mute mute
+                    command input kitchen mute unmute
+                    command input bathroom mute mute
+                    # setting_update_input_device_mute 2
+                    # setting_update_input_device_unmute 3
+                    # setting_update_input_device_mute 4
+
+                # Desk.
+                elif [[ "$status_current_camera_single" != "bathroom" && "$status_current_camera_single" != "kitchen" ]]; then
+                    command input desk mute unmute
+                    command input kitchen mute mute
+                    command input bathroom mute mute
+                    # setting_update_input_device_unmute 2
+                    # setting_update_input_device_mute 3
+                    # setting_update_input_device_mute 4
+
+                # Error.
+                else
+                    echo_error "status_current_camera_single: $status_current_camera_single."
+                fi
+
+            # Error.    
+            else
+                echo_error "setting_update_camera_input, arg_camera_type_1: $arg_camera_type_1."
+            fi
+
+        }
+        setting_update_camera_quad() {
+
+
+            echo_info "Quad: $1"
+
+            position_right
+
+            for arg in "$@"; do
+
+                if [[ "$arg" == "$arg_camera_type_1" ]]; then
+                    camera_number=1
+                elif [[ "$arg" == "$arg_camera_type_2" ]]; then
+                    camera_number=2
+                elif [[ "$arg" == "$arg_camera_type_3" ]]; then
+                    camera_number=3
+                elif [[ "$arg" == "$arg_camera_type_4" ]]; then
+                    camera_number=4
+                else
+                    echo_error "setting_update_camera_quad, arg_camera_type_x."
+                fi
+
+                quad_number="${arg//quad_/}"
+
+                temp_status_current_camera_quad="status_current_camera_quad_$quad_number"
+                
+                temp_status_new_camera_quad="arg_camera_$camera_number"
+
+                # Camera is already shown.
+                if [[ "${!temp_status_current_camera_quad}" == "${!temp_status_new_camera_quad}" ]]; then
+                    echo_info "Quad $quad_number: is already ${!temp_status_new_camera_quad}, skipping."
+
+                # Camera is hidden.
+                elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
+                    operation_socket --client unrestricted_uncut source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
+                    echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
+                    operation_socket --client unrestricted_uncut source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
+                    echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
+
+                    operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
+                    echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
+                    operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
+                    echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
+
+                    status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
+
+                # Error.
+                else
+                    echo_error "setting_update_camera_quad."
+                fi
+            
+            done
+
+            position_left
+
+        }
+        setting_update_camera_single() {
+
+            echo_info "Single:"
+
+            position_right
+
+            # Camera is already shown.
+            if [[ "$status_current_camera_single" == "$1" ]]; then
+                echo_info "$1 is already shown, skipping."
+
+            # Camera is hidden.
+            elif [[ "$status_current_camera_single" != "$1" ]]; then
+                operation_socket --client unrestricted_uncut source show "single_restricted" "${1}_restricted"
+                echo_info "single_restricted: show ${1}_restricted."
+                operation_socket --client unrestricted_uncut source show "single_unrestricted" "${1}_unrestricted"
+                echo_info "single_unrestricted: show ${1}_unrestricted."
+
+                operation_socket --client unrestricted_uncut source hide "single_restricted" "${status_current_camera_single}_restricted"
+                echo_info "single_restricted: hide ${status_current_camera_single}_restricted."
+                operation_socket --client unrestricted_uncut source hide "single_unrestricted" "${status_current_camera_single}_unrestricted"
+                echo_info "single_unrestricted: hide ${status_current_camera_single}_unrestricted."
+
+                status_update_camera_single $1
+
+            # Error.
+            else
+                echo_error "setting_update_camera_single."
+            fi
+
+            position_left
+
+        }
+
+    setting_update_censor() {
+
+        echo_info "Censor:"
+
+        position_right
+
+        status_check_profile censor
+
+        if [[ "$argument_current_censor_1" == "censored" ]]; then
+
+            # All, profile.
+            if [[ -z "$arg_scene_1" ]]; then
+
+                # Censored.
+                if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
+                    setting_update_censor_all_censored
+
+                # Uncensored.
+                elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
+                    setting_update_censor_all_uncensored
+                    
+                # Uncensored, already uncensored.
+                elif [[ ("$argument_current_censor_1" == "uncensored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "uncensored" ]]; then
+                    echo_debug "Censor: uncensored (unchanged)."
+
+                # Censored, already censored.
+                elif [[ ("$argument_current_censor_1" == "censored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "censored" ]]; then
+                    echo_debug "Censor: censored (unchanged)."
+
+                else
+                    echo_error "setting_update_censor, profile."
+                fi
+
+            # All, censor.
+            elif [[ "$arg_scene_1" == "all" ]]; then
+
+                setting_update_censor_all_censored
+
+            # Bathroom.
+            elif [[ "$arg_scene_1" == "bathroom" ]]; then
+
+                setting_update_censor_bathroom_censored
+
+                setting_update_censor_bed_uncensored
+                setting_update_censor_desk_uncensored
+                setting_update_censor_studio_uncensored
+
+            # Bed.
+            elif [[ "$arg_scene_1" == "bed" ]]; then
+
+                setting_update_censor_bed_censored
+
+                setting_update_censor_bathroom_uncensored
+                setting_update_censor_desk_uncensored
+                setting_update_censor_studio_uncensored
+
+            # Desk.
+            elif [[ "$arg_scene_1" == "desk" ]]; then
+
+                setting_update_censor_desk_censored
+
+                setting_update_censor_bathroom_uncensored
+                setting_update_censor_bed_uncensored
+                setting_update_censor_studio_uncensored
+
+            # Studio.
+            elif [[ "$arg_scene_1" == "studio" ]]; then
+
+                setting_update_censor_studio_censored
+
+                setting_update_censor_bathroom_uncensored
+                setting_update_censor_bed_uncensored
+                setting_update_censor_desk_uncensored
+
+            else
+                echo_error "setting_update_censor, censored."
+            fi
+
+        # Uncensored, censored.
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
+            if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
+                setting_update_censor_all_uncensored
+            else
+                echo_error "setting_update_censor, uncensored."
+            fi
+
+        # Uncensored, uncensored.
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
+            setting_update_censor_all_uncensored
+
+        # Error.
+        else
+            echo_error "setting_update_censor."
+        fi
+
+        position_left
+
+    }
+        setting_update_censor_all_censored() {
+
+            setting_update_censor_bathroom_censored
+            setting_update_censor_bed_censored
+            setting_update_censor_desk_censored
+            setting_update_censor_studio_censored
+
+        }
+            setting_update_censor_bathroom_censored() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_bathroom" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bathroom: censored."
+                    alert_play="yes"
+                    alert_request_censor="bathroom"
+                else
+                    echo_error "setting_update_censor_bathroom_censored."
+                fi
+
+            }
+            setting_update_censor_bed_censored() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_bed" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bed: censored."
+                    alert_play="yes"
+                    alert_request_censor="bed"
+                else
+                    echo_error "setting_update_censor_bed_censored."
+                fi
+
+            }
+            setting_update_censor_desk_censored() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_desk" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Desk: censored."
+                    alert_play="yes"
+                    alert_request_censor="desk"
+                else
+                    echo_error "setting_update_censor_desk_censored."
+                fi
+
+            }
+            setting_update_censor_studio_censored() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_studio" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Studio: censored."
+                    alert_play="yes"
+                    alert_request_censor="studio"
+                else
+                    echo_error "setting_update_censor_studio_censored."
+                fi
+
+            }
+        setting_update_censor_all_uncensored() {
+
+            setting_update_censor_bathroom_uncensored
+            setting_update_censor_bed_uncensored
+            setting_update_censor_desk_uncensored
+            setting_update_censor_studio_uncensored
+
+        }
+            setting_update_censor_bathroom_uncensored() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_bathroom" "censor"
+                exit_1=$?
+
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bathroom: uncensored."
+                    alert_play="yes"
+                    alert_request_censor="bathroom"
+                else
+                    echo_error "setting_update_censor_bathroom_uncensored."
+                fi
+
+            }
+            setting_update_censor_bed_uncensored() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_bed" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bed: uncensored."
+                    alert_play="yes"
+                    alert_request_censor="bed"
+                else
+                    echo_error "setting_update_censor_bed_uncensored."
+                fi
+
+            }
+            setting_update_censor_desk_uncensored() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_desk" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Desk: uncensored."
+                    alert_play="yes"
+                    alert_request_censor="desk"
+                else
+                    echo_error "setting_update_censor_desk_uncensored."
+                fi
+
+            }
+            setting_update_censor_studio_uncensored() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_studio" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Studio: uncensored."
+                    alert_play="yes"
+                    alert_request_censor="studio"
+                else
+                    echo_error "setting_update_censor_studio_uncensored."
+                fi
+
+            }
+
+    setting_update_input() {
+
+        echo_info "Input:"
+
+        position_right
+
+        status_check_playback
+        status_check_output_device all
+
+        status_check_profile restriction input
 
         echo_info "Setting update:"
 
         position_right
 
-        for arg in "$@"; do
-            temp_setting_update="setting_update_$arg"
-            $temp_setting_update
-        done
-
-        position_left
-
-    }
-
-        # Camera.
-        setting_update_camera() {
-
-            echo_info "Camera:"
-
-            position_right
-
-            status_check camera
-
-            # Quad.
-            if [[ "$arg_camera_type_1" == "quad_1" || "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
-
-                echo_info "Camera type: quad"
-
-                position_right
-
-                # Current camera type is quad.
-                if [[ "$status_current_camera_type" == "quad" ]]; then
-                    echo_info "Quad: already showing, skipping."
-
-                # Current camera type is not quad.
-                else
-                    operation_socket --client unrestricted_uncut source show "restricted" "quad_restricted"
-                    echo_info "Quad restricted: show."
-                    operation_socket --client unrestricted_uncut source show "unrestricted" "quad_unrestricted"
-                    echo_info "Quad unrestricted: show."
-                    operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
-                    echo_info "$status_current_camera_type restricted: hide."
-                    operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
-                    echo_info "$status_current_camera_type unrestricted: hide."
-                    status_update_camera_type quad
-                fi
-
-                setting_update_camera_quad $arg_camera_type_1 $arg_camera_type_2 $arg_camera_type_3 $arg_camera_type_4
-
-                position_left
-
-            # Single.
-            elif [[ "$arg_camera_type_1" == "single" ]]; then
-
-                echo_info "Camera type: single"
-
-                position_right
-
-                # Current camera type is single.
-                if [[ "$status_current_camera_type" == "single" ]]; then
-                    echo_info "Single: already showing, skipping."
-
-                # Current camera type is not single.
-                else
-                    operation_socket --client unrestricted_uncut source show "restricted" "single_restricted"
-                    echo_info "Single restricted: show."
-                    operation_socket --client unrestricted_uncut source show "unrestricted" "single_unrestricted"
-                    echo_info "Single unrestricted: show."
-                    operation_socket --client unrestricted_uncut source hide "restricted" "${status_current_camera_type}_restricted"
-                    echo_info "$status_current_camera_type restricted: hide."
-                    operation_socket --client unrestricted_uncut source hide "unrestricted" "${status_current_camera_type}_unrestricted"
-                    echo_info "$status_current_camera_type unrestricted: hide."
-                    status_update_camera_type single
-                fi
-
-                setting_update_camera_single $arg_camera_1
-
-                position_left
-
-            # Error.
-            else
-                echo_error "setting_update_camera, arg_camera_type_1: $arg_camera_type_1."
-            fi
-
-            position_left
-
-        }
-            setting_update_camera_input() {
-
-                status_check camera
-
-                # Quad.
-                if [[ "$arg_camera_type_1" == "quad_1" ||  "$arg_camera_type_1" == "quad_2" || "$arg_camera_type_1" == "quad_3" || "$arg_camera_type_1" == "quad_4" ]]; then
-
-                    # Bathroom.
-                    if [[ "$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom" ]]; then
-                        command input bathroom mute unmute
-                        # setting_update_input_device_unmute 4
-                    elif [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" ]]; then
-                        command input bathroom mute mute
-                        # setting_update_input_device_mute 4
-                    else
-                        echo_error "setting_update_camera_input, bathroom."
-                    fi
-
-                    # Desk.
-                    if [[ "$status_current_camera_quad_1" != "bathroom" ||  "$status_current_camera_quad_2" != "bathroom" ||  "$status_current_camera_quad_3" != "bathroom" ||  "$status_current_camera_quad_4" != "bathroom" || "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
-                        command input desk mute unmute
-                        # setting_update_input_device_unmute 2
-                    elif [[ ("$status_current_camera_quad_1" == "bathroom" ||  "$status_current_camera_quad_2" == "bathroom" ||  "$status_current_camera_quad_3" == "bathroom" ||  "$status_current_camera_quad_4" == "bathroom") && ("$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen") ]]; then
-                        command input desk mute mute
-                        # setting_update_input_device_mute 2
-                    else
-                        echo_error "setting_update_camera_input, desk"
-                    fi
-
-                    # Kitchen.
-                    if [[ "$status_current_camera_quad_1" == "kitchen" ||  "$status_current_camera_quad_2" == "kitchen" ||  "$status_current_camera_quad_3" == "kitchen" ||  "$status_current_camera_quad_4" == "kitchen" ]]; then
-                        command input kitchen mute unmute
-                        # setting_update_input_device_unmute 3
-                    elif [[ "$status_current_camera_quad_1" != "kitchen" ||  "$status_current_camera_quad_2" != "kitchen" ||  "$status_current_camera_quad_3" != "kitchen" ||  "$status_current_camera_quad_4" != "kitchen" ]]; then
-                        command input kitchen mute mute
-                        # setting_update_input_device_mute 3
-                    else
-                        echo_error "setting_update_camera_input, kitchen."
-                    fi
-
-                # Single.
-                elif [[ "$arg_camera_type_1" == "single" ]]; then
-
-                    # Bathroom.
-                    if [[ "$status_current_camera_single" == "bathroom" ]]; then
-                        command input desk mute mute
-                        command input kitchen mute mute
-                        command input bathroom mute unmute
-                        # setting_update_input_device_mute 2
-                        # setting_update_input_device_mute 3
-                        # setting_update_input_device_unmute 4
-
-                    # Kitchen.
-                    elif [[ "$status_current_camera_single" == "kitchen" ]]; then
-                        command input desk mute mute
-                        command input kitchen mute unmute
-                        command input bathroom mute mute
-                        # setting_update_input_device_mute 2
-                        # setting_update_input_device_unmute 3
-                        # setting_update_input_device_mute 4
-
-                    # Desk.
-                    elif [[ "$status_current_camera_single" != "bathroom" && "$status_current_camera_single" != "kitchen" ]]; then
-                        command input desk mute unmute
-                        command input kitchen mute mute
-                        command input bathroom mute mute
-                        # setting_update_input_device_unmute 2
-                        # setting_update_input_device_mute 3
-                        # setting_update_input_device_mute 4
-
-                    # Error.
-                    else
-                        echo_error "status_current_camera_single: $status_current_camera_single."
-                    fi
-
-                # Error.    
-                else
-                    echo_error "setting_update_camera_input, arg_camera_type_1: $arg_camera_type_1."
-                fi
-
-            }
-            setting_update_camera_quad() {
-
-
-                echo_info "Quad: $1"
-
-                position_right
-
-                for arg in "$@"; do
-
-                    if [[ "$arg" == "$arg_camera_type_1" ]]; then
-                        camera_number=1
-                    elif [[ "$arg" == "$arg_camera_type_2" ]]; then
-                        camera_number=2
-                    elif [[ "$arg" == "$arg_camera_type_3" ]]; then
-                        camera_number=3
-                    elif [[ "$arg" == "$arg_camera_type_4" ]]; then
-                        camera_number=4
-                    else
-                        echo_error "setting_update_camera_quad, arg_camera_type_x."
-                    fi
-
-                    quad_number="${arg//quad_/}"
-
-                    temp_status_current_camera_quad="status_current_camera_quad_$quad_number"
-                    
-                    temp_status_new_camera_quad="arg_camera_$camera_number"
-
-                    # Camera is already shown.
-                    if [[ "${!temp_status_current_camera_quad}" == "${!temp_status_new_camera_quad}" ]]; then
-                        echo_info "Quad $quad_number: is already ${!temp_status_new_camera_quad}, skipping."
-
-                    # Camera is hidden.
-                    elif [[ "${!temp_status_current_camera_quad}" != "${!temp_status_new_camera_quad}" ]]; then
-                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_restricted" "${!temp_status_new_camera_quad}_restricted"
-                        echo_info "quad_${quad_number}_restricted: show ${!temp_status_new_camera_quad}_restricted."
-                        operation_socket --client unrestricted_uncut source show "quad_${quad_number}_unrestricted" "${!temp_status_new_camera_quad}_unrestricted"
-                        echo_info "quad_${quad_number}_unrestricted: show ${!temp_status_new_camera_quad}_unrestricted."
-
-                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_restricted" "${!temp_status_current_camera_quad}_restricted"
-                        echo_info "quad_${quad_number}_restricted: hide ${!temp_status_current_camera_quad}_restricted."
-                        operation_socket --client unrestricted_uncut source hide "quad_${quad_number}_unrestricted" "${!temp_status_current_camera_quad}_unrestricted"
-                        echo_info "quad_${quad_number}_unrestricted: hide ${!temp_status_current_camera_quad}_unrestricted."
-
-                        status_update_camera_quad $quad_number ${!temp_status_new_camera_quad}
-
-                    # Error.
-                    else
-                        echo_error "setting_update_camera_quad."
-                    fi
-                
-                done
-
-                position_left
-
-            }
-            setting_update_camera_single() {
-
-                echo_info "Single:"
-
-                position_right
-
-                # Camera is already shown.
-                if [[ "$status_current_camera_single" == "$1" ]]; then
-                    echo_info "$1 is already shown, skipping."
-
-                # Camera is hidden.
-                elif [[ "$status_current_camera_single" != "$1" ]]; then
-                    operation_socket --client unrestricted_uncut source show "single_restricted" "${1}_restricted"
-                    echo_info "single_restricted: show ${1}_restricted."
-                    operation_socket --client unrestricted_uncut source show "single_unrestricted" "${1}_unrestricted"
-                    echo_info "single_unrestricted: show ${1}_unrestricted."
-
-                    operation_socket --client unrestricted_uncut source hide "single_restricted" "${status_current_camera_single}_restricted"
-                    echo_info "single_restricted: hide ${status_current_camera_single}_restricted."
-                    operation_socket --client unrestricted_uncut source hide "single_unrestricted" "${status_current_camera_single}_unrestricted"
-                    echo_info "single_unrestricted: hide ${status_current_camera_single}_unrestricted."
-
-                    status_update_camera_single $1
-
-                # Error.
-                else
-                    echo_error "setting_update_camera_single."
-                fi
-
-                position_left
-
-            }
-
-        # Censor.
-        setting_update_censor() {
-
-            echo_info "Censor:"
-
-            position_right
-
-            status_check_profile censor
-
-            if [[ "$argument_current_censor_1" == "censored" ]]; then
-
-                # All, profile.
-                if [[ -z "$arg_scene_1" ]]; then
-
-                    # Censored.
-                    if [[ "$argument_current_censor_1" == "censored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                        setting_update_censor_all_censored
-
-                    # Uncensored.
-                    elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
-                        setting_update_censor_all_uncensored
-                        
-                    # Uncensored, already uncensored.
-                    elif [[ ("$argument_current_censor_1" == "uncensored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "uncensored" ]]; then
-                        echo_debug "Censor: uncensored (unchanged)."
-
-                    # Censored, already censored.
-                    elif [[ ("$argument_current_censor_1" == "censored" || -n "$argument_current_censor_1") && "$status_check_profile_censor" == "censored" ]]; then
-                        echo_debug "Censor: censored (unchanged)."
-
-                    else
-                        echo_error "setting_update_censor, profile."
-                    fi
-
-                # All, censor.
-                elif [[ "$arg_scene_1" == "all" ]]; then
-
-                    setting_update_censor_all_censored
-
-                # Bathroom.
-                elif [[ "$arg_scene_1" == "bathroom" ]]; then
-
-                    setting_update_censor_bathroom_censored
-
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_desk_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Bed.
-                elif [[ "$arg_scene_1" == "bed" ]]; then
-
-                    setting_update_censor_bed_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_desk_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Desk.
-                elif [[ "$arg_scene_1" == "desk" ]]; then
-
-                    setting_update_censor_desk_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_studio_uncensored
-
-                # Studio.
-                elif [[ "$arg_scene_1" == "studio" ]]; then
-
-                    setting_update_censor_studio_censored
-
-                    setting_update_censor_bathroom_uncensored
-                    setting_update_censor_bed_uncensored
-                    setting_update_censor_desk_uncensored
-
-                else
-                    echo_error "setting_update_censor, censored."
-                fi
-
-            # Uncensored, censored.
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "censored" ]]; then
-                if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
-                    setting_update_censor_all_uncensored
-                else
-                    echo_error "setting_update_censor, uncensored."
-                fi
-
-            # Uncensored, uncensored.
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$status_check_profile_censor" == "uncensored" ]]; then
-                setting_update_censor_all_uncensored
-
-            # Error.
-            else
-                echo_error "setting_update_censor."
-            fi
-
-            position_left
-
-        }
-            setting_update_censor_all_censored() {
-
-                setting_update_censor_bathroom_censored
-                setting_update_censor_bed_censored
-                setting_update_censor_desk_censored
-                setting_update_censor_studio_censored
-
-            }
-                setting_update_censor_bathroom_censored() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_bathroom" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bathroom: censored."
-                        alert_play="yes"
-                        alert_request_censor="bathroom"
-                    else
-                        echo_error "setting_update_censor_bathroom_censored."
-                    fi
-
-                }
-                setting_update_censor_bed_censored() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_bed" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bed: censored."
-                        alert_play="yes"
-                        alert_request_censor="bed"
-                    else
-                        echo_error "setting_update_censor_bed_censored."
-                    fi
-
-                }
-                setting_update_censor_desk_censored() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_desk" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Desk: censored."
-                        alert_play="yes"
-                        alert_request_censor="desk"
-                    else
-                        echo_error "setting_update_censor_desk_censored."
-                    fi
-
-                }
-                setting_update_censor_studio_censored() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_studio" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Studio: censored."
-                        alert_play="yes"
-                        alert_request_censor="studio"
-                    else
-                        echo_error "setting_update_censor_studio_censored."
-                    fi
-
-                }
-            setting_update_censor_all_uncensored() {
-
-                setting_update_censor_bathroom_uncensored
-                setting_update_censor_bed_uncensored
-                setting_update_censor_desk_uncensored
-                setting_update_censor_studio_uncensored
-
-            }
-                setting_update_censor_bathroom_uncensored() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_bathroom" "censor"
-                    exit_1=$?
-
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bathroom: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="bathroom"
-                    else
-                        echo_error "setting_update_censor_bathroom_uncensored."
-                    fi
-
-                }
-                setting_update_censor_bed_uncensored() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_bed" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bed: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="bed"
-                    else
-                        echo_error "setting_update_censor_bed_uncensored."
-                    fi
-
-                }
-                setting_update_censor_desk_uncensored() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_desk" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Desk: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="desk"
-                    else
-                        echo_error "setting_update_censor_desk_uncensored."
-                    fi
-
-                }
-                setting_update_censor_studio_uncensored() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_studio" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Studio: uncensored."
-                        alert_play="yes"
-                        alert_request_censor="studio"
-                    else
-                        echo_error "setting_update_censor_studio_uncensored."
-                    fi
-
-                }
-
-        # Input.
-        setting_update_input() {
-
-            echo_info "Input:"
-
-            position_right
-
-            status_check_playback
-            status_check_output_device all
-
-            status_check_profile restriction input
-
-            echo_info "Setting update:"
-
-            position_right
-
-            # Muted, unmuted.
-            if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
-                echo_debug "Muted, unmuted."
-                setting_update_input_obs_restricted_mute
-                setting_update_input_obs_unrestricted_mute
-
-            # Unmuted, muted.
-            elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
-                echo_debug "Unmuted, muted."
-
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
-
-                    # Null_sink_1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
-
-                    # Headphones
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
-
-                        # Restricted.
-                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
-                            setting_update_input_obs_restricted_unmute
-
-                        # Unrestricted.
-                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                            setting_update_input_obs_restricted_unmute
-                            setting_update_input_obs_unrestricted_unmute
-                        
-                        # Error.
-                        else
-                            echo_error "arg_profile_restriction, status_check_profile_restriction."
-                        fi
-
-                    # Error.
-                    else
-                        echo_error_speak "Output device error. Reset speakers to fix."
-                    fi
-
-                # Paused.
-                elif [[ "$current_status_playback" != "Playing" ]]; then
-                    echo_debug "Paused."
+        # Muted, unmuted.
+        if [[ "$arg_profile_input" == "muted" && "$status_check_profile_input" == "unmuted" ]]; then
+            echo_debug "Muted, unmuted."
+            setting_update_input_obs_restricted_mute
+            setting_update_input_obs_unrestricted_mute
+
+        # Unmuted, muted.
+        elif [[ "$arg_profile_input" == "unmuted" && "$status_check_profile_input" == "muted" ]]; then
+            echo_debug "Unmuted, muted."
+
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
+
+                # Null_sink_1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
+
+                # Headphones
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
 
                     # Restricted.
                     if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
-                        echo_debug "Restricted."
                         setting_update_input_obs_restricted_unmute
 
                     # Unrestricted.
                     elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                        echo_debug "Unrestricted."
                         setting_update_input_obs_restricted_unmute
                         setting_update_input_obs_unrestricted_unmute
                     
@@ -3176,354 +3148,487 @@ interpret_source_permission() {
                     else
                         echo_error "arg_profile_restriction, status_check_profile_restriction."
                     fi
-        
+
                 # Error.
                 else
-                    echo_error "current_status_playback."
+                    echo_error_speak "Output device error. Reset speakers to fix."
                 fi
 
-            # Muted, muted.
-            elif [[ ("$arg_profile_input" == "muted" || -z "$arg_profile_input") && "$status_check_profile_input" == "muted" ]]; then
-                echo_debug "Muted, muted."
-                setting_update_input_obs_restricted_mute
-                setting_update_input_obs_unrestricted_mute
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+                echo_debug "Paused."
 
-            # Unmuted, unmuted.
-            elif [[ ("$arg_profile_input" == "unmuted" || -z "$arg_profile_input") && "$status_check_profile_input" == "unmuted" ]]; then
-                echo_debug "Unmuted, unmuted."
+                # Restricted.
+                if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
+                    echo_debug "Restricted."
+                    setting_update_input_obs_restricted_unmute
 
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
+                # Unrestricted.
+                elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                    echo_debug "Unrestricted."
+                    setting_update_input_obs_restricted_unmute
+                    setting_update_input_obs_unrestricted_unmute
+                
+                # Error.
+                else
+                    echo_error "arg_profile_restriction, status_check_profile_restriction."
+                fi
+    
+            # Error.
+            else
+                echo_error "current_status_playback."
+            fi
 
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
+        # Muted, muted.
+        elif [[ ("$arg_profile_input" == "muted" || -z "$arg_profile_input") && "$status_check_profile_input" == "muted" ]]; then
+            echo_debug "Muted, muted."
+            setting_update_input_obs_restricted_mute
+            setting_update_input_obs_unrestricted_mute
 
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-                            echo_debug "Alert played."
-                            echo_info "Input: muted (unchanged)."
-                        fi
+        # Unmuted, unmuted.
+        elif [[ ("$arg_profile_input" == "unmuted" || -z "$arg_profile_input") && "$status_check_profile_input" == "unmuted" ]]; then
+            echo_debug "Unmuted, unmuted."
 
-                        # Playback toggle.
-                        if [[ "$arg_input_action" == "cycle" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
 
-                            echo_debug "Output cycle or playback monitor."
+                # Null sink 1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
 
-                            # Restricted.
-                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
-                                
-                                echo_debug "Restricted."
-
-                                setting_update_input_obs_restricted_mute
-
-                            # Unrestricted.
-                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                
-                                echo_debug "Unrestricted."
-                                
-                                setting_update_input_obs_restricted_mute
-                                setting_update_input_obs_unrestricted_mute
-
-                            # Error.
-                            else
-                                echo_error "arg_profile_restriction, status_check_profile_restriction."
-                            fi
-                        
-                        # Error.
-                        else
-                            echo_debug "arg_input_action."
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
-
-                        # Alert played, or playback toggled.
-                        if [[ "$flag_alert_played" == "yes" || -n "$status_check_playback_toggle" ]]; then
-
-                            # Restricted.
-                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
-                                echo_debug "Restricted."
-                                setting_update_input_obs_restricted_unmute
-
-                            # Unrestricted.
-                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                echo_debug "Unrestricted."
-                                setting_update_input_obs_restricted_unmute
-                                setting_update_input_obs_unrestricted_unmute
-
-                            # Error.
-                            else
-                                echo_error "restriction."
-                            fi
-                        
-                        # Error.
-                        else
-                            echo_debug "flag_alert_played, status_check_playback_toggle."
-                        fi
-                    
-                    # Error.
-                    else
-                        echo_error_speak "Output device error. Reset speakers to fix."
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" ]]; then
+                        echo_debug "Alert played."
+                        echo_info "Input: muted (unchanged)."
                     fi
-            
-                # Paused.
-                elif [[ "$current_status_playback" != "Playing" ]]; then
-                        echo_debug "Paused."
 
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
+                    # Playback toggle.
+                    if [[ "$arg_input_action" == "cycle" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
 
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
+                        echo_debug "Output cycle or playback monitor."
 
-                            echo_debug "alert played or playback monitor."
-
-                            # Restricted.
-                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
-                                echo_debug "Restricted."
-                                setting_update_input_obs_restricted_unmute
-
-                            # Unrestricted.
-                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                echo_debug "Unrestricted."
-                                setting_update_input_obs_restricted_unmute
-                                setting_update_input_obs_unrestricted_unmute
+                        # Restricted.
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
                             
-                            # Error.
-                            else
-                                echo_error "arg_profile_restriction: $arg_profile_restriction, status_check_profile_restriction: $status_check_profile_restriction."
-                            fi
-                        
+                            echo_debug "Restricted."
+
+                            setting_update_input_obs_restricted_mute
+
+                        # Unrestricted.
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                            
+                            echo_debug "Unrestricted."
+                            
+                            setting_update_input_obs_restricted_mute
+                            setting_update_input_obs_unrestricted_mute
+
                         # Error.
                         else
-                            echo_debug "flag_alert_played, arg_input_action."
-                        fi
-
-                    
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_debug "Output device default: ${status_current_output_device_default}."
-
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-                            echo_debug "flag_alert_played, yes."
-
-                            # Restricted.
-                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                                echo_debug "Restricted."
-                                setting_update_input_obs_restricted_unmute
-
-                            # Unrestricted.
-                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                echo_debug "Unrestricted."
-                                setting_update_input_obs_restricted_unmute
-                                setting_update_input_obs_unrestricted_unmute
-
-                            # Error.
-                            else
-                                echo_error "restriction."
-                            fi
-                        
-                        # Error.
-                        else
-                            echo_debug "flag_alert_played, no."
+                            echo_error "arg_profile_restriction, status_check_profile_restriction."
                         fi
                     
                     # Error.
                     else
-                        echo_error_speak "Reset speakers."
+                        echo_debug "arg_input_action."
+                    fi
+
+                # Headphones.
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
+
+                    # Alert played, or playback toggled.
+                    if [[ "$flag_alert_played" == "yes" || -n "$status_check_playback_toggle" ]]; then
+
+                        # Restricted.
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
+                            echo_debug "Restricted."
+                            setting_update_input_obs_restricted_unmute
+
+                        # Unrestricted.
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                            echo_debug "Unrestricted."
+                            setting_update_input_obs_restricted_unmute
+                            setting_update_input_obs_unrestricted_unmute
+
+                        # Error.
+                        else
+                            echo_error "restriction."
+                        fi
+                    
+                    # Error.
+                    else
+                        echo_debug "flag_alert_played, status_check_playback_toggle."
                     fi
                 
                 # Error.
                 else
-                    echo_error "playback status."
+                    echo_error_speak "Output device error. Reset speakers to fix."
+                fi
+        
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+                    echo_debug "Paused."
+
+                # Null sink 1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
+
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
+
+                        echo_debug "alert played or playback monitor."
+
+                        # Restricted.
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "restricted") ]]; then
+                            echo_debug "Restricted."
+                            setting_update_input_obs_restricted_unmute
+
+                        # Unrestricted.
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                            echo_debug "Unrestricted."
+                            setting_update_input_obs_restricted_unmute
+                            setting_update_input_obs_unrestricted_unmute
+                        
+                        # Error.
+                        else
+                            echo_error "arg_profile_restriction: $arg_profile_restriction, status_check_profile_restriction: $status_check_profile_restriction."
+                        fi
+                    
+                    # Error.
+                    else
+                        echo_debug "flag_alert_played, arg_input_action."
+                    fi
+
+                
+                # Headphones.
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_debug "Output device default: ${status_current_output_device_default}."
+
+                    # Alert played.
+                    if [[ "$flag_alert_played" == "yes" ]]; then
+                        echo_debug "flag_alert_played, yes."
+
+                        # Restricted.
+                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
+                            echo_debug "Restricted."
+                            setting_update_input_obs_restricted_unmute
+
+                        # Unrestricted.
+                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                            echo_debug "Unrestricted."
+                            setting_update_input_obs_restricted_unmute
+                            setting_update_input_obs_unrestricted_unmute
+
+                        # Error.
+                        else
+                            echo_error "restriction."
+                        fi
+                    
+                    # Error.
+                    else
+                        echo_debug "flag_alert_played, no."
+                    fi
+                
+                # Error.
+                else
+                    echo_error_speak "Reset speakers."
                 fi
             
             # Error.
             else
-                echo_error "setting_update_input."
+                echo_error "playback status."
             fi
+        
+        # Error.
+        else
+            echo_error "setting_update_input."
+        fi
 
-            position_left
-            position_left
+        position_left
+        position_left
 
-        }
+    }
 
-        # Light.
-        setting_update_light_litra_brightness_down() {
+    setting_update_light_litra_brightness_down() {
 
+        source ~/.venvs/bin/activate
+
+        if [[ "$status_current_light_litra_brightness" == "1" ]]; then
+            deactivate
+            status_request_light_litra_brightness="1"
+        elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
+            lc bright 1
+            deactivate
+            status_request_light_litra_brightness="1"
+        elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
+            lc bright 10
+            deactivate
+            status_request_light_litra_brightness="10"
+        elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
+            lc bright 20
+            deactivate
+            status_request_light_litra_brightness="20"
+        elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
+            lc bright 30
+            deactivate
+            status_request_light_litra_brightness="30"
+        elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
+            lc bright 40
+            deactivate
+            status_request_light_litra_brightness="40"
+        elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
+            lc bright 50
+            deactivate
+            status_request_light_litra_brightness="50"
+        elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
+            lc bright 60
+            deactivate
+            status_request_light_litra_brightness="60"
+        elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
+            lc bright 70
+            deactivate
+            status_request_light_litra_brightness="70"
+        elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
+            lc bright 80
+            deactivate
+            status_request_light_litra_brightness="80"
+        elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
+            lc bright 90
+            deactivate
+            status_request_light_litra_brightness="90"
+        fi
+
+    }
+    setting_update_light_litra_brightness_up() {
+
+        source ~/.venvs/bin/activate
+
+        if [[ "$status_current_light_litra_brightness" == "1" ]]; then
+            lc bright 10
+            deactivate
+            status_request_light_litra_brightness="10"
+        elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
+            lc bright 20
+            deactivate
+            status_request_light_litra_brightness="20"
+        elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
+            lc bright 30
+            deactivate
+            status_request_light_litra_brightness="30"
+        elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
+            lc bright 40
+            deactivate
+            status_request_light_litra_brightness="40"
+        elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
+            lc bright 50
+            deactivate
+            status_request_light_litra_brightness="50"
+        elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
+            lc bright 60
+            deactivate
+            status_request_light_litra_brightness="60"
+        elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
+            lc bright 70
+            deactivate
+            status_request_light_litra_brightness="70"
+        elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
+            lc bright 80
+            deactivate
+            status_request_light_litra_brightness="80"
+        elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
+            lc bright 90
+            deactivate
+            status_request_light_litra_brightness="90"
+        elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
+            lc bright 100
+            deactivate
+            status_request_light_litra_brightness="100"
+        elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
+            deactivate
+            status_request_light_litra_brightness="100"
+        fi
+
+    }
+    setting_update_light_litra_power_toggle() {
+
+        # Toggle on.
+        if [[ "$status_current_light_litra_power" == "0" ]]; then
             source ~/.venvs/bin/activate
+            lc on
+            lc bright 50
+            deactivate
+            status_request_light_litra_power="1"
+            status_request_light_litra_brightness="50"
 
-            if [[ "$status_current_light_litra_brightness" == "1" ]]; then
-                deactivate
-                status_request_light_litra_brightness="1"
-            elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
-                lc bright 1
-                deactivate
-                status_request_light_litra_brightness="1"
-            elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
-                lc bright 10
-                deactivate
-                status_request_light_litra_brightness="10"
-            elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
-                lc bright 20
-                deactivate
-                status_request_light_litra_brightness="20"
-            elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
-                lc bright 30
-                deactivate
-                status_request_light_litra_brightness="30"
-            elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
-                lc bright 40
-                deactivate
-                status_request_light_litra_brightness="40"
-            elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
-                lc bright 50
-                deactivate
-                status_request_light_litra_brightness="50"
-            elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
-                lc bright 60
-                deactivate
-                status_request_light_litra_brightness="60"
-            elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
-                lc bright 70
-                deactivate
-                status_request_light_litra_brightness="70"
-            elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
-                lc bright 80
-                deactivate
-                status_request_light_litra_brightness="80"
-            elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
-                lc bright 90
-                deactivate
-                status_request_light_litra_brightness="90"
-            fi
-
-        }
-        setting_update_light_litra_brightness_up() {
-
+        # Toggle off.
+        elif [[ "$status_current_light_litra_power" == "1" ]]; then
             source ~/.venvs/bin/activate
+            lc off
+            deactivate
+            status_request_light_litra_power="0"
 
-            if [[ "$status_current_light_litra_brightness" == "1" ]]; then
-                lc bright 10
-                deactivate
-                status_request_light_litra_brightness="10"
-            elif [[ "$status_current_light_litra_brightness" == "10" ]]; then
-                lc bright 20
-                deactivate
-                status_request_light_litra_brightness="20"
-            elif [[ "$status_current_light_litra_brightness" == "20" ]]; then
-                lc bright 30
-                deactivate
-                status_request_light_litra_brightness="30"
-            elif [[ "$status_current_light_litra_brightness" == "30" ]]; then
-                lc bright 40
-                deactivate
-                status_request_light_litra_brightness="40"
-            elif [[ "$status_current_light_litra_brightness" == "40" ]]; then
-                lc bright 50
-                deactivate
-                status_request_light_litra_brightness="50"
-            elif [[ "$status_current_light_litra_brightness" == "50" ]]; then
-                lc bright 60
-                deactivate
-                status_request_light_litra_brightness="60"
-            elif [[ "$status_current_light_litra_brightness" == "60" ]]; then
-                lc bright 70
-                deactivate
-                status_request_light_litra_brightness="70"
-            elif [[ "$status_current_light_litra_brightness" == "70" ]]; then
-                lc bright 80
-                deactivate
-                status_request_light_litra_brightness="80"
-            elif [[ "$status_current_light_litra_brightness" == "80" ]]; then
-                lc bright 90
-                deactivate
-                status_request_light_litra_brightness="90"
-            elif [[ "$status_current_light_litra_brightness" == "90" ]]; then
-                lc bright 100
-                deactivate
-                status_request_light_litra_brightness="100"
-            elif [[ "$status_current_light_litra_brightness" == "100" ]]; then
-                deactivate
-                status_request_light_litra_brightness="100"
+        # Error.
+        else
+            echo_error "setting_update_light_litra_power_toggle, invalid status: ${status_current_light_litra_power}."
+        fi
+
+    }
+
+    setting_update_output() {
+
+        echo_info "Output:"
+
+        position_right
+
+        status_check_playback
+        status_check_output_device all
+
+        status_check_profile output
+
+        echo_info "Setting update:"
+
+        position_right
+
+        # Muted, unmuted.
+        if [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
+            echo_debug "Muted, unmuted."
+            setting_update_output_obs_restricted_mute
+            setting_update_output_obs_unrestricted_mute
+
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
+
+                # Alert played.
+                if [[ "$flag_alert_played" == "yes" ]]; then
+                    setting_update_playback_playback play
+                else
+                    echo_debug "No alert played, skipping playback resume."
+                fi
             fi
 
-        }
-        setting_update_light_litra_power_toggle() {
+        # Unmuted, muted.
+        elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
+            echo_debug "Unmuted, muted."
 
-            # Toggle on.
-            if [[ "$status_current_light_litra_power" == "0" ]]; then
-                source ~/.venvs/bin/activate
-                lc on
-                lc bright 50
-                deactivate
-                status_request_light_litra_power="1"
-                status_request_light_litra_brightness="50"
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
 
-            # Toggle off.
-            elif [[ "$status_current_light_litra_power" == "1" ]]; then
-                source ~/.venvs/bin/activate
-                lc off
-                deactivate
-                status_request_light_litra_power="0"
+                # Null sink 1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "$status_current_output_device_default."
 
-            # Error.
-            else
-                echo_error "setting_update_light_litra_power_toggle, invalid status: ${status_current_light_litra_power}."
-            fi
+                    # Restricted.
+                    if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
+                        echo_debug "Restricted."
+                        setting_update_output_obs_restricted_unmute
 
-        }
-
-        # Output.
-        setting_update_output() {
-
-            echo_info "Output:"
-
-            position_right
-
-            status_check_playback
-            status_check_output_device all
-
-            status_check_profile output
-
-            echo_info "Setting update:"
-
-            position_right
-
-            # Muted, unmuted.
-            if [[ "$arg_profile_output" == "muted" && "$status_check_profile_output" == "unmuted" ]]; then
-                echo_debug "Muted, unmuted."
-                setting_update_output_obs_restricted_mute
-                setting_update_output_obs_unrestricted_mute
-
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
-
-                    # Alert played.
-                    if [[ "$flag_alert_played" == "yes" ]]; then
-                        setting_update_playback_playback play
+                    # Unrestricted.
+                    elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                        echo_debug "Unrestricted."
+                        setting_update_output_obs_restricted_unmute
+                        setting_update_output_obs_unrestricted_unmute
+                    
+                    # Error.
                     else
-                        echo_debug "No alert played, skipping playback resume."
+                        echo_error "arg_profile_restriction, status_check_profile_restriction."
                     fi
+
+                # Headphones.
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_info "$status_current_output_device_default."
+                
+                # Error.
+                else
+                    echo_error_speak "Output device error. Reset speakers to fix."
                 fi
 
-            # Unmuted, muted.
-            elif [[ "$arg_profile_output" == "unmuted" && "$status_check_profile_output" == "muted" ]]; then
-                echo_debug "Unmuted, muted."
+                # Alert played.
+                if [[ "$flag_alert_played" == "yes" ]]; then
+                    setting_update_playback_playback play
+                else
+                    echo_info "No alert played, skipping playback resume."
+                fi
+                    
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+                echo_debug "Paused."
 
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
+                # Input unmuted.
+                if [[ "$arg_profile_input" == "unmuted" ]]; then
+                    echo_debug "Output: muted (unchanged) (1E)."
 
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "$status_current_output_device_default."
+                # Input muted.
+                elif [[ "$arg_profile_input" == "muted" ]]; then
+                    
+                    # Restricted.
+                    if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
+                        echo_debug "Restricted."
+                        setting_update_output_obs_restricted_unmute
+                    
+                    # Unrestricted.
+                    elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                        echo_debug "Unrestricted."
+                        setting_update_output_obs_restricted_unmute
+                        setting_update_output_obs_unrestricted_unmute
+                    
+                    # Error.
+                    else
+                        echo_error "Invalid 'arg_profile_restriction'."
+                    fi
+                
+                # Error.
+                else
+                    echo_error "Invalid 'arg_profile_input'."
+                fi
+            
+            # Error.
+            else
+                echo_error "Invalid 'status_check_playback'."
+            fi
+
+        # Muted, muted.
+        elif [[ ("$arg_profile_output" == "muted" || -z "$arg_profile_output" ) && "$status_check_profile_output" == "muted" ]]; then
+            echo_debug "Muted, muted."
+            setting_update_output_obs_restricted_mute
+            setting_update_output_obs_unrestricted_mute
+            
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
+
+                # Alert played.
+                if [[ "$flag_alert_played" == "yes" ]]; then
+                    setting_update_playback_playback play
+                else
+                    echo_debug "No alert played, skipping playback resume."
+                fi
+                
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+                echo_debug "Paused."
+            
+            # Error.
+            else
+                echo_error "current_status_playback."
+            fi
+
+        # Unmuted, unmuted.
+        elif [[ ("$arg_profile_output" == "unmuted" || -z "$arg_profile_output") && "$status_check_profile_output" == "unmuted" ]]; then
+            echo_debug "Unmuted, unmuted."
+
+            # Playing.
+            if [[ "$current_status_playback" == "Playing" ]]; then
+                echo_debug "Playing."
+
+                # Null sink 1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "Null Sink 1."
+
+                    # Restore pre alert settings.
+                    if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
 
                         # Restricted.
                         if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
@@ -3541,68 +3646,21 @@ interpret_source_permission() {
                             echo_error "arg_profile_restriction, status_check_profile_restriction."
                         fi
 
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_info "$status_current_output_device_default."
-                    
-                    # Error.
-                    else
-                        echo_error_speak "Output device error. Reset speakers to fix."
-                    fi
-
-                    # Alert played.
-                    if [[ "$flag_alert_played" == "yes" ]]; then
-                        setting_update_playback_playback play
-                    else
-                        echo_info "No alert played, skipping playback resume."
-                    fi
-                        
-                # Paused.
-                elif [[ "$current_status_playback" != "Playing" ]]; then
-                    echo_debug "Paused."
-
-                    # Input unmuted.
-                    if [[ "$arg_profile_input" == "unmuted" ]]; then
-                        echo_debug "Output: muted (unchanged) (1E)."
-
-                    # Input muted.
-                    elif [[ "$arg_profile_input" == "muted" ]]; then
-                        
-                        # Restricted.
-                        if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                            echo_debug "Restricted."
-                            setting_update_output_obs_restricted_unmute
-                        
-                        # Unrestricted.
-                        elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                            echo_debug "Unrestricted."
-                            setting_update_output_obs_restricted_unmute
-                            setting_update_output_obs_unrestricted_unmute
-                        
-                        # Error.
+                        # Alert played.
+                        if [[ "$flag_alert_played" == "yes" ]]; then
+                            setting_update_playback_playback play
                         else
-                            echo_error "Invalid 'arg_profile_restriction'."
+                            echo_debug "No alert played, skipping playback resume."
                         fi
-                    
+                        
                     # Error.
                     else
-                        echo_error "Invalid 'arg_profile_input'."
+                        echo_debug "flag_alert_played, arg_output_action."
                     fi
-                
-                # Error.
-                else
-                    echo_error "Invalid 'status_check_playback'."
-                fi
 
-            # Muted, muted.
-            elif [[ ("$arg_profile_output" == "muted" || -z "$arg_profile_output" ) && "$status_check_profile_output" == "muted" ]]; then
-                echo_debug "Muted, muted."
-                setting_update_output_obs_restricted_mute
-                setting_update_output_obs_unrestricted_mute
-                
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
+                # Headphones.
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_debug "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
 
                     # Alert played.
                     if [[ "$flag_alert_played" == "yes" ]]; then
@@ -3611,29 +3669,62 @@ interpret_source_permission() {
                         echo_debug "No alert played, skipping playback resume."
                     fi
                     
-                # Paused.
-                elif [[ "$current_status_playback" != "Playing" ]]; then
-                    echo_debug "Paused."
-                
                 # Error.
                 else
-                    echo_error "current_status_playback."
+                    echo_error_speak "Output device error. Reset speakers to fix."
                 fi
 
-            # Unmuted, unmuted.
-            elif [[ ("$arg_profile_output" == "unmuted" || -z "$arg_profile_output") && "$status_check_profile_output" == "unmuted" ]]; then
-                echo_debug "Unmuted, unmuted."
+            # Paused.
+            elif [[ "$current_status_playback" != "Playing" ]]; then
+                echo_debug "Paused."
 
-                # Playing.
-                if [[ "$current_status_playback" == "Playing" ]]; then
-                    echo_debug "Playing."
+                # Null sink 1.
+                if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
+                    echo_debug "Null Sink 1."
 
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "Null Sink 1."
+                    # Playback monitor.
+                    if [[ "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
+                        echo_debug "Playback monitor."
 
-                        # Restore pre alert settings.
-                        if [[ "$flag_alert_played" == "yes" || "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
+                        # Input unmuted.
+                        if [[ "$status_check_profile_input" == "unmuted" ]]; then
+
+                            # Restricted.
+                            if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
+                                echo_debug "Restricted."
+                                setting_update_output_obs_restricted_mute
+
+                            # Unrestricted.
+                            elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
+                                echo_debug "Unrestricted."
+                                setting_update_output_obs_restricted_mute
+                                setting_update_output_obs_unrestricted_mute
+                            
+                            # Error.
+                            else
+                                echo_error "arg_profile_restriction, status_check_profile_restriction."
+                            fi
+
+                        # Input muted.
+                        elif [[ "$status_check_profile_input" == "muted" ]]; then
+                            echo_debug "Input muted, no action needed."
+
+                        # Error.
+                        else
+                            echo_error "arg_profile_input, status_check_profile_input."
+                        fi
+                        
+                    # Alert played.
+                    elif [[ "$flag_alert_played" == "yes" ]]; then
+                        echo_debug "flag_alert_played, yes."
+
+                        # Input unmuted.
+                        if [[ "$arg_profile_input" == "unmuted" || (-z "$arg_profile_input" &&  "$status_check_profile_input" == "unmuted") ]]; then
+                            echo_debug "status_check_profile_input, unmuted."
+
+                        # Input muted.
+                        elif [[ "$arg_profile_input" == "muted" || (-z "$arg_profile_input" &&  "$status_check_profile_input" == "muted") ]]; then
+                            echo_debug "status_check_profile_input, muted."
 
                             # Restricted.
                             if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
@@ -3651,2666 +3742,2579 @@ interpret_source_permission() {
                                 echo_error "arg_profile_restriction, status_check_profile_restriction."
                             fi
 
-                            # Alert played.
-                            if [[ "$flag_alert_played" == "yes" ]]; then
-                                setting_update_playback_playback play
-                            else
-                                echo_debug "No alert played, skipping playback resume."
-                            fi
-                            
                         # Error.
                         else
-                            echo_debug "flag_alert_played, arg_output_action."
+                            echo_error "status_check_profile_input, ?."
                         fi
 
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_debug "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
-
-                        # Alert played.
-                        if [[ "$flag_alert_played" == "yes" ]]; then
-                            setting_update_playback_playback play
-                        else
-                            echo_debug "No alert played, skipping playback resume."
-                        fi
-                        
                     # Error.
                     else
-                        echo_error_speak "Output device error. Reset speakers to fix."
+                        echo_debug "arg_output_action."
                     fi
 
-                # Paused.
-                elif [[ "$current_status_playback" != "Playing" ]]; then
-                    echo_debug "Paused."
-
-                    # Null sink 1.
-                    if [[ "$status_current_output_device_default" == "null_sink_1" ]]; then
-                        echo_debug "Null Sink 1."
-
-                        # Playback monitor.
-                        if [[ "$arg_playback_action" == "monitor" || "$arg_playback_action" == "toggle" ]]; then
-                            echo_debug "Playback monitor."
-
-                            # Input unmuted.
-                            if [[ "$status_check_profile_input" == "unmuted" ]]; then
-
-                                # Restricted.
-                                if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                                    echo_debug "Restricted."
-                                    setting_update_output_obs_restricted_mute
-
-                                # Unrestricted.
-                                elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                    echo_debug "Unrestricted."
-                                    setting_update_output_obs_restricted_mute
-                                    setting_update_output_obs_unrestricted_mute
-                                
-                                # Error.
-                                else
-                                    echo_error "arg_profile_restriction, status_check_profile_restriction."
-                                fi
-
-                            # Input muted.
-                            elif [[ "$status_check_profile_input" == "muted" ]]; then
-                                echo_debug "Input muted, no action needed."
-
-                            # Error.
-                            else
-                                echo_error "arg_profile_input, status_check_profile_input."
-                            fi
-                            
-                        # Alert played.
-                        elif [[ "$flag_alert_played" == "yes" ]]; then
-                            echo_debug "flag_alert_played, yes."
-
-                            # Input unmuted.
-                            if [[ "$arg_profile_input" == "unmuted" || (-z "$arg_profile_input" &&  "$status_check_profile_input" == "unmuted") ]]; then
-                                echo_debug "status_check_profile_input, unmuted."
-
-                            # Input muted.
-                            elif [[ "$arg_profile_input" == "muted" || (-z "$arg_profile_input" &&  "$status_check_profile_input" == "muted") ]]; then
-                                echo_debug "status_check_profile_input, muted."
-
-                                # Restricted.
-                                if [[ "$arg_profile_restriction" == "restricted" || (-z "$arg_profile_restriction"  && "$status_check_profile_restriction" == "restricted") ]]; then
-                                    echo_debug "Restricted."
-                                    setting_update_output_obs_restricted_unmute
-
-                                # Unrestricted.
-                                elif [[ "$arg_profile_restriction" == "unrestricted" || (-z "$arg_profile_restriction" && "$status_check_profile_restriction" == "unrestricted") ]]; then
-                                    echo_debug "Unrestricted."
-                                    setting_update_output_obs_restricted_unmute
-                                    setting_update_output_obs_unrestricted_unmute
-                                
-                                # Error.
-                                else
-                                    echo_error "arg_profile_restriction, status_check_profile_restriction."
-                                fi
-
-                            # Error.
-                            else
-                                echo_error "status_check_profile_input, ?."
-                            fi
-
-                        # Error.
-                        else
-                            echo_debug "arg_output_action."
-                        fi
-
-                    # Headphones.
-                    elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
-                        echo_debug "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
-                    
-                    # Error.
-                    else
-                        echo_error_speak "Output device error. Reset speakers to fix."
-                    fi
-
+                # Headphones.
+                elif [[ "$status_current_output_device_default" == "headphones_1" ]]; then
+                    echo_debug "Output: playback is on ${output_device_headphones_1_name} (unchanged)."
+                
                 # Error.
                 else
-                    echo_error "current_status_playback."
+                    echo_error_speak "Output device error. Reset speakers to fix."
                 fi
 
             # Error.
             else
-                echo_error "setting_update_output."
+                echo_error "current_status_playback."
             fi
 
-            position_left
-            position_left
+        # Error.
+        else
+            echo_error "setting_update_output."
+        fi
 
-        }
+        position_left
+        position_left
 
-        # Restriction.
-        setting_update_restriction() {
+    }
 
-            echo_info "Restriction:"
+    setting_update_restriction() {
 
-            position_right
+        echo_info "Restriction:"
 
-            # Profile, restricted.
-            if [[ "$arg_profile_restriction" == "restricted" ]]; then
+        position_right
 
-                # All, profile.
-                if [[ -z "$arg_scene_1" ]]; then
+        # Profile, restricted.
+        if [[ "$arg_profile_restriction" == "restricted" ]]; then
 
-                    # Restricted.
-                    if [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                        setting_update_restriction_all_restricted
+            # All, profile.
+            if [[ -z "$arg_scene_1" ]]; then
 
-                    # Unrestricted.
-                    elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
-                        setting_update_restriction_all_unrestricted
-                        
-                    # Unrestricted, already unrestricted.
-                    elif [[ ("$arg_profile_restriction" == "unrestricted" || -n "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                        echo_debug "Censor: unrestricted (unchanged)."
-
-                    # Restricted, already restricted.
-                    elif [[ ("$arg_profile_restriction" == "restricted" || -n "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
-                        echo_debug "Censor: restricted (unchanged)."
-
-                    else
-                        echo_error "setting_update_restriction, profile."
-                    fi
-
-                # Restriction, restricted.
-                elif [[ "$arg_scene_1" == "all" ]]; then
-
+                # Restricted.
+                if [[ "$arg_profile_restriction" == "restricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
                     setting_update_restriction_all_restricted
 
-                # Bathroom.
-                elif [[ "$arg_scene_1" == "bathroom" ]]; then
-
-                    setting_update_restriction_bathroom_restricted
-
-                    setting_update_restriction_bed_unrestricted
-                    setting_update_restriction_desk_unrestricted
-                    setting_update_restriction_studio_unrestricted
-
-                # Bed.
-                elif [[ "$arg_scene_1" == "bed" ]]; then
-
-                    setting_update_restriction_bed_restricted
-
-                    setting_update_restriction_bathroom_unrestricted
-                    setting_update_restriction_desk_unrestricted
-                    setting_update_restriction_studio_unrestricted
-
-                # Desk.
-                elif [[ "$arg_scene_1" == "desk" ]]; then
-
-                    setting_update_restriction_desk_restricted
-
-                    setting_update_restriction_bathroom_unrestricted
-                    setting_update_restriction_bed_unrestricted
-                    setting_update_restriction_studio_unrestricted
-
-                # Studio.
-                elif [[ "$arg_scene_1" == "studio" ]]; then
-
-                    setting_update_restriction_studio_restricted
-
-                    setting_update_restriction_bathroom_unrestricted
-                    setting_update_restriction_bed_unrestricted
-                    setting_update_restriction_desk_unrestricted
-
-                else
-                    echo_error "setting_update_restriction, restricted."
-                fi
-
-            # Unrestricted, restricted.
-            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
-
-
-                if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
-
+                # Unrestricted.
+                elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
                     setting_update_restriction_all_unrestricted
+                    
+                # Unrestricted, already unrestricted.
+                elif [[ ("$arg_profile_restriction" == "unrestricted" || -n "$arg_profile_restriction") && "$status_check_profile_restriction" == "unrestricted" ]]; then
+                    echo_debug "Censor: unrestricted (unchanged)."
+
+                # Restricted, already restricted.
+                elif [[ ("$arg_profile_restriction" == "restricted" || -n "$arg_profile_restriction") && "$status_check_profile_restriction" == "restricted" ]]; then
+                    echo_debug "Censor: restricted (unchanged)."
 
                 else
-                    echo_error "setting_update_restriction, unrestricted."
+                    echo_error "setting_update_restriction, profile."
                 fi
 
-            # Unrestricted, unrestricted.
-            elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
-                echo_info "Already unrestricted, skipping."
+            # Restriction, restricted.
+            elif [[ "$arg_scene_1" == "all" ]]; then
 
-            else
-                echo_error "setting_update_restriction."
-            fi
+                setting_update_restriction_all_restricted
 
-            position_left
-
-        }
-            setting_update_restriction_all_restricted() {
+            # Bathroom.
+            elif [[ "$arg_scene_1" == "bathroom" ]]; then
 
                 setting_update_restriction_bathroom_restricted
-                setting_update_restriction_bed_restricted
-                setting_update_restriction_desk_restricted
-                setting_update_restriction_studio_restricted
 
-            }
-                setting_update_restriction_bathroom_restricted() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_bathroom_unrestricted" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bathroom: restricted."
-                        alert_play="yes"
-                        alert_request_restriction="bathroom"
-                    else
-                        echo_error "setting_update_restriction_bathroom_restricted."
-                    fi
-
-                }
-                setting_update_restriction_bed_restricted() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_bed_unrestricted" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bed: restricted."
-                        alert_play="yes"
-                        alert_request_restriction="bed"
-                    else
-                        echo_error "setting_update_restriction_bed_restricted."
-                    fi
-
-                }
-                setting_update_restriction_desk_restricted() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_desk_unrestricted" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Desk: restricted."
-                        alert_play="yes"
-                        alert_request_restriction="desk"
-                    else
-                        echo_error "setting_update_restriction_desk_restricted."
-                    fi
-
-                }
-                setting_update_restriction_studio_restricted() {
-                    
-                    operation_socket --client unrestricted_uncut source show "censor_studio_unrestricted" "censor"
-                    exit_1=$?
-
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Studio: restricted."
-                        alert_play="yes"
-                        alert_request_restriction="studio"
-                    else
-                        echo_error "setting_update_restriction_studio_restricted."
-                    fi
-
-                }
-            setting_update_restriction_all_unrestricted() {
-
-                setting_update_restriction_bathroom_unrestricted
                 setting_update_restriction_bed_unrestricted
                 setting_update_restriction_desk_unrestricted
                 setting_update_restriction_studio_unrestricted
 
-            }
-                setting_update_restriction_bathroom_unrestricted() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_bathroom_unrestricted" "censor"
-                    exit_1=$?
+            # Bed.
+            elif [[ "$arg_scene_1" == "bed" ]]; then
 
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bathroom: unrestricted."
-                        alert_play="yes"
-                        alert_request_restriction="bathroom"
-                    else
-                        echo_error "setting_update_restriction_bathroom_unrestricted."
-                    fi
+                setting_update_restriction_bed_restricted
 
-                }
-                setting_update_restriction_bed_unrestricted() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_bed_unrestricted" "censor"
-                    exit_1=$?
+                setting_update_restriction_bathroom_unrestricted
+                setting_update_restriction_desk_unrestricted
+                setting_update_restriction_studio_unrestricted
 
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Bed: unrestricted."
-                        alert_play="yes"
-                        alert_request_restriction="bed"
-                    else
-                        echo_error "setting_update_restriction_bed_unrestricted."
-                    fi
+            # Desk.
+            elif [[ "$arg_scene_1" == "desk" ]]; then
 
-                }
-                setting_update_restriction_desk_unrestricted() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_desk_unrestricted" "censor"
-                    exit_1=$?
+                setting_update_restriction_desk_restricted
 
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Desk: unrestricted."
-                        alert_play="yes"
-                        alert_request_restriction="desk"
-                    else
-                        echo_error "setting_update_restriction_desk_unrestricted."
-                    fi
+                setting_update_restriction_bathroom_unrestricted
+                setting_update_restriction_bed_unrestricted
+                setting_update_restriction_studio_unrestricted
 
-                }
-                setting_update_restriction_studio_unrestricted() {
-                    
-                    operation_socket --client unrestricted_uncut source hide "censor_studio_unrestricted" "censor"
-                    exit_1=$?
+            # Studio.
+            elif [[ "$arg_scene_1" == "studio" ]]; then
 
-                    if [[ $exit_1 -eq 0 ]]; then
-                        echo_info "Studio: unrestricted."
-                        alert_play="yes"
-                        alert_request_restriction="studio"
-                    else
-                        echo_error "setting_update_restriction_studio_unrestricted."
-                    fi
+                setting_update_restriction_studio_restricted
 
-                }
+                setting_update_restriction_bathroom_unrestricted
+                setting_update_restriction_bed_unrestricted
+                setting_update_restriction_desk_unrestricted
 
-        # System.
-        setting_update_system() {
-
-            echo_info "System:"
-            position_right
-
-            # Application.
-            if [[ "$arg_system" == "application" ]]; then
-                
-                # OBS Studio.
-                if [[ "$arg_system_application" == "obs_studio" ]]; then
-
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-
-                        # Restricted uncut.
-                        if [[ "$arg_system_application_profile" == "restricted" ]]; then
-                            status_check_obs_websocket 4
-                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                            exit_1=$?
-                            systemctl --user restart obs_cli
-                            if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (restricted)."
-                            else
-                                echo_error_urgent "OBS failed to launch (restricted)."
-                            fi
-
-                        # Restricted uncut.
-                        elif [[ "$arg_system_application_profile" == "restricted_uncut" ]]; then
-                            status_check_obs_websocket 2
-                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                            exit_1=$?
-                            systemctl --user restart obs_cli
-                            if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (restricted uncut)."
-                            else
-                                echo_error_urgent "OBS failed to launch (restricted uncut)."
-                            fi
-
-                        # Unrestricted.
-                        elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
-                            status_check_obs_websocket 3
-                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                            exit_1=$?
-                            systemctl --user restart obs_cli
-                            if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (unrestricted)."
-                            else
-                                echo_error_urgent "OBS failed to launch (unrestricted)."
-                            fi
-
-                        # Unrestricted uncut.
-                        elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
-                            status_check_obs_websocket 1
-                            mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
-                            exit_1=$?
-                            systemctl --user restart obs_cli
-                            if [[ $1 -eq 0 ]]; then
-                                echo_info "OBS Studio (unrestricted uncut)."
-                            else
-                                echo_error_urgent "OBS failed to launch (unrestricted uncut)."
-                            fi
-                        # Error.
-                        else
-                            echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
-                        fi
-
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-
-                        # Restricted uncut.
-                        if [[ "$arg_system_application_profile" == "all" ]]; then
-
-                            obs_clients=("Profile: unrestricted -" "Profile: unrestricted_uncut -" "Profile: restricted -" "Profile: restricted_uncut -")
-
-                            for obs_client in "${obs_clients[@]}"; do
-                                temp_pid=$(hyprctl clients | grep "$obs_client" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-                                if [[ -n "$temp_pid" ]]; then
-                                    kill $temp_pid
-                                else
-                                    echo_info "OBS client already killed, skipping."
-                                fi
-                            done
-
-                            echo_info "OBS killed."
-
-                        # Error.
-                        else
-                            echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
-                        fi
-
-                    # Stream start.
-                    elif [[ "$arg_system_application_action" == "stream_start" ]]; then
-                        setting_update_system_obs_stream_start $arg_system_application_profile
-
-                    # Stream stop.
-                    elif [[ "$arg_system_application_action" == "stream_stop" ]]; then
-                        setting_update_system_obs_stream_stop $arg_system_application_profile
-
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Bot.
-                elif [[ "$arg_system_application" == "bot" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_bot_start
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_bot_stop
-                    # Reset.
-                    elif [[ "$arg_system_application_action" == "reset" ]]; then
-                        setting_update_system_bot_stop
-                        sleep 1
-                        setting_update_system_bot_start
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Chat.
-                elif [[ "$arg_system_application" == "chat" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_chat_start
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_chat_stop
-                    # Reset.
-                    elif [[ "$arg_system_application_action" == "reset" ]]; then
-                        setting_update_system_chat_stop
-                        sleep 1
-                        setting_update_system_chat_start
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Camera: desk Vaughan.
-                elif [[ "$arg_system_application" == "camera_desk_vaughan" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_camera_desk_vaughan_start
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_camera_desk_vaughan_stop
-                    # Reset.
-                    elif [[ "$arg_system_application_action" == "reset" ]]; then
-                        setting_update_system_camera_desk_vaughan_stop
-                        sleep 1
-                        setting_update_system_camera_desk_vaughan_start
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Camera: bed overhead.
-                elif [[ "$arg_system_application" == "camera_bed_overhead" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_camera_bed_overhead_start
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_camera_bed_overhead_stop
-                    # Reset.
-                    elif [[ "$arg_system_application_action" == "reset" ]]; then
-                        setting_update_system_camera_bed_overhead_stop
-                        sleep 1
-                        setting_update_system_camera_bed_overhead_start
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Camera: bed tripod.
-                elif [[ "$arg_system_application" == "camera_bed_tripod" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_camera_bed_tripod_start
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_camera_bed_tripod_stop
-                    # Reset.
-                    elif [[ "$arg_system_application_action" == "reset" ]]; then
-                        setting_update_system_camera_bed_tripod_stop
-                        sleep 1
-                        setting_update_system_camera_bed_tripod_start
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Loopback: desk Vaughan.
-                elif [[ "$arg_system_application" == "loopback_desk_vaughan" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_loopback_start_desk_vaughan
-                    # Start OBS.
-                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
-                        setting_update_system_loopback_start_desk_vaughan_obs
-                    # Start player.
-                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
-                        setting_update_system_loopback_start_desk_vaughan_player
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_loopback_stop_desk_vaughan
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Loopback: bed overhead.
-                elif [[ "$arg_system_application" == "loopback_bed_overhead" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_loopback_start_bed_overhead
-                    # Start OBS.
-                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
-                        setting_update_system_loopback_start_bed_overhead_obs
-                    # Start player.
-                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
-                        setting_update_system_loopback_start_bed_overhead_player
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_loopback_stop_bed_overhead
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Loopback: bed tripod.
-                elif [[ "$arg_system_application" == "loopback_bed_tripod" ]]; then
-                    # Start.
-                    if [[ "$arg_system_application_action" == "start" ]]; then
-                        setting_update_system_loopback_start_bed_tripod
-                    # Start OBS.
-                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
-                        setting_update_system_loopback_start_bed_tripod_obs
-                    # Start player.
-                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
-                        setting_update_system_loopback_start_bed_tripod_player
-                    # Stop.
-                    elif [[ "$arg_system_application_action" == "stop" ]]; then
-                        setting_update_system_loopback_stop_bed_tripod
-                    # Error.
-                    else
-                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
-                    fi
-
-                # Error.
-                else
-                    echo_error "setting_update_system, arg_system_application: $arg_system_application."
-                fi
-
-            # Window manager.
-            elif [[ "$arg_system" == "window_manager" ]]; then
-                echo "Window manager:"
-                position_right
-                "${directory_service}hyprland.sh" "$@"
-
-            # Error.
             else
-                echo_error  "setting_update_system, arg_system: $arg_system."
+                echo_error "setting_update_restriction, restricted."
             fi
 
-            position_left
+        # Unrestricted, restricted.
+        elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "restricted" ]]; then
 
-        }
-            setting_update_system_loopback_start() {
 
-                setting_update_system_loopback_start_desk_vaughan
-                setting_update_system_loopback_start_bed_overhead
-                setting_update_system_loopback_start_bed_tripod
+            if [[ "$arg_scene_1" == "all" || -z "$arg_scene_1" ]]; then
 
-            }
-                setting_update_system_loopback_start_desk_vaughan() {
+                setting_update_restriction_all_unrestricted
 
-                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-
-                }
-                setting_update_system_loopback_start_desk_vaughan_obs() {
-
-                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
-
-                }
-                setting_update_system_loopback_start_desk_vaughan_player() {
-
-                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-
-                }
-                setting_update_system_loopback_start_bed_overhead() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                           -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
-                           -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
-                           & disown
-
-                }
-                setting_update_system_loopback_start_bed_overhead_obs() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
-                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
-                           & disown
-
-                }
-                setting_update_system_loopback_start_bed_overhead_player() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
-                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
-                           & disown
-
-                }
-                setting_update_system_loopback_start_bed_tripod() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                        -map "[out2]" -f v4l2 /dev/video60 \
-                        -map "[out3]" -f v4l2 /dev/video61 \
-                        & disown
-
-                }
-                setting_update_system_loopback_start_bed_tripod_obs() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
-                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
-                           & disown
-
-                }
-                setting_update_system_loopback_start_bed_tripod_player() {
-
-                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
-                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
-                           & disown
-
-                }
-            setting_update_system_loopback_stop() {
-
-                setting_update_system_loopback_stop_desk_vaughan
-                setting_update_system_loopback_stop_bed_overhead
-                setting_update_system_loopback_stop_bed_tripod
-
-            }
-                setting_update_system_loopback_stop_desk_vaughan() {
-
-                    kill $(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
-
-                }
-                setting_update_system_loopback_stop_bed_overhead() {
-
-                    kill $(ps aux | grep ffmpeg | grep video8 | awk '{print $2}')
-
-                }
-                setting_update_system_loopback_stop_bed_tripod() {
-
-                    kill $(ps aux | grep ffmpeg | grep video10 | awk '{print $2}')
-
-                }
-            setting_update_pipeware_restart() {
-
-                setting_update_system_obs_stream_stop unrestricted
-                setting_update_system_obs_stream_stop unrestricted_uncut
-
-                sleep 0.5
-
-                command system application obs_studio all stop
-
-                sleep 1
-
-                echo_info "Restarting pipewire..."
-                systemctl --user restart pipewire
-
-                sleep 1
-
-                killall -e xdg-desktop-portal-hyprland
-                killall -e xdg-desktop-portal-wlr
-                killall xdg-desktop-portal
-
-                echo_info "Restarting Hyprland portal..."
-                /usr/lib/xdg-desktop-portal-hyprland & disown
-                
-                sleep 2
-                
-                echo_info "Restarting portal..."
-                /usr/lib/xdg-desktop-portal & disown
-
-                sleep 1
-
-                command system application obs_studio unrestricted_uncut start
-                sleep 0.5
-                command system application obs_studio unrestricted start
-                sleep 0.5
-                command system application obs_studio restricted_uncut start
-                sleep 0.5
-                command system application obs_studio restricted start
-                
-                sleep 1
-
-                setting_update_output_device_create_null_sink_1
-
-                sleep 5
-
-                command output reset
-
-                espeak "Restart complete."
-
-            }
-            setting_update_system_bot_start() {
-
-                systemctl --user start roboty_hurts
-                # kitty --title "roboty_hurts" --config "${directory_data_public}bot_kitty.conf" --hold sh -c "source ~/.venvs/bin/activate; python '/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts.py'" & disown
-
-            }
-            setting_update_system_bot_stop() {
-
-                systemctl --user stop roboty_hurts
-                # kill $(hyprctl clients | grep "roboty_hurts" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_system_chat_start() {
-
-                flatpak run com.chatterino.chatterino & disown
-
-            }
-            setting_update_system_chat_stop() {
-
-                kill $(hyprctl clients | grep "Chatterino" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_system_camera_desk_vaughan_start() {
-
-                mpv av://v4l2:/dev/video51 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
-
-            }
-            setting_update_system_camera_desk_vaughan_stop() {
-
-                kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_system_camera_bed_overhead_start() {
-
-                # kitty --title camera_bed_overhead & disown
-                mpv av://v4l2:/dev/video71 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
-
-            }
-            setting_update_system_camera_bed_overhead_stop() {
-
-                kill $(hyprctl clients | grep "camera_bed_overhead" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_system_camera_bed_tripod_start() {
-
-                mpv av://v4l2:/dev/video61 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-cache --no-config --title="camera_bed_tripod" & disown
-
-            }
-            setting_update_system_camera_bed_tripod_stop() {
-
-                kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
-
-            }
-            setting_update_system_obs_stream_start() {
-
-                operation_socket --client $1 stream start
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "OBS $1: stream started."
-                else
-                    echo_error "setting_update_system_obs_stream_start."
-                fi
-
-            }
-            setting_update_system_obs_stream_stop() {
-
-                operation_socket --client $1 stream stop
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "OBS $1: stream stopped."
-                else
-                    echo_error "setting_update_system_obs_stream_stop."
-                fi
-
-            }
-            setting_update_system_obs_stream_status() {
-
-                operation_socket --client $1 stream status
-
-            }
-
-        # Scene.
-        setting_update_scene() {
-
-            # Quad.
-            if [[ "$arg_scene_type" == "quad" ]]; then
-
-                # Anja.
-                if [[ "$arg_name_1" == "anja" || "$arg_name_2" == "anja" ]]; then
-
-                    # Name 1.
-                    if [[ "$arg_name_1" == "anja" ]]; then
-                        temp_arg_scene="arg_scene_1"
-
-                    # Name 2.
-                    elif [[ "$arg_name_2" == "anja" ]]; then
-                        temp_arg_scene="arg_scene_2"
-
-                    # Error.
-                    else
-                        echo_error "setting_update_scene, anja, temp_arg_scene."
-                    fi
-
-                    # Bathroom.
-                    if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
-                        command camera quad_2 bathroom quad_4 window
-
-                    # Bed.
-                    elif [[ "${!temp_arg_scene}" == "bed" ]]; then
-                        command camera quad_2 bed_overhead quad_4 window
-
-                    # Crafts.
-                    elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
-                        echo_error "setting_update_scene, crafts scene disabled."
-
-                    # Desk.
-                    elif [[ "${!temp_arg_scene}" == "desk" ]]; then
-                        command camera quad_2 desk_anja quad_4 window
-
-                    # Kitchen.
-                    elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
-                        command camera quad_2 kitchen quad_4 kitchen_overhead
-
-                    # Studio.
-                    elif [[ "${!temp_arg_scene}" == "studio" ]]; then
-                        command camera quad_2 studio quad_4 window
-
-                    # Error.
-                    else
-                        echo_error "setting_update_scene, anja, scene."
-                    fi
-
-                # Info.
-                else
-                    echo_info "No Anja scene change requested."
-                fi
-
-                # Vaughan.
-                if [[ "$arg_name_1" == "vaughan" || "$arg_name_2" == "vaughan" ]]; then
-
-                    # Name 1.
-                    if [[ "$arg_name_1" == "vaughan" ]]; then
-                        temp_arg_scene="arg_scene_1"
-
-                    # Name 2.
-                    elif [[ "$arg_name_2" == "vaughan" ]]; then
-                        temp_arg_scene="arg_scene_2"
-
-                    # Error.
-                    else
-                        echo_error "setting_update_scene, vaughan, temp_arg_scene."
-                    fi
-
-                    # Bathroom.
-                    if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
-                        command camera quad_1 bathroom quad_3 screen_vaughan_1
-
-                    # Bed.
-                    elif [[ "${!temp_arg_scene}" == "bed" ]]; then
-                        command camera quad_1 bed_overhead quad_3 screen_vaughan_1
-
-                    # Crafts.
-                    elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
-                        echo_error "setting_update_scene, crafts scene disabled."
-
-                    # Desk.
-                    elif [[ "${!temp_arg_scene}" == "desk" ]]; then
-                        command camera quad_1 desk_vaughan quad_3 screen_vaughan_1
-
-                    # Kitchen.
-                    elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
-                        command camera quad_1 kitchen quad_3 kitchen_overhead
-
-                    # Studio.
-                    elif [[ "${!temp_arg_scene}" == "studio" ]]; then
-                        command camera quad_1 studio quad_3 screen_vaughan_1
-
-                    # Error.
-                    else
-                        echo_error "setting_update_scene, arg_scene_1, vaughan, ${!temp_arg_scene}."
-                    fi
-
-                # Info.
-                else
-                    echo_info "No Vaughan scene change requested."
-                fi
-
-            # Error.
             else
-                echo_error "setting_update_scene."
+                echo_error "setting_update_restriction, unrestricted."
             fi
 
-        }
+        # Unrestricted, unrestricted.
+        elif [[ "$arg_profile_restriction" == "unrestricted" && "$status_check_profile_restriction" == "unrestricted" ]]; then
+            echo_info "Already unrestricted, skipping."
 
-    # Channel.
-
-    setting_update_stream_query() {
-
-        echo_info "Stream query:"
-
-        position_right
-
-        if [[ "$argument_current_data" == "tag" ]]; then
-            query_url="tag_name=$argument_current_data_payload"
+        else
+            echo_error "setting_update_restriction."
         fi
-
-        status_check_channel access_token client_id
-
-        curl -H "Client-ID: $client_id" \
-            -H "Authorization: Bearer $access_token" \
-            -X GET "https://api.twitch.tv/helix/tags/streams"
-            #-X GET "https://api.twitch.tv/helix/tags/streams?$query_url"
-
-    }
-    setting_update_stream_refresh() {
-
-        echo_info "Stream refresh:"
-
-        position_right
-
-        status_check_channel client_id client_secret refresh_token user_id
-
-        access_token_file="${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_access_token.txt"
-
-        echo_info "Channel: ${arg_stream_account}."
-
-        local response=$(curl -s -X POST \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "client_id=$client_id&client_secret=$client_secret&grant_type=refresh_token&refresh_token=$refresh_token" \
-            https://id.twitch.tv/oauth2/token)
-
-        if [[ $(echo $response | jq -r '.error') == "invalid_grant" ]]; then
-            echo_error "unable to refresh access token."
-            exit 1
-        fi
-
-        echo_info "Successful."
-        access_token=$(echo $response | jq -r '.access_token')
-        echo "$access_token" > "$access_token_file"
 
         position_left
 
     }
-    setting_update_stream_info() {
+        setting_update_restriction_all_restricted() {
 
-        echo_info "Stream info update:"
+            setting_update_restriction_bathroom_restricted
+            setting_update_restriction_bed_restricted
+            setting_update_restriction_desk_restricted
+            setting_update_restriction_studio_restricted
 
+        }
+            setting_update_restriction_bathroom_restricted() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_bathroom_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bathroom: restricted."
+                    alert_play="yes"
+                    alert_request_restriction="bathroom"
+                else
+                    echo_error "setting_update_restriction_bathroom_restricted."
+                fi
+
+            }
+            setting_update_restriction_bed_restricted() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_bed_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bed: restricted."
+                    alert_play="yes"
+                    alert_request_restriction="bed"
+                else
+                    echo_error "setting_update_restriction_bed_restricted."
+                fi
+
+            }
+            setting_update_restriction_desk_restricted() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_desk_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Desk: restricted."
+                    alert_play="yes"
+                    alert_request_restriction="desk"
+                else
+                    echo_error "setting_update_restriction_desk_restricted."
+                fi
+
+            }
+            setting_update_restriction_studio_restricted() {
+                
+                operation_socket --client unrestricted_uncut source show "censor_studio_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Studio: restricted."
+                    alert_play="yes"
+                    alert_request_restriction="studio"
+                else
+                    echo_error "setting_update_restriction_studio_restricted."
+                fi
+
+            }
+        setting_update_restriction_all_unrestricted() {
+
+            setting_update_restriction_bathroom_unrestricted
+            setting_update_restriction_bed_unrestricted
+            setting_update_restriction_desk_unrestricted
+            setting_update_restriction_studio_unrestricted
+
+        }
+            setting_update_restriction_bathroom_unrestricted() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_bathroom_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bathroom: unrestricted."
+                    alert_play="yes"
+                    alert_request_restriction="bathroom"
+                else
+                    echo_error "setting_update_restriction_bathroom_unrestricted."
+                fi
+
+            }
+            setting_update_restriction_bed_unrestricted() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_bed_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Bed: unrestricted."
+                    alert_play="yes"
+                    alert_request_restriction="bed"
+                else
+                    echo_error "setting_update_restriction_bed_unrestricted."
+                fi
+
+            }
+            setting_update_restriction_desk_unrestricted() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_desk_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Desk: unrestricted."
+                    alert_play="yes"
+                    alert_request_restriction="desk"
+                else
+                    echo_error "setting_update_restriction_desk_unrestricted."
+                fi
+
+            }
+            setting_update_restriction_studio_unrestricted() {
+                
+                operation_socket --client unrestricted_uncut source hide "censor_studio_unrestricted" "censor"
+                exit_1=$?
+
+                if [[ $exit_1 -eq 0 ]]; then
+                    echo_info "Studio: unrestricted."
+                    alert_play="yes"
+                    alert_request_restriction="studio"
+                else
+                    echo_error "setting_update_restriction_studio_unrestricted."
+                fi
+
+            }
+
+    setting_update_system() {
+
+        echo_info "System:"
         position_right
 
-        # Type.
+        # Application.
+        if [[ "$arg_system" == "application" ]]; then
+            
+            # OBS Studio.
+            if [[ "$arg_system_application" == "obs_studio" ]]; then
 
-        # Passive.
-        if [[ "$arg_stream_type" == "passive" ]]; then
-            command permission stream select couchsurfer
-            command permission scene select couchsurfer
-            command system window_manager window_layout default none
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Normal.
-        elif [[ "$arg_stream_type" == "normal" ]]; then
-            command permission stream select owner
-            command permission scene select owner
-            command system window_manager window_layout stream_single_desk none
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Active.
-        elif [[ "$arg_stream_type" == "active" ]]; then
-            command permission stream select owner
-            command permission scene select couchsurfer
-            command system window_manager window_layout stream_quad_desk none
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Maintenance.
-        elif [[ "$arg_stream_type" == "maintenance" ]]; then
-            command permission stream select owner
-            command permission scene select couchsurfer
-            command system window_manager window_layout default none
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Maintenance.
-        elif [[ "$arg_stream_type" == "under_construction" ]]; then
-            command permission stream select owner
-            command permission scene select couchsurfer
-            command system window_manager window_layout default none
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Sleeping.
-        elif [[ "$arg_stream_type" == "sleeping" ]]; then
-            command permission stream select owner
-            command permission scene select owner
-            SexualThemes="false"
-            ViolentGraphic="false"
-        # Sleeping.
-        elif [[ "$arg_stream_type" == "therapy" ]]; then
-            command permission stream select owner
-            command permission scene select owner
-            SexualThemes="false"
-            ViolentGraphic="true"
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+
+                    # Restricted uncut.
+                    if [[ "$arg_system_application_profile" == "restricted" ]]; then
+                        status_check_obs_websocket 4
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        exit_1=$?
+                        systemctl --user restart obs_cli
+                        if [[ $1 -eq 0 ]]; then
+                            echo_info "OBS Studio (restricted)."
+                        else
+                            echo_error_urgent "OBS failed to launch (restricted)."
+                        fi
+
+                    # Restricted uncut.
+                    elif [[ "$arg_system_application_profile" == "restricted_uncut" ]]; then
+                        status_check_obs_websocket 2
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        exit_1=$?
+                        systemctl --user restart obs_cli
+                        if [[ $1 -eq 0 ]]; then
+                            echo_info "OBS Studio (restricted uncut)."
+                        else
+                            echo_error_urgent "OBS failed to launch (restricted uncut)."
+                        fi
+
+                    # Unrestricted.
+                    elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
+                        status_check_obs_websocket 3
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        exit_1=$?
+                        systemctl --user restart obs_cli
+                        if [[ $1 -eq 0 ]]; then
+                            echo_info "OBS Studio (unrestricted)."
+                        else
+                            echo_error_urgent "OBS failed to launch (unrestricted)."
+                        fi
+
+                    # Unrestricted uncut.
+                    elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
+                        status_check_obs_websocket 1
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        exit_1=$?
+                        systemctl --user restart obs_cli
+                        if [[ $1 -eq 0 ]]; then
+                            echo_info "OBS Studio (unrestricted uncut)."
+                        else
+                            echo_error_urgent "OBS failed to launch (unrestricted uncut)."
+                        fi
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
+                    fi
+
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+
+                    # Restricted uncut.
+                    if [[ "$arg_system_application_profile" == "all" ]]; then
+
+                        obs_clients=("Profile: unrestricted -" "Profile: unrestricted_uncut -" "Profile: restricted -" "Profile: restricted_uncut -")
+
+                        for obs_client in "${obs_clients[@]}"; do
+                            temp_pid=$(hyprctl clients | grep "$obs_client" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+                            if [[ -n "$temp_pid" ]]; then
+                                kill $temp_pid
+                            else
+                                echo_info "OBS client already killed, skipping."
+                            fi
+                        done
+
+                        echo_info "OBS killed."
+
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_profile: $arg_system_application_profile."
+                    fi
+
+                # Stream start.
+                elif [[ "$arg_system_application_action" == "stream_start" ]]; then
+                    setting_update_system_obs_stream_start $arg_system_application_profile
+
+                # Stream stop.
+                elif [[ "$arg_system_application_action" == "stream_stop" ]]; then
+                    setting_update_system_obs_stream_stop $arg_system_application_profile
+
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Bot.
+            elif [[ "$arg_system_application" == "bot" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_bot_start
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_bot_stop
+                # Reset.
+                elif [[ "$arg_system_application_action" == "reset" ]]; then
+                    setting_update_system_bot_stop
+                    sleep 1
+                    setting_update_system_bot_start
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Chat.
+            elif [[ "$arg_system_application" == "chat" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_chat_start
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_chat_stop
+                # Reset.
+                elif [[ "$arg_system_application_action" == "reset" ]]; then
+                    setting_update_system_chat_stop
+                    sleep 1
+                    setting_update_system_chat_start
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Camera: desk Vaughan.
+            elif [[ "$arg_system_application" == "camera_desk_vaughan" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_camera_desk_vaughan_start
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_camera_desk_vaughan_stop
+                # Reset.
+                elif [[ "$arg_system_application_action" == "reset" ]]; then
+                    setting_update_system_camera_desk_vaughan_stop
+                    sleep 1
+                    setting_update_system_camera_desk_vaughan_start
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Camera: bed overhead.
+            elif [[ "$arg_system_application" == "camera_bed_overhead" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_camera_bed_overhead_start
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_camera_bed_overhead_stop
+                # Reset.
+                elif [[ "$arg_system_application_action" == "reset" ]]; then
+                    setting_update_system_camera_bed_overhead_stop
+                    sleep 1
+                    setting_update_system_camera_bed_overhead_start
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Camera: bed tripod.
+            elif [[ "$arg_system_application" == "camera_bed_tripod" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_camera_bed_tripod_start
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_camera_bed_tripod_stop
+                # Reset.
+                elif [[ "$arg_system_application_action" == "reset" ]]; then
+                    setting_update_system_camera_bed_tripod_stop
+                    sleep 1
+                    setting_update_system_camera_bed_tripod_start
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Loopback: desk Vaughan.
+            elif [[ "$arg_system_application" == "loopback_desk_vaughan" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_loopback_start_desk_vaughan
+                # Start OBS.
+                elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                    setting_update_system_loopback_start_desk_vaughan_obs
+                # Start player.
+                elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                    setting_update_system_loopback_start_desk_vaughan_player
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_loopback_stop_desk_vaughan
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Loopback: bed overhead.
+            elif [[ "$arg_system_application" == "loopback_bed_overhead" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_loopback_start_bed_overhead
+                # Start OBS.
+                elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                    setting_update_system_loopback_start_bed_overhead_obs
+                # Start player.
+                elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                    setting_update_system_loopback_start_bed_overhead_player
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_loopback_stop_bed_overhead
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Loopback: bed tripod.
+            elif [[ "$arg_system_application" == "loopback_bed_tripod" ]]; then
+                # Start.
+                if [[ "$arg_system_application_action" == "start" ]]; then
+                    setting_update_system_loopback_start_bed_tripod
+                # Start OBS.
+                elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                    setting_update_system_loopback_start_bed_tripod_obs
+                # Start player.
+                elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                    setting_update_system_loopback_start_bed_tripod_player
+                # Stop.
+                elif [[ "$arg_system_application_action" == "stop" ]]; then
+                    setting_update_system_loopback_stop_bed_tripod
+                # Error.
+                else
+                    echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                fi
+
+            # Error.
+            else
+                echo_error "setting_update_system, arg_system_application: $arg_system_application."
+            fi
+
+        # Window manager.
+        elif [[ "$arg_system" == "window_manager" ]]; then
+            echo "Window manager:"
+            position_right
+            "${directory_service}hyprland.sh" "$@"
+
         # Error.
         else
-            echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
-        fi
-
-        # Restriction.
-        if [[ "$arg_stream_restriction" == "restricted" ]]; then
-            :
-        elif [[ "$arg_stream_restriction" == "unrestricted" ]]; then
-
-            # Platform.
-            # Twitch,
-            if [[ "$arg_stream_platform" == "twitch" ]]; then
-
-                # All.
-                if [[ "$arg_stream_account" == "all" ]]; then
-                    arg_stream_platform="twitch"
-                    arg_stream_account="reality_hurts"
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                    # Transition arg_stream_platform="twitch"
-                    # Transition arg_stream_account="reality_hurts_uncut"
-                    # Transition setting_update_stream_refresh
-                    # Transition setting_update_stream_info_twitch
-                # Uncut.
-                elif [[ "$arg_stream_account" == "uncut" ]]; then
-                    arg_stream_platform="twitch" # Transition
-                    arg_stream_account="reality_hurts" # Transition
-                    setting_update_stream_refresh # Transition
-                    setting_update_stream_info_twitch # Transition
-                    # Transition arg_stream_platform="twitch"
-                    # Transition arg_stream_account="reality_hurts_uncut"
-                    # Transition setting_update_stream_refresh
-                    # Transition setting_update_stream_info_twitch
-                # Normal.
-                elif [[ "$arg_stream_account" == "normal" ]]; then
-                    arg_stream_platform="twitch"
-                    arg_stream_account="reality_hurts"
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                # Other.
-                else
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                fi
-
-            # All.
-            elif [[ "$arg_stream_platform" == "all" ]]; then
-
-                # All.
-                if [[ "$arg_stream_account" == "all" ]]; then
-                    arg_stream_platform="twitch"
-                    arg_stream_account="reality_hurts"
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                    # Transition arg_stream_account="reality_hurts_uncut"
-                    # Transition setting_update_stream_refresh
-                    # Transition setting_update_stream_info_twitch
-                # Uncut.
-                elif [[ "$arg_stream_account" == "uncut" ]]; then
-                    arg_stream_platform="twitch" # Transition
-                    arg_stream_account="reality_hurts" # Transition
-                    setting_update_stream_refresh # Transition
-                    setting_update_stream_info_twitch # Transition
-                    # Transition arg_stream_platform="twitch"
-                    # Transition arg_stream_account="reality_hurts_uncut"
-                    # Transition setting_update_stream_refresh
-                    # Transition setting_update_stream_info_twitch
-                # Normal.
-                elif [[ "$arg_stream_account" == "normal" ]]; then
-                    arg_stream_platform="twitch"
-                    arg_stream_account="reality_hurts"
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                # Other.
-                else
-                    setting_update_stream_refresh
-                    setting_update_stream_info_twitch
-                fi
-
-            else
-                echo_error "setting_update_stream_info, setting_update_stream_info_twitch: $setting_update_stream_info_twitch."
-            fi
-
-        else
-            echo_error "setting_update_stream_info, arg_stream_restriction: $arg_stream_restriction."
+            echo_error  "setting_update_system, arg_system: $arg_system."
         fi
 
         position_left
 
     }
-        setting_update_stream_info_twitch() {
+        setting_update_system_loopback_start() {
 
-            echo_info "Twitch: $arg_stream_account"
+            setting_update_system_loopback_start_desk_vaughan
+            setting_update_system_loopback_start_bed_overhead
+            setting_update_system_loopback_start_bed_tripod
 
-            position_right
+        }
+            setting_update_system_loopback_start_desk_vaughan() {
 
-            title_start_list="${directory_data_public}activity_title_start_${arg_stream_activity}.txt"
-            title_end_list="${directory_data_public}activity_title_end_all.txt"
-            tag_list="${directory_data_public}activity_tag_${arg_stream_activity}.txt"
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
-            operation_random title_start "$title_start_list"
-            operation_random title_end "$title_end_list"
-            translate_json tag $tag_list
+            }
+            setting_update_system_loopback_start_desk_vaughan_obs() {
 
-            title="$title_start | $title_end"
-            category=$(cat "${directory_data_public}activity_category_${arg_stream_category}.txt")
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
+
+            }
+            setting_update_system_loopback_start_desk_vaughan_player() {
+
+                ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+
+            }
+            setting_update_system_loopback_start_bed_overhead() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                        -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
+                        -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
+                        & disown
+
+            }
+            setting_update_system_loopback_start_bed_overhead_obs() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                        -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
+                        & disown
+
+            }
+            setting_update_system_loopback_start_bed_overhead_player() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                        -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
+                        & disown
+
+            }
+            setting_update_system_loopback_start_bed_tripod() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                    -map "[out2]" -f v4l2 /dev/video60 \
+                    -map "[out3]" -f v4l2 /dev/video61 \
+                    & disown
+
+            }
+            setting_update_system_loopback_start_bed_tripod_obs() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                        -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
+                        & disown
+
+            }
+            setting_update_system_loopback_start_bed_tripod_player() {
+
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                        -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
+                        & disown
+
+            }
+        setting_update_system_loopback_stop() {
+
+            setting_update_system_loopback_stop_desk_vaughan
+            setting_update_system_loopback_stop_bed_overhead
+            setting_update_system_loopback_stop_bed_tripod
+
+        }
+            setting_update_system_loopback_stop_desk_vaughan() {
+
+                loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
+
+                if [[ -n "$loopback_desk_vaughan_pid"]]; then
+                    kill $loopback_desk_vaughan_pid
+                fi
+
+            }
+            setting_update_system_loopback_stop_bed_overhead() {
+
+                loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep video8 | awk '{print $2}')
+
+                if [[ -n "$loopback_bed_overhead_pid"]]; then
+                    kill $loopback_bed_overhead_pid
+                fi
+
+            }
+            setting_update_system_loopback_stop_bed_tripod() {
+
+                loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep video10 | awk '{print $2}')
+
+                if [[ -n "$loopback_bed_tripod_pid"]]; then
+                    kill $loopback_bed_tripod_pid
+                fi
+
+            }
+        setting_update_pipeware_restart() {
+
+            setting_update_system_obs_stream_stop unrestricted
+            setting_update_system_obs_stream_stop unrestricted_uncut
+
+            sleep 0.5
+
+            command system application obs_studio all stop
+
+            sleep 1
+
+            echo_info "Restarting pipewire..."
+            systemctl --user restart pipewire
+
+            sleep 1
+
+            killall -e xdg-desktop-portal-hyprland
+            killall -e xdg-desktop-portal-wlr
+            killall xdg-desktop-portal
+
+            echo_info "Restarting Hyprland portal..."
+            /usr/lib/xdg-desktop-portal-hyprland & disown
             
-            echo_info "Title: $title"
-            echo_info "Category: $arg_stream_category ($category)"
-            echo_info "Tags: $tag"
+            sleep 2
+            
+            echo_info "Restarting portal..."
+            /usr/lib/xdg-desktop-portal & disown
 
-            status_check_channel access_token client_id user_id
+            sleep 1
 
-            # curl -X PATCH \
-            #     -H "Client-ID: $client_id" \
-            #     -H "Authorization: Bearer $access_token" \
-            #     -H "Content-Type: application/json" \
-            #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag]}" \
-            #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+            command system application obs_studio unrestricted_uncut start
+            sleep 0.5
+            command system application obs_studio unrestricted start
+            sleep 0.5
+            command system application obs_studio restricted_uncut start
+            sleep 0.5
+            command system application obs_studio restricted start
+            
+            sleep 1
 
-            # curl -X PATCH \
-            #     -H "Client-ID: $client_id" \
-            #     -H "Authorization: Bearer $access_token" \
-            #     -H "Content-Type: application/json" \
-            #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": true}]}" \
-            #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+            setting_update_output_device_create_null_sink_1
 
-            curl -X PATCH \
-                -H "Client-ID: $client_id" \
-                -H "Authorization: Bearer $access_token" \
-                -H "Content-Type: application/json" \
-                -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": $ViolentGraphic}, {\"id\": \"SexualThemes\", \"is_enabled\": $SexualThemes}]}" \
-                https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+            sleep 5
 
+            command output reset
 
-            position_left
+            espeak "Restart complete."
 
         }
-        setting_update_stream_twitch_message() {
+        setting_update_system_bot_start() {
 
-            curl -X POST "https://api.twitch.tv/helix/chat/messages" \
-                -H "Authorization: Bearer $access_token" \
-                -H "Client-Id: $client_id" \
-                -H "Content-Type: application/json" \
-                -d "{\"broadcaster_id\": \"$user_id\", \"sender_id\": \"$user_id\", \"message\": \"$message\"}"
+            systemctl --user start roboty_hurts
+            # kitty --title "roboty_hurts" --config "${directory_data_public}bot_kitty.conf" --hold sh -c "source ~/.venvs/bin/activate; python '/media/storage/Streaming/Software/scripts/dev/services/roboty_hurts.py'" & disown
 
         }
+        setting_update_system_bot_stop() {
 
-    # Input.
+            systemctl --user stop roboty_hurts
+            # kill $(hyprctl clients | grep "roboty_hurts" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
 
-        # Default.
+        }
+        setting_update_system_chat_start() {
 
-        setting_update_input_device_default() {
+            flatpak run com.chatterino.chatterino & disown
 
-            echo_info "Input device default:"
+        }
+        setting_update_system_chat_stop() {
 
-            position_right
+            kill $(hyprctl clients | grep "Chatterino" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
 
-            if [[ "$1" == "1" ]]; then
-                setting_update_input_device_default_microphone_1
-            elif [[ "$1" == "2" ]]; then
-                setting_update_input_device_default_microphone_2
-            elif [[ "$1" == "3" ]]; then
-                setting_update_input_device_default_microphone_3
-            elif [[ "$1" == "4" ]]; then
-                setting_update_input_device_default_microphone_4
+        }
+        setting_update_system_camera_desk_vaughan_start() {
+
+            mpv av://v4l2:/dev/video51 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
+
+        }
+        setting_update_system_camera_desk_vaughan_stop() {
+
+            kill $(hyprctl clients | grep "camera_desk_vaughan" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+        }
+        setting_update_system_camera_bed_overhead_start() {
+
+            # kitty --title camera_bed_overhead & disown
+            mpv av://v4l2:/dev/video71 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
+
+        }
+        setting_update_system_camera_bed_overhead_stop() {
+
+            kill $(hyprctl clients | grep "camera_bed_overhead" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+        }
+        setting_update_system_camera_bed_tripod_start() {
+
+            mpv av://v4l2:/dev/video61 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-cache --no-config --title="camera_bed_tripod" & disown
+
+        }
+        setting_update_system_camera_bed_tripod_stop() {
+
+            kill $(hyprctl clients | grep "camera_bed_tripod" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
+
+        }
+        setting_update_system_obs_stream_start() {
+
+            operation_socket --client $1 stream start
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "OBS $1: stream started."
             else
-                echo_error "setting_update_input_device_default, invalid argument: ${1}."
+                echo_error "setting_update_system_obs_stream_start."
             fi
 
-            position_left
-
         }
-            setting_update_input_device_default_microphone_1() {
+        setting_update_system_obs_stream_stop() {
 
-                wpctl set-default $microphone_1_ID
-                exit_1=$?
+            operation_socket --client $1 stream stop
+            exit_1=$?
 
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_1_name}"
-                else
-                    echo_error "setting_update_input_device_default_microphone_1."
-                fi
-
-            }
-            setting_update_input_device_default_microphone_2() {
-
-                wpctl set-default $microphone_2_ID
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_2_name}"
-                else
-                    echo_error "setting_update_input_device_default_microphone_2."
-                fi
-
-            }
-            setting_update_input_device_default_microphone_3() {
-
-                wpctl set-default $microphone_3_ID
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_3_name}"
-                else
-                    echo_error "setting_update_input_device_default_microphone_3."
-                fi
-
-            }
-            setting_update_input_device_default_microphone_4() {
-
-                wpctl set-default $microphone_4_ID
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_4_name}"
-                else
-                    echo_error "setting_update_input_device_default_microphone_4."
-                fi
-
-            }
-
-        # Mute.
-
-        setting_update_input_device_mute_toggle() {
-
-            echo_info "Input mute toggle:"
-            position_right
-
-            status_check_input_device_mute $1
-
-            temp_mute_status="status_current_${1}_mute"
-
-            if [[ "${!temp_mute_status}" == "muted" ]]; then
-                setting_update_input_device_unmute $1
-            elif [[ "${!temp_mute_status}" == "unmuted" ]]; then
-                setting_update_input_device_mute $1
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "OBS $1: stream stopped."
             else
-                echo_error "setting_update_input_device_mute_toggle."
+                echo_error "setting_update_system_obs_stream_stop."
             fi
-            
+
+        }
+        setting_update_system_obs_stream_status() {
+
+            operation_socket --client $1 stream status
+
         }
 
-        setting_update_input_device_mute() {
+    setting_update_scene() {
 
-            echo_info "Input device mute:"
+        # Quad.
+        if [[ "$arg_scene_type" == "quad" ]]; then
 
-            position_right
+            # Anja.
+            if [[ "$arg_name_1" == "anja" || "$arg_name_2" == "anja" ]]; then
 
-            status_check_input_device all
+                # Name 1.
+                if [[ "$arg_name_1" == "anja" ]]; then
+                    temp_arg_scene="arg_scene_1"
+
+                # Name 2.
+                elif [[ "$arg_name_2" == "anja" ]]; then
+                    temp_arg_scene="arg_scene_2"
+
+                # Error.
+                else
+                    echo_error "setting_update_scene, anja, temp_arg_scene."
+                fi
+
+                # Bathroom.
+                if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
+                    command camera quad_2 bathroom quad_4 window
+
+                # Bed.
+                elif [[ "${!temp_arg_scene}" == "bed" ]]; then
+                    command camera quad_2 bed_overhead quad_4 window
+
+                # Crafts.
+                elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
+                    echo_error "setting_update_scene, crafts scene disabled."
+
+                # Desk.
+                elif [[ "${!temp_arg_scene}" == "desk" ]]; then
+                    command camera quad_2 desk_anja quad_4 window
+
+                # Kitchen.
+                elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
+                    command camera quad_2 kitchen quad_4 kitchen_overhead
+
+                # Studio.
+                elif [[ "${!temp_arg_scene}" == "studio" ]]; then
+                    command camera quad_2 studio quad_4 window
+
+                # Error.
+                else
+                    echo_error "setting_update_scene, anja, scene."
+                fi
+
+            # Info.
+            else
+                echo_info "No Anja scene change requested."
+            fi
+
+            # Vaughan.
+            if [[ "$arg_name_1" == "vaughan" || "$arg_name_2" == "vaughan" ]]; then
+
+                # Name 1.
+                if [[ "$arg_name_1" == "vaughan" ]]; then
+                    temp_arg_scene="arg_scene_1"
+
+                # Name 2.
+                elif [[ "$arg_name_2" == "vaughan" ]]; then
+                    temp_arg_scene="arg_scene_2"
+
+                # Error.
+                else
+                    echo_error "setting_update_scene, vaughan, temp_arg_scene."
+                fi
+
+                # Bathroom.
+                if [[ "${!temp_arg_scene}" == "bathroom" ]]; then
+                    command camera quad_1 bathroom quad_3 screen_vaughan_1
+
+                # Bed.
+                elif [[ "${!temp_arg_scene}" == "bed" ]]; then
+                    command camera quad_1 bed_overhead quad_3 screen_vaughan_1
+
+                # Crafts.
+                elif [[ "${!temp_arg_scene}" == "crafts" ]]; then
+                    echo_error "setting_update_scene, crafts scene disabled."
+
+                # Desk.
+                elif [[ "${!temp_arg_scene}" == "desk" ]]; then
+                    command camera quad_1 desk_vaughan quad_3 screen_vaughan_1
+
+                # Kitchen.
+                elif [[ "${!temp_arg_scene}" == "kitchen" ]]; then
+                    command camera quad_1 kitchen quad_3 kitchen_overhead
+
+                # Studio.
+                elif [[ "${!temp_arg_scene}" == "studio" ]]; then
+                    command camera quad_1 studio quad_3 screen_vaughan_1
+
+                # Error.
+                else
+                    echo_error "setting_update_scene, arg_scene_1, vaughan, ${!temp_arg_scene}."
+                fi
+
+            # Info.
+            else
+                echo_info "No Vaughan scene change requested."
+            fi
+
+        # Error.
+        else
+            echo_error "setting_update_scene."
+        fi
+
+    }
+
+# Channel.
+
+setting_update_stream_query() {
+
+    echo_info "Stream query:"
+
+    position_right
+
+    if [[ "$argument_current_data" == "tag" ]]; then
+        query_url="tag_name=$argument_current_data_payload"
+    fi
+
+    status_check_channel access_token client_id
+
+    curl -H "Client-ID: $client_id" \
+        -H "Authorization: Bearer $access_token" \
+        -X GET "https://api.twitch.tv/helix/tags/streams"
+        #-X GET "https://api.twitch.tv/helix/tags/streams?$query_url"
+
+}
+setting_update_stream_refresh() {
+
+    echo_info "Stream refresh:"
+
+    position_right
+
+    status_check_channel client_id client_secret refresh_token user_id
+
+    access_token_file="${directory_data_private}stream_${arg_stream_platform}_${arg_stream_account}_access_token.txt"
+
+    echo_info "Channel: ${arg_stream_account}."
+
+    local response=$(curl -s -X POST \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "client_id=$client_id&client_secret=$client_secret&grant_type=refresh_token&refresh_token=$refresh_token" \
+        https://id.twitch.tv/oauth2/token)
+
+    if [[ $(echo $response | jq -r '.error') == "invalid_grant" ]]; then
+        echo_error "unable to refresh access token."
+        exit 1
+    fi
+
+    echo_info "Successful."
+    access_token=$(echo $response | jq -r '.access_token')
+    echo "$access_token" > "$access_token_file"
+
+    position_left
+
+}
+setting_update_stream_info() {
+
+    echo_info "Stream info update:"
+
+    position_right
+
+    # Type.
+
+    # Passive.
+    if [[ "$arg_stream_type" == "passive" ]]; then
+        command permission stream select couchsurfer
+        command permission scene select couchsurfer
+        command system window_manager window_layout default none
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Normal.
+    elif [[ "$arg_stream_type" == "normal" ]]; then
+        command permission stream select owner
+        command permission scene select owner
+        command system window_manager window_layout stream_single_desk none
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Active.
+    elif [[ "$arg_stream_type" == "active" ]]; then
+        command permission stream select owner
+        command permission scene select couchsurfer
+        command system window_manager window_layout stream_quad_desk none
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Maintenance.
+    elif [[ "$arg_stream_type" == "maintenance" ]]; then
+        command permission stream select owner
+        command permission scene select couchsurfer
+        command system window_manager window_layout default none
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Maintenance.
+    elif [[ "$arg_stream_type" == "under_construction" ]]; then
+        command permission stream select owner
+        command permission scene select couchsurfer
+        command system window_manager window_layout default none
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Sleeping.
+    elif [[ "$arg_stream_type" == "sleeping" ]]; then
+        command permission stream select owner
+        command permission scene select owner
+        SexualThemes="false"
+        ViolentGraphic="false"
+    # Sleeping.
+    elif [[ "$arg_stream_type" == "therapy" ]]; then
+        command permission stream select owner
+        command permission scene select owner
+        SexualThemes="false"
+        ViolentGraphic="true"
+    # Error.
+    else
+        echo_error "setting_update_stream_info, arg_stream_type: $arg_stream_type."
+    fi
+
+    # Restriction.
+    if [[ "$arg_stream_restriction" == "restricted" ]]; then
+        :
+    elif [[ "$arg_stream_restriction" == "unrestricted" ]]; then
+
+        # Platform.
+        # Twitch,
+        if [[ "$arg_stream_platform" == "twitch" ]]; then
 
             # All.
-            if [[ ("$1" == "all") ]]; then
-                setting_update_input_device_mute_all
-            fi
-
-            # Microphone 1.
-            if [[ "$1" == "input_device_1" || "$2" == "input_device_1" || "$3" == "input_device_1" || "$4" == "input_device_1" ]]; then
-                setting_update_input_device_mute_microphone_1
-            fi
-
-            # Microphone 2.
-            if [[ "$1" == "input_device_2" || "$2" == "input_device_2" || "$3" == "input_device_2" || "$4" == "input_device_2" ]]; then
-                setting_update_input_device_mute_microphone_2
-            fi
-
-            # Microphone 3.
-            if [[ "$1" == "input_device_3" || "$2" == "input_device_3" || "$3" == "input_device_3" || "$4" == "input_device_3" ]]; then
-                setting_update_input_device_mute_microphone_3
-            fi
-
-            # Microphone 4.
-            if [[ "$1" == "input_device_4" || "$2" == "input_device_4" || "$3" == "input_device_4" || "$4" == "input_device_4" ]]; then
-                setting_update_input_device_mute_microphone_4
-            fi 
-
-            # Error.
-            if [[ -z "$1" ]]; then
-                echo_error "setting_update_input_device_mute, invalid argument: ${1}."
-            fi
-
-            position_left
-
-        }
-            setting_update_input_device_mute_all() {
-
-                input_IDs=($(awk '/^ ├─ Sources:/ && !found {found=1; next} /^ ├─ Filters:/ && found {exit} found {match($0, /[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' <<< "$(wpctl status)"))
-
-                echo_debug "Volume:"
-
-                position_right
-
-                for input_ID in "${input_IDs[@]}"; do
-                    wpctl set-volume $input_ID 0
-                    echo_debug "$input_ID"
-                done
-
-                position_left
-
-                echo_debug "Mute:"
-
-                position_right
-
-                for input_ID in "${input_IDs[@]}"; do
-                    wpctl set-mute $input_ID 1
-                    echo_debug "$input_ID"
-                done
-
-                position_left
-
-                muted_count=0
-
-                for input_ID in "${input_IDs[@]}"; do
-                    if wpctl get-volume $input_ID | grep -q 'MUTED'; then
-                        ((muted_count++))
-                    fi
-                done
-
-                if [[ "$muted_count" -eq "${#input_IDs[@]}" ]]; then
-                    echo_info "Check: success."
-                else
-                    echo_error_urgent "setting_update_input_device_mute_all."
-                fi
-
-            }
-            setting_update_input_device_mute_microphone_1() {
-
-                wpctl set-mute $microphone_1_ID 1
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_1_name}"
-
-            }
-            setting_update_input_device_mute_microphone_2() {
-
-                wpctl set-mute $microphone_2_ID 1
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_2_name}"
-
-            }
-            setting_update_input_device_mute_microphone_3() {
-
-                wpctl set-mute $microphone_3_ID 1
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_3_name}"
-
-            }
-            setting_update_input_device_mute_microphone_4() {
-
-                
-
-                wpctl set-mute $microphone_4_ID 1
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_4_name}"
-
-            }
-
-        setting_update_input_obs_restricted_mute() {
-
-            echo_info "Input OBS restricted mute:"
-            position_right
-
-            setting_update_input_obs_restricted_mute_microphone_1
-            setting_update_input_obs_restricted_mute_microphone_2
-            setting_update_input_obs_restricted_mute_microphone_3
-            setting_update_input_obs_restricted_mute_microphone_4
-
-            position_left
-
-        }
-            setting_update_input_obs_restricted_mute_microphone_1() {
-
-                operation_socket --client restricted input mute "$input_device_microphone_1_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_1_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 1: muted."
-                else
-                    echo_error "setting_update_input_obs_restricted_mute_microphone_1."
-                fi
-
-            }
-            setting_update_input_obs_restricted_mute_microphone_2() {
-
-                operation_socket --client restricted input mute "$input_device_microphone_2_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_2_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 2: muted."
-                else
-                    echo_error "setting_update_input_obs_restricted_mute_microphone_2."
-                fi
-
-            }
-            setting_update_input_obs_restricted_mute_microphone_3() {
-
-                operation_socket --client restricted input mute "$input_device_microphone_3_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_3_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 3: muted."
-                else
-                    echo_error "setting_update_input_obs_restricted_mute_microphone_3."
-                fi
-
-            }
-            setting_update_input_obs_restricted_mute_microphone_4() {
-
-                operation_socket --client restricted input mute "$input_device_microphone_4_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input mute "$input_device_microphone_4_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 4: muted."
-                else
-                    echo_error "setting_update_input_obs_restricted_mute_microphone_4."
-                fi
-
-            }
-
-        setting_update_input_obs_unrestricted_mute() {
-
-            echo_info "Input OBS unrestricted mute:"
-            position_right
-
-            setting_update_input_obs_unrestricted_mute_microphone_1
-            setting_update_input_obs_unrestricted_mute_microphone_2
-            setting_update_input_obs_unrestricted_mute_microphone_3
-            setting_update_input_obs_unrestricted_mute_microphone_4
-
-            position_left
-
-        }
-            setting_update_input_obs_unrestricted_mute_microphone_1() {
-
-                operation_socket --client unrestricted input mute "$input_device_microphone_1_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_1_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 1: muted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_mute_microphone_1."
-                fi
-
-            }
-            setting_update_input_obs_unrestricted_mute_microphone_2() {
-
-                operation_socket --client unrestricted input mute "$input_device_microphone_2_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_2_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 2: muted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_mute_microphone_2."
-                fi
-
-            }
-            setting_update_input_obs_unrestricted_mute_microphone_3() {
-
-                operation_socket --client unrestricted input mute "$input_device_microphone_3_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_3_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 3: muted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_mute_microphone_3."
-                fi
-
-            }
-            setting_update_input_obs_unrestricted_mute_microphone_4() {
-
-                operation_socket --client unrestricted input mute "$input_device_microphone_4_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input mute "$input_device_microphone_4_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 4: muted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_mute_microphone_4."
-                fi
-
-            }
-
-        # Unmute.
-
-        setting_update_input_device_unmute() {
-
-            echo_info "Input device unmute:"
-
-            position_right
-
-            status_check_input_permission
-            status_check_input_device all
-
-            # Microphone 1.
-            if [[ "$1" == "input_device_1" || "$2" == "input_device_1" || "$3" == "input_device_1" || "$4" == "input_device_1" ]]; then
-                setting_update_input_device_unmute_microphone_1
-            fi
-
-            # Microphone 2.
-            if [[ "$1" == "input_device_2" || "$2" == "input_device_2" || "$3" == "input_device_2" || "$4" == "input_device_2" ]]; then
-                setting_update_input_device_unmute_microphone_2
-            fi
-
-            # Microphone 3.
-            if [[ "$1" == "input_device_3" || "$2" == "input_device_3" || "$3" == "input_device_3" || "$4" == "input_device_3" ]]; then
-                setting_update_input_device_unmute_microphone_3
-            fi
-
-            # Microphone 4.
-            if [[ "$1" == "input_device_4" || "$2" == "input_device_4" || "$3" == "input_device_4" || "$4" == "input_device_4" ]]; then
-                setting_update_input_device_unmute_microphone_4
-            fi 
-
-            # Error.
-            if [[ -z "$1" ]]; then
-                echo_error "setting_update_input_device_unmute, invalid argument: ${1}."
-            fi
-
-            position_left
-
-        }
-            setting_update_input_device_unmute_microphone_1() {
-
-                wpctl set-mute $microphone_1_ID 0
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_1_name}"
-
-            }
-            setting_update_input_device_unmute_microphone_2() {
-
-                wpctl set-mute $microphone_2_ID 0
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_2_name}"
-
-            }
-            setting_update_input_device_unmute_microphone_3() {
-
-                wpctl set-mute $microphone_3_ID 0
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_3_name}"
-
-            }
-            setting_update_input_device_unmute_microphone_4() {
-
-                wpctl set-mute $microphone_4_ID 0
-                exit_1=$?
-
-                error_check 1 info "${input_device_microphone_4_name}"
-
-            }
-
-        setting_update_input_obs_restricted_unmute() {
-
-            echo_info "Input OBS restricted unmute:"
-            position_right
-
-            status_check_profile_input_default
-            
-            # Ambient.
-            if [[ "$status_check_profile_input_default" == "ambient" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_2
-                setting_update_input_obs_restricted_unmute_microphone_3
-                setting_update_input_obs_restricted_unmute_microphone_4
-            # All.
-            elif [[ "$status_check_profile_input_default" == "all" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_1
-                setting_update_input_obs_restricted_unmute_microphone_2
-                setting_update_input_obs_restricted_unmute_microphone_3
-                setting_update_input_obs_restricted_unmute_microphone_4
-            # Rode.
-            elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_1
-            # Desk.
-            elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_2
-            # Kitchen.
-            elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_3
-            # Bathroom.
-            elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
-                setting_update_input_obs_restricted_unmute_microphone_4
-            # Error.
+            if [[ "$arg_stream_account" == "all" ]]; then
+                arg_stream_platform="twitch"
+                arg_stream_account="reality_hurts"
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
+                # Transition arg_stream_platform="twitch"
+                # Transition arg_stream_account="reality_hurts_uncut"
+                # Transition setting_update_stream_refresh
+                # Transition setting_update_stream_info_twitch
+            # Uncut.
+            elif [[ "$arg_stream_account" == "uncut" ]]; then
+                arg_stream_platform="twitch" # Transition
+                arg_stream_account="reality_hurts" # Transition
+                setting_update_stream_refresh # Transition
+                setting_update_stream_info_twitch # Transition
+                # Transition arg_stream_platform="twitch"
+                # Transition arg_stream_account="reality_hurts_uncut"
+                # Transition setting_update_stream_refresh
+                # Transition setting_update_stream_info_twitch
+            # Normal.
+            elif [[ "$arg_stream_account" == "normal" ]]; then
+                arg_stream_platform="twitch"
+                arg_stream_account="reality_hurts"
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
+            # Other.
             else
-                echo_error "setting_update_input_obs_restricted_unmute."
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
             fi
 
-            position_left
+        # All.
+        elif [[ "$arg_stream_platform" == "all" ]]; then
 
-        }
-            setting_update_input_obs_restricted_unmute_microphone_1() {
-
-                operation_socket --client restricted input unmute "$input_device_microphone_1_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_1_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 1: unmuted."
-                else
-                    echo_error "setting_update_input_obs_restricted_unmute_microphone_1."
-                fi
-
-            }
-            setting_update_input_obs_restricted_unmute_microphone_2() {
-
-                operation_socket --client restricted input unmute "$input_device_microphone_2_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_2_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 2: unmuted."
-                else
-                    echo_error "setting_update_input_obs_restricted_unmute_microphone_2."
-                fi
-
-            }
-            setting_update_input_obs_restricted_unmute_microphone_3() {
-
-                operation_socket --client restricted input unmute "$input_device_microphone_3_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_3_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 3: unmuted."
-                else
-                    echo_error "setting_update_input_obs_restricted_unmute_microphone_3."
-                fi
-
-            }
-            setting_update_input_obs_restricted_unmute_microphone_4() {
-
-                operation_socket --client restricted input unmute "$input_device_microphone_4_name_obs"
-                exit_1=$?
-
-                operation_socket --client restricted_uncut input unmute "$input_device_microphone_4_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS restricted, microphone 4: unmuted."
-                else
-                    echo_error "setting_update_input_obs_restricted_unmute_microphone_4."
-                fi
-
-            }
-
-        setting_update_input_obs_unrestricted_unmute() {
-
-            echo_info "Input OBS unrestricted unmute:"
-            position_right
-
-            status_check_profile_input_default
-            
-            # Ambient.
-            if [[ "$status_check_profile_input_default" == "ambient" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_2
-                setting_update_input_obs_unrestricted_unmute_microphone_3
-                setting_update_input_obs_unrestricted_unmute_microphone_4
             # All.
-            elif [[ "$status_check_profile_input_default" == "all" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_1
-                setting_update_input_obs_unrestricted_unmute_microphone_2
-                setting_update_input_obs_unrestricted_unmute_microphone_3
-                setting_update_input_obs_unrestricted_unmute_microphone_4
-            # Rode.
-            elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_1
-            # Desk.
-            elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_2
-            # Kitchen.
-            elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_3
-            # Bathroom.
-            elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
-                setting_update_input_obs_unrestricted_unmute_microphone_4
-            # Error.
+            if [[ "$arg_stream_account" == "all" ]]; then
+                arg_stream_platform="twitch"
+                arg_stream_account="reality_hurts"
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
+                # Transition arg_stream_account="reality_hurts_uncut"
+                # Transition setting_update_stream_refresh
+                # Transition setting_update_stream_info_twitch
+            # Uncut.
+            elif [[ "$arg_stream_account" == "uncut" ]]; then
+                arg_stream_platform="twitch" # Transition
+                arg_stream_account="reality_hurts" # Transition
+                setting_update_stream_refresh # Transition
+                setting_update_stream_info_twitch # Transition
+                # Transition arg_stream_platform="twitch"
+                # Transition arg_stream_account="reality_hurts_uncut"
+                # Transition setting_update_stream_refresh
+                # Transition setting_update_stream_info_twitch
+            # Normal.
+            elif [[ "$arg_stream_account" == "normal" ]]; then
+                arg_stream_platform="twitch"
+                arg_stream_account="reality_hurts"
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
+            # Other.
             else
-                echo_error "setting_update_input_obs_unrestricted_unmute."
+                setting_update_stream_refresh
+                setting_update_stream_info_twitch
             fi
 
-            position_left
+        else
+            echo_error "setting_update_stream_info, setting_update_stream_info_twitch: $setting_update_stream_info_twitch."
+        fi
 
-        }
-            setting_update_input_obs_unrestricted_unmute_microphone_1() {
+    else
+        echo_error "setting_update_stream_info, arg_stream_restriction: $arg_stream_restriction."
+    fi
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_1_name_obs"
-                exit_1=$?
+    position_left
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_1_name_obs"
-                exit_2=$?
+}
+    setting_update_stream_info_twitch() {
 
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 1: unmuted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_1."
-                fi
+        echo_info "Twitch: $arg_stream_account"
 
-            }
-            setting_update_input_obs_unrestricted_unmute_microphone_2() {
+        position_right
 
-                operation_socket --client unrestricted input unmute "$input_device_microphone_2_name_obs"
-                exit_1=$?
+        title_start_list="${directory_data_public}activity_title_start_${arg_stream_activity}.txt"
+        title_end_list="${directory_data_public}activity_title_end_all.txt"
+        tag_list="${directory_data_public}activity_tag_${arg_stream_activity}.txt"
 
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_2_name_obs"
-                exit_2=$?
+        operation_random title_start "$title_start_list"
+        operation_random title_end "$title_end_list"
+        translate_json tag $tag_list
 
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 2: unmuted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_2."
-                fi
-
-            }
-            setting_update_input_obs_unrestricted_unmute_microphone_3() {
-
-                operation_socket --client unrestricted input unmute "$input_device_microphone_3_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_3_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 3: unmuted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_3."
-                fi
-
-            }
-            setting_update_input_obs_unrestricted_unmute_microphone_4() {
-
-                operation_socket --client unrestricted input unmute "$input_device_microphone_4_name_obs"
-                exit_1=$?
-
-                operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_4_name_obs"
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, microphone 4: unmuted."
-                else
-                    echo_error "setting_update_input_obs_unrestricted_unmute_microphone_4."
-                fi
-
-            }
-
-        # Volume.
-
-        setting_update_input_device_volume() {
-
-            echo_info "Input device volume:"
-
-            position_right
-
-            status_check_input_device all
-
-            # Microphone 1.
-            if [[ ("$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1") || "$1" == "all" ]]; then
-                setting_update_input_device_volume_microphone_1
-            fi
-
-            # Microphone 1.
-            if [[ ("$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2") || "$1" == "all" ]]; then
-                setting_update_input_device_volume_microphone_2
-            fi
-
-            # Microphone 1.
-            if [[ ("$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3") || "$1" == "all" ]]; then
-                setting_update_input_device_volume_microphone_3
-            fi
-
-            # Microphone 1.
-            if [[ ("$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4") || "$1" == "all" ]]; then
-                setting_update_input_device_volume_microphone_4
-            fi 
-
-            # Error.
-            if [[ -z "$1" ]]; then
-                echo_error "setting_update_input_device_volume, invalid argument: ${1}."
-            fi
-
-            position_left
-
-        }
-            setting_update_input_device_volume_microphone_1() {
-
-                wpctl set-volume $microphone_1_ID 1
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_1_name}"
-                else
-                    echo_error "setting_update_input_device_volume_microphone_1."
-                fi
-
-            }
-            setting_update_input_device_volume_microphone_2() {
-
-                wpctl set-volume $microphone_2_ID 1
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_2_name}"
-                else
-                    echo_error "setting_update_input_device_volume_microphone_2."
-                fi
-            }
-            setting_update_input_device_volume_microphone_3() {
-
-                wpctl set-volume $microphone_3_ID 1
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_3_name}"
-                else
-                    echo_error "setting_update_input_device_volume_microphone_3."
-                fi
-            }
-            setting_update_input_device_volume_microphone_4() {
-
-                wpctl set-volume $microphone_4_ID 1
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${input_device_microphone_4_name}"
-                else
-                    echo_error "setting_update_input_device_volume_microphone_4."
-                fi
-            }
-
-    # Output.
-
-        # Create.
-
-        setting_update_output_device_create_null_sink_1() {
-
-            echo_info "Create null sink:"
-
-            position_right
-
-            pactl load-module module-null-sink sink_name=null_sink_1 object.linger=1
-
-            position_left
-
-        }
+        title="$title_start | $title_end"
+        category=$(cat "${directory_data_public}activity_category_${arg_stream_category}.txt")
         
-        # Default.
+        echo_info "Title: $title"
+        echo_info "Category: $arg_stream_category ($category)"
+        echo_info "Tags: $tag"
+
+        status_check_channel access_token client_id user_id
+
+        # curl -X PATCH \
+        #     -H "Client-ID: $client_id" \
+        #     -H "Authorization: Bearer $access_token" \
+        #     -H "Content-Type: application/json" \
+        #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag]}" \
+        #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+
+        # curl -X PATCH \
+        #     -H "Client-ID: $client_id" \
+        #     -H "Authorization: Bearer $access_token" \
+        #     -H "Content-Type: application/json" \
+        #     -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": true}]}" \
+        #     https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
+
+        curl -X PATCH \
+            -H "Client-ID: $client_id" \
+            -H "Authorization: Bearer $access_token" \
+            -H "Content-Type: application/json" \
+            -d "{\"title\": \"$title\", \"game_id\": \"$category\", \"tags\": [$tag], \"content_classification_labels\": [{\"id\": \"ViolentGraphic\", \"is_enabled\": $ViolentGraphic}, {\"id\": \"SexualThemes\", \"is_enabled\": $SexualThemes}]}" \
+            https://api.twitch.tv/helix/channels?broadcaster_id=$user_id
 
-        setting_update_output_device_default_cycle() {
-
-            echo_info "Output cycle:"
-
-            position_right
-
-            status_check_output_device all
-
-            # Null sink.
-            if [[ "$output_device_default_ID" != "$output_device_null_sink_1_ID" ]]; then
-                setting_update_output_device_default_null_sink_1
-                
-            # Headphones.
-            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "yes" ]]; then
-                setting_update_output_device_default_headphones_1
-
-            # Reset connections.
-            elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "" ]]; then
-                setting_update_output_device_default_null_sink_1
-
-            # Error.
-            else
-                echo_error "setting_update_output_device_default_cycle."
-            fi
-
-            position_left
-
-        }
-
-        setting_update_output_device_default() {
-
-            echo_debug "Output device default:"
-
-            position_right
-
-            translate_argument device $1
-            argument_current_device="$argument"
-
-            if [[ "$argument_current_device" == "null_sink_1" ]]; then
-                setting_update_output_device_default_null_sink_1
-            elif [[ "$argument_current_device" == "speaker_1" ]]; then
-                setting_update_output_device_default_speaker_1
-            elif [[ "$argument_current_device" == "headphones_1" ]]; then
-                setting_update_output_device_default_headphones_1
-            else
-                echo_error "setting_update_output_device_default, invalid argument: ${1}."
-            fi
-
-            position_left
-
-        }
-            setting_update_output_device_default_null_sink_1() {
-
-                # Unchanged.
-                if [[ "$status_current_output_device_default" == "$output_device_null_sink_1_name_long" ]]; then
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    echo_debug "${output_device_null_sink_1_name_echo} (unchanged)."
-
-                # Changed.
-                elif [[ "$status_current_output_device_default" != "$output_device_null_sink_1_name_long" ]]; then
-                    wpctl set-default $output_device_null_sink_1_ID
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    status_current_output_device_default="$output_device_null_sink_1_name_long"
-                    echo_debug "$output_device_null_sink_1_name_echo."
-
-                # Error.
-                else
-                    echo_error "setting_update_output_device_default_null_sink_1."
-                fi
-
-            }
-            setting_update_output_device_default_speaker_1() {
-
-                # Unchanged.
-                if [[ "$status_current_output_device_default" == "speaker_1" ]]; then
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    echo_debug "${output_device_speaker_1_name_echo} (unchanged)."
-
-                # Changed.
-                elif [[ "$status_current_output_device_default" != "speaker_1" ]]; then
-                    wpctl set-default $output_device_speaker_1_ID
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    status_current_output_device_default="speaker_1"
-                    echo_debug "$output_device_speaker_1_name_echo."
-
-                # Error.
-                else
-                    echo_error "setting_update_output_device_default_speaker_1."
-                fi
-
-            }
-            setting_update_output_device_default_headphones_1() {
-
-                # Unchanged.
-                if [[ "$status_current_output_device_default" == "$output_device_headphones_1_script_name" ]]; then
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    echo_debug "${output_device_headphones_1_name} (unchanged)."
-                
-                # Changed.
-                elif [[ "$status_current_output_device_default" != "$output_device_headphones_1_script_name" ]]; then
-                    wpctl set-default $output_device_headphones_1_ID
-                    status_previous_output_device_default="$status_current_output_device_default"
-                    status_current_output_device_default="$output_device_headphones_1_script_name"
-                    echo_debug "$output_device_headphones_1_name."
-
-                # Error.
-                else
-                    echo_error "setting_update_output_device_default_headphones_1."
-                fi
-
-            }
-
-        # Mute.
-
-        setting_update_output_device_mute() {
-
-            echo_info "Output device mute:"
-
-            position_right
-
-            # All.
-            if [[ "$1" == "all" ]]; then
-                setting_update_output_device_mute_all
-            fi
-
-            # Microphone 1.
-            if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
-                setting_update_output_device_mute_microphone_1
-            fi
-
-            # Microphone 1.
-            if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
-                setting_update_output_device_mute_microphone_2
-            fi
-
-            # Microphone 1.
-            if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
-                setting_update_output_device_mute_microphone_3
-            fi
-
-            # Microphone 1.
-            if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
-                setting_update_output_device_mute_microphone_4
-            fi 
-
-            # Error.
-            if [[ -z "$1" ]]; then
-                echo_error "setting_update_output_device_mute, invalid argument: ${1}."
-            fi
-
-            position_left
-
-        }
-            setting_update_output_device_mute_all() {
-
-                # Get output device IDs.
-                output_IDs=($(awk '/^ ├─ Sinks:/ && !found {found=1; next} /^ ├─ Sources:/ && found {exit} found {match($0, /[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' <<< "$(wpctl status)"))
-
-                echo_debug "Volume:"
-
-                position_right
-
-                for output_ID in "${output_IDs[@]}"; do
-                    wpctl set-volume $output_ID 0
-                    echo_debug "$output_ID"
-                done
-
-                position_left
-
-                echo_debug "Mute:"
-
-                position_right
-
-                for output_ID in "${output_IDs[@]}"; do
-                    wpctl set-mute $output_ID 1
-                    echo_debug "$output_ID"
-                done
-
-                # Check mute statuses of output devices.
-                muted_count=0
-
-                for output_ID in "${output_IDs[@]}"; do
-                    if wpctl get-volume $output_ID | grep -q 'MUTED'; then
-                        ((muted_count++))
-                    fi
-                done
-
-                position_left
-
-                # Check if all output devices are muted.
-                if [ "$muted_count" -eq "${#output_IDs[@]}" ]; then
-                    echo_info "Check: success."
-                else
-                    echo_error "setting_update_output_mute."
-                fi
-
-            }
-
-        setting_update_output_obs_restricted_mute() {
-
-            # ydotool key 125:1 68:1 68:0 125:0
-
-            operation_socket --client restricted hotkey trigger key OBS_KEY_F10
-            exit_1=$?
-            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F10
-            exit_2=$?
-
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                echo_info "Output: muted (restricted OBS)."
-            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
-                echo_error "setting_update_output_obs_restricted_mute."
-            fi
-
-        }
-        setting_update_output_obs_unrestricted_mute() {
-
-            # ydotool key 125:1 88:1 88:0 125:0
-            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F12
-            exit_1=$?
-            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F12
-            exit_2=$?
-
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                echo_info "Output: muted (unrestricted OBS)."
-            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
-                echo_error "setting_update_output_obs_unrestricted_mute."
-            fi
-
-        }
-
-        # Link.
-
-        setting_update_output_device_link() {
-
-            echo_info "Link output devices:"
-
-            position_right
-
-            # Speaker 1.
-            if [[ ("$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1") || "$1" == "all" ]]; then
-                setting_update_output_device_link_speaker_1
-            fi
-
-            # Speaker 2.
-            if [[ ("$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2") || "$1" == "all" ]]; then
-                setting_update_output_device_link_speaker_2
-            fi
-
-            # Speaker 3.
-            if [[ ("$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3") || "$1" == "all" ]]; then
-                setting_update_output_device_link_speaker_3
-            fi
-
-            position_left
-
-        }
-            setting_update_output_device_link_speaker_1() {
-
-                pw-link null_sink_1:monitor_FR $output_device_speaker_1_name_node:playback_FR
-                exit_1=$?
-                pw-link null_sink_1:monitor_FL $output_device_speaker_1_name_node:playback_FL
-                exit_2=$?
-
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_1_name_echo}: linked."
-                else
-                    echo_debug "${output_device_speaker_1_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_link_speaker_2() {
-
-                pw-link null_sink_1:monitor_FR $output_device_speaker_2_name_node:playback_FR
-                exit_1=$?
-                pw-link null_sink_1:monitor_FL $output_device_speaker_2_name_node:playback_FL
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_2_name_echo}: linked."
-                else
-                    echo_debug "${output_device_speaker_2_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_link_speaker_3() {
-
-                pw-link null_sink_1:monitor_FR $output_device_speaker_3_name_node:playback_FR
-                exit_1=$?
-                pw-link null_sink_1:monitor_FL $output_device_speaker_3_name_node:playback_FL
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_3_name_echo}: linked."
-                else
-                    echo_debug "${output_device_speaker_3_name_echo}: failed."
-                fi
-
-            }
-
-        setting_update_output_device_unlink() {
-
-            echo_info "Unlink output devices:"
-
-            position_right
-
-            # Speaker 1.
-            if [[ ("$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1") || "$1" == "all" ]]; then
-                setting_update_output_device_unlink_speaker_1
-            fi
-
-            # Speaker 2.
-            if [[ ("$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2") || "$1" == "all" ]]; then
-                setting_update_output_device_unlink_speaker_2
-            fi
-
-            # Speaker 3.
-            if [[ ("$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3") || "$1" == "all" ]]; then
-                setting_update_output_device_unlink_speaker_3
-            fi
-
-            position_left
-
-        }
-            setting_update_output_device_unlink_speaker_1() {
-
-                pw-link -d null_sink_1:monitor_FR $output_device_speaker_1_name_node:playback_FR
-                exit_1=$?
-                pw-link -d null_sink_1:monitor_FL $output_device_speaker_1_name_node:playback_FL
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_1_name_echo}: unlinked."
-                else
-                    echo_debug "${output_device_speaker_1_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_unlink_speaker_2() {
-
-                pw-link -d null_sink_1:monitor_FR $output_device_speaker_2_name_node:playback_FR
-                exit_1=$?
-                pw-link -d null_sink_1:monitor_FL $output_device_speaker_2_name_node:playback_FL
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_2_name_echo}: unlinked."
-                else
-                    echo_debug "${output_device_speaker_2_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_unlink_speaker_3() {
-
-                pw-link -d null_sink_1:monitor_FR $output_device_speaker_3_name_node:playback_FR
-                exit_1=$?
-                pw-link -d null_sink_1:monitor_FL $output_device_speaker_3_name_node:playback_FL
-                exit_2=$?
-
-                if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_3_name_echo}: unlinked."
-                else
-                    echo_debug "${output_device_speaker_3_name_echo}: failed."
-                fi
-
-            }
-
-        # Unmute.
-
-        setting_update_output_device_unmute() {
-
-            echo_info "Unmute output devices:"
-
-            position_right
-
-            # Null sink.
-            if [[ "$1" == "null_sink_1" || "$2" == "null_sink_1" || "$3" == "null_sink_1" || "$4" == "null_sink_1" ]]; then
-                setting_update_output_device_unmute_null_sink
-            fi
-
-            # Speaker 1.
-            if [[ "$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1" || "$4" == "speaker_1" ]]; then
-                setting_update_output_device_unmute_speaker_1
-            fi
-
-            # Speaker 2.
-            if [[ "$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2" || "$4" == "speaker_2" ]]; then
-                setting_update_output_device_unmute_speaker_2
-            fi
-
-            # Speaker 3.
-            if [[ "$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3" || "$4" == "speaker_3" ]]; then
-                setting_update_output_device_unmute_speaker_3
-            fi
-
-            position_left
-
-        }
-            setting_update_output_device_unmute_null_sink() {
-
-                wpctl set-mute $output_device_null_sink_1_ID 0
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "Null sink: unmuted."
-                else
-                    echo_debug "Null sink: failed."
-                fi
-
-            }
-            setting_update_output_device_unmute_speaker_1() {
-
-                wpctl set-mute $output_device_speaker_1_ID 0
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_1_name_echo}: unmuted."
-                else
-                    echo_debug "${output_device_speaker_1_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_unmute_speaker_2() {
-
-                wpctl set-mute $output_device_speaker_2_ID 0
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_2_name_echo}: unmuted."
-                else
-                    echo_debug "${output_device_speaker_2_name_echo}: failed."
-                fi
-
-            }
-            setting_update_output_device_unmute_speaker_3() {
-
-                wpctl set-mute $output_device_speaker_3_ID 0
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "${output_device_speaker_3_name_echo}: unmuted."
-                else
-                    echo_debug "${output_device_speaker_3_name_echo}: failed."
-                fi
-
-            }
-
-        setting_update_output_obs_restricted_unmute() {
-
-            # ydotool key 125:1 67:1 67:0 125:0
-            operation_socket --client restricted hotkey trigger key OBS_KEY_F9
-            exit_1=$?
-
-            operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F9
-            exit_2=$?
-
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                echo_info "Output: unmuted (restricted OBS)."
-            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
-                echo_error "Output: unmuting (restricted OBS) failed."
-            fi
-
-        }
-        setting_update_output_obs_unrestricted_unmute() {
-
-            # ydotool key 125:1 87:1 87:0 125:0
-            operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
-            exit_1=$?
-
-            operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F11
-            exit_2=$?
-
-            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
-                echo_info "Output: unmuted (unrestricted OBS)."
-            elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
-                echo_error "Output: unmuting (unrestricted OBS) failed."
-            fi
-
-        }
-
-
-        setting_update_output_obs_unrestricted_unmute_obs_cli() {
-
-            echo_info "Output OBS unrestricted unmute:"
-
-            position_right
-
-            setting_update_output_obs_unrestricted_unmute_output_1
-
-            position_left
-
-        }
-            setting_update_output_obs_unrestricted_unmute_output_1() {
-
-                operation_socket --client unrestricted_uncut output list "$input_device_output_1_name_obs"
-                exit_1=$?
-
-                if [[ $exit_1 -eq 0 ]]; then
-                    echo_info "OBS unrestricted, output 1: unmuted."
-                else
-                    echo_error "setting_update_output_obs_unrestricted_unmute_output_1."
-                fi
-
-            }
-
-        # Volume.
-        setting_update_output_device_volume() {
-
-            echo_info "Volume output devices:"
-
-            position_right
-
-            if [[ -n $1 && -n $2 ]]; then
-                temp_output_device_ID="output_device_${1}_ID"
-                wpctl set-volume ${!temp_output_device_ID} $2
-                echo_info "Device 1: $1: $2."
-            else
-                error_kill "setting_update_output_device_volume, arguments 1 and 2."
-            fi
-
-            if [[ -n $3 && -n $4 ]]; then
-                temp_output_device_ID="output_device_${3}_ID"
-                wpctl set-volume ${!temp_output_device_ID} $4
-                echo_info "$3: $4."
-            else
-                echo_info "Device 2: not requested."
-            fi
-
-            if [[ -n $5 && -n $6 ]]; then
-                temp_output_device_ID="output_device_${5}_ID"
-                wpctl set-volume ${!temp_output_device_ID} $6
-                echo_info "$5: $6."
-            else
-                echo_info "Device 3: not requested."
-            fi
-
-            if [[ -n $7 && -n $8 ]]; then
-                temp_output_device_ID="output_device_${7}_ID"
-                wpctl set-volume ${!temp_output_device_ID} $8
-                echo_info "$7: $8."
-            else
-                echo_info "Device 4: not requested."
-            fi
-
-            position_left
-
-        }
-        setting_update_output_device_volume_default() {
-
-            echo_info "Volume default output devices:"
-            position_right
-
-            temp_output_device_default_ID=$(wpctl inspect @DEFAULT_AUDIO_SINK@ | awk '/^id [0-9]+,/ {gsub("[^0-9]", "", $arg_2); print $arg_2}')
-            temp_output_device_volume=$(wpctl get-volume $temp_output_device_default_ID)
-            temp_output_device_volume_numerical=$(echo "$temp_output_device_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
-            wpctl set-volume $temp_output_device_default_ID $1
-            
-            echo_info "Default output device volume: $1."
-            position_left
-
-        }
-
-
-    # Playback.
-
-    setting_update_playback_playback() {
-
-        echo_info "Playback: ${1}"
-
-        position_right
-
-        systemctl --user stop playback_monitor
-        echo_info "Playback monitor stopped."
-
-        temp_setting_update_playback_playback="setting_update_playback_playback_$1"
-        ${temp_setting_update_playback_playback}
-
-        systemctl --user start playback_monitor
-        echo_info "Playback monitor started."
 
         position_left
 
     }
-        setting_update_playback_playback_play() {
+    setting_update_stream_twitch_message() {
 
-            playerctl --player playerctld play
-            exit_1=$?
-
-            error_check 1 info "Resumed."
-
-        }
-        setting_update_playback_playback_pause() {
-
-            playerctl --player playerctld pause
-            exit_1=$?
-
-            error_check 1 info "Paused."
-
-        }
-        setting_update_playback_playback_toggle() {
-
-            playerctl --player playerctld play-pause
-            exit_1=$?
-
-            error_check 1 info "Toggled."
-
-        }
-
-    setting_update_playback_seek_back() {
-
-        playerctl --player playerctld position 10-
-        echo_info "Seek back 10 seconds."
-
-    }
-    setting_update_playback_seek_forward() {
-
-        playerctl --player playerctld position 10+
-        echo_info "Seek forward 10 seconds."
-
-    }
-    setting_update_playback_skip_previous() {
-
-        playerctl --player playerctld previous
-        echo_info "Skip to previous track."
-
-    }
-    setting_update_playback_skip_next() {
-
-        playerctl --player playerctld next
-        echo_info "Skip to next track."
+        curl -X POST "https://api.twitch.tv/helix/chat/messages" \
+            -H "Authorization: Bearer $access_token" \
+            -H "Client-Id: $client_id" \
+            -H "Content-Type: application/json" \
+            -d "{\"broadcaster_id\": \"$user_id\", \"sender_id\": \"$user_id\", \"message\": \"$message\"}"
 
     }
 
-    setting_update_streamdeck_page() {
+# Input.
 
-        echo_info "Streamdeck page updates:"
+    # Default.
+
+    setting_update_input_device_default() {
+
+        echo_info "Input device default:"
 
         position_right
 
-            # Interpret page.
-            if [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
-                streamdeck_page="2"
-            elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="17"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
-                streamdeck_page="32"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="46"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "unmuted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="60"
-            elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
-                streamdeck_page="75"
-            elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="91"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
-                streamdeck_page="106"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="120"
-            elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "unmuted" && "$arg_profile_output" == "unmuted" ]]; then
-                streamdeck_page="134"
+        if [[ "$1" == "1" ]]; then
+            setting_update_input_device_default_microphone_1
+        elif [[ "$1" == "2" ]]; then
+            setting_update_input_device_default_microphone_2
+        elif [[ "$1" == "3" ]]; then
+            setting_update_input_device_default_microphone_3
+        elif [[ "$1" == "4" ]]; then
+            setting_update_input_device_default_microphone_4
+        else
+            echo_error "setting_update_input_device_default, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_device_default_microphone_1() {
+
+            wpctl set-default $microphone_1_ID
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_1_name}"
+            else
+                echo_error "setting_update_input_device_default_microphone_1."
+            fi
+
+        }
+        setting_update_input_device_default_microphone_2() {
+
+            wpctl set-default $microphone_2_ID
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_2_name}"
+            else
+                echo_error "setting_update_input_device_default_microphone_2."
+            fi
+
+        }
+        setting_update_input_device_default_microphone_3() {
+
+            wpctl set-default $microphone_3_ID
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_3_name}"
+            else
+                echo_error "setting_update_input_device_default_microphone_3."
+            fi
+
+        }
+        setting_update_input_device_default_microphone_4() {
+
+            wpctl set-default $microphone_4_ID
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_4_name}"
+            else
+                echo_error "setting_update_input_device_default_microphone_4."
+            fi
+
+        }
+
+    # Mute.
+
+    setting_update_input_device_mute_toggle() {
+
+        echo_info "Input mute toggle:"
+        position_right
+
+        status_check_input_device_mute $1
+
+        temp_mute_status="status_current_${1}_mute"
+
+        if [[ "${!temp_mute_status}" == "muted" ]]; then
+            setting_update_input_device_unmute $1
+        elif [[ "${!temp_mute_status}" == "unmuted" ]]; then
+            setting_update_input_device_mute $1
+        else
+            echo_error "setting_update_input_device_mute_toggle."
+        fi
+        
+    }
+
+    setting_update_input_device_mute() {
+
+        echo_info "Input device mute:"
+
+        position_right
+
+        status_check_input_device all
+
+        # All.
+        if [[ ("$1" == "all") ]]; then
+            setting_update_input_device_mute_all
+        fi
+
+        # Microphone 1.
+        if [[ "$1" == "input_device_1" || "$2" == "input_device_1" || "$3" == "input_device_1" || "$4" == "input_device_1" ]]; then
+            setting_update_input_device_mute_microphone_1
+        fi
+
+        # Microphone 2.
+        if [[ "$1" == "input_device_2" || "$2" == "input_device_2" || "$3" == "input_device_2" || "$4" == "input_device_2" ]]; then
+            setting_update_input_device_mute_microphone_2
+        fi
+
+        # Microphone 3.
+        if [[ "$1" == "input_device_3" || "$2" == "input_device_3" || "$3" == "input_device_3" || "$4" == "input_device_3" ]]; then
+            setting_update_input_device_mute_microphone_3
+        fi
+
+        # Microphone 4.
+        if [[ "$1" == "input_device_4" || "$2" == "input_device_4" || "$3" == "input_device_4" || "$4" == "input_device_4" ]]; then
+            setting_update_input_device_mute_microphone_4
+        fi 
+
+        # Error.
+        if [[ -z "$1" ]]; then
+            echo_error "setting_update_input_device_mute, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_device_mute_all() {
+
+            input_IDs=($(awk '/^ ├─ Sources:/ && !found {found=1; next} /^ ├─ Filters:/ && found {exit} found {match($0, /[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' <<< "$(wpctl status)"))
+
+            echo_debug "Volume:"
+
+            position_right
+
+            for input_ID in "${input_IDs[@]}"; do
+                wpctl set-volume $input_ID 0
+                echo_debug "$input_ID"
+            done
+
+            position_left
+
+            echo_debug "Mute:"
+
+            position_right
+
+            for input_ID in "${input_IDs[@]}"; do
+                wpctl set-mute $input_ID 1
+                echo_debug "$input_ID"
+            done
+
+            position_left
+
+            muted_count=0
+
+            for input_ID in "${input_IDs[@]}"; do
+                if wpctl get-volume $input_ID | grep -q 'MUTED'; then
+                    ((muted_count++))
+                fi
+            done
+
+            if [[ "$muted_count" -eq "${#input_IDs[@]}" ]]; then
+                echo_info "Check: success."
+            else
+                echo_error_urgent "setting_update_input_device_mute_all."
+            fi
+
+        }
+        setting_update_input_device_mute_microphone_1() {
+
+            wpctl set-mute $microphone_1_ID 1
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_1_name}"
+
+        }
+        setting_update_input_device_mute_microphone_2() {
+
+            wpctl set-mute $microphone_2_ID 1
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_2_name}"
+
+        }
+        setting_update_input_device_mute_microphone_3() {
+
+            wpctl set-mute $microphone_3_ID 1
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_3_name}"
+
+        }
+        setting_update_input_device_mute_microphone_4() {
+
+            
+
+            wpctl set-mute $microphone_4_ID 1
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_4_name}"
+
+        }
+
+    setting_update_input_obs_restricted_mute() {
+
+        echo_info "Input OBS restricted mute:"
+        position_right
+
+        setting_update_input_obs_restricted_mute_microphone_1
+        setting_update_input_obs_restricted_mute_microphone_2
+        setting_update_input_obs_restricted_mute_microphone_3
+        setting_update_input_obs_restricted_mute_microphone_4
+
+        position_left
+
+    }
+        setting_update_input_obs_restricted_mute_microphone_1() {
+
+            operation_socket --client restricted input mute "$input_device_microphone_1_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input mute "$input_device_microphone_1_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 1: muted."
+            else
+                echo_error "setting_update_input_obs_restricted_mute_microphone_1."
+            fi
+
+        }
+        setting_update_input_obs_restricted_mute_microphone_2() {
+
+            operation_socket --client restricted input mute "$input_device_microphone_2_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input mute "$input_device_microphone_2_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 2: muted."
+            else
+                echo_error "setting_update_input_obs_restricted_mute_microphone_2."
+            fi
+
+        }
+        setting_update_input_obs_restricted_mute_microphone_3() {
+
+            operation_socket --client restricted input mute "$input_device_microphone_3_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input mute "$input_device_microphone_3_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 3: muted."
+            else
+                echo_error "setting_update_input_obs_restricted_mute_microphone_3."
+            fi
+
+        }
+        setting_update_input_obs_restricted_mute_microphone_4() {
+
+            operation_socket --client restricted input mute "$input_device_microphone_4_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input mute "$input_device_microphone_4_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 4: muted."
+            else
+                echo_error "setting_update_input_obs_restricted_mute_microphone_4."
+            fi
+
+        }
+
+    setting_update_input_obs_unrestricted_mute() {
+
+        echo_info "Input OBS unrestricted mute:"
+        position_right
+
+        setting_update_input_obs_unrestricted_mute_microphone_1
+        setting_update_input_obs_unrestricted_mute_microphone_2
+        setting_update_input_obs_unrestricted_mute_microphone_3
+        setting_update_input_obs_unrestricted_mute_microphone_4
+
+        position_left
+
+    }
+        setting_update_input_obs_unrestricted_mute_microphone_1() {
+
+            operation_socket --client unrestricted input mute "$input_device_microphone_1_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input mute "$input_device_microphone_1_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 1: muted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_mute_microphone_1."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_mute_microphone_2() {
+
+            operation_socket --client unrestricted input mute "$input_device_microphone_2_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input mute "$input_device_microphone_2_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 2: muted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_mute_microphone_2."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_mute_microphone_3() {
+
+            operation_socket --client unrestricted input mute "$input_device_microphone_3_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input mute "$input_device_microphone_3_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 3: muted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_mute_microphone_3."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_mute_microphone_4() {
+
+            operation_socket --client unrestricted input mute "$input_device_microphone_4_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input mute "$input_device_microphone_4_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 4: muted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_mute_microphone_4."
+            fi
+
+        }
+
+    # Unmute.
+
+    setting_update_input_device_unmute() {
+
+        echo_info "Input device unmute:"
+
+        position_right
+
+        status_check_input_permission
+        status_check_input_device all
+
+        # Microphone 1.
+        if [[ "$1" == "input_device_1" || "$2" == "input_device_1" || "$3" == "input_device_1" || "$4" == "input_device_1" ]]; then
+            setting_update_input_device_unmute_microphone_1
+        fi
+
+        # Microphone 2.
+        if [[ "$1" == "input_device_2" || "$2" == "input_device_2" || "$3" == "input_device_2" || "$4" == "input_device_2" ]]; then
+            setting_update_input_device_unmute_microphone_2
+        fi
+
+        # Microphone 3.
+        if [[ "$1" == "input_device_3" || "$2" == "input_device_3" || "$3" == "input_device_3" || "$4" == "input_device_3" ]]; then
+            setting_update_input_device_unmute_microphone_3
+        fi
+
+        # Microphone 4.
+        if [[ "$1" == "input_device_4" || "$2" == "input_device_4" || "$3" == "input_device_4" || "$4" == "input_device_4" ]]; then
+            setting_update_input_device_unmute_microphone_4
+        fi 
+
+        # Error.
+        if [[ -z "$1" ]]; then
+            echo_error "setting_update_input_device_unmute, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_device_unmute_microphone_1() {
+
+            wpctl set-mute $microphone_1_ID 0
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_1_name}"
+
+        }
+        setting_update_input_device_unmute_microphone_2() {
+
+            wpctl set-mute $microphone_2_ID 0
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_2_name}"
+
+        }
+        setting_update_input_device_unmute_microphone_3() {
+
+            wpctl set-mute $microphone_3_ID 0
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_3_name}"
+
+        }
+        setting_update_input_device_unmute_microphone_4() {
+
+            wpctl set-mute $microphone_4_ID 0
+            exit_1=$?
+
+            error_check 1 info "${input_device_microphone_4_name}"
+
+        }
+
+    setting_update_input_obs_restricted_unmute() {
+
+        echo_info "Input OBS restricted unmute:"
+        position_right
+
+        status_check_profile_input_default
+        
+        # Ambient.
+        if [[ "$status_check_profile_input_default" == "ambient" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_2
+            setting_update_input_obs_restricted_unmute_microphone_3
+            setting_update_input_obs_restricted_unmute_microphone_4
+        # All.
+        elif [[ "$status_check_profile_input_default" == "all" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_1
+            setting_update_input_obs_restricted_unmute_microphone_2
+            setting_update_input_obs_restricted_unmute_microphone_3
+            setting_update_input_obs_restricted_unmute_microphone_4
+        # Rode.
+        elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_1
+        # Desk.
+        elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_2
+        # Kitchen.
+        elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_3
+        # Bathroom.
+        elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
+            setting_update_input_obs_restricted_unmute_microphone_4
+        # Error.
+        else
+            echo_error "setting_update_input_obs_restricted_unmute."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_obs_restricted_unmute_microphone_1() {
+
+            operation_socket --client restricted input unmute "$input_device_microphone_1_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input unmute "$input_device_microphone_1_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 1: unmuted."
+            else
+                echo_error "setting_update_input_obs_restricted_unmute_microphone_1."
+            fi
+
+        }
+        setting_update_input_obs_restricted_unmute_microphone_2() {
+
+            operation_socket --client restricted input unmute "$input_device_microphone_2_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input unmute "$input_device_microphone_2_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 2: unmuted."
+            else
+                echo_error "setting_update_input_obs_restricted_unmute_microphone_2."
+            fi
+
+        }
+        setting_update_input_obs_restricted_unmute_microphone_3() {
+
+            operation_socket --client restricted input unmute "$input_device_microphone_3_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input unmute "$input_device_microphone_3_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 3: unmuted."
+            else
+                echo_error "setting_update_input_obs_restricted_unmute_microphone_3."
+            fi
+
+        }
+        setting_update_input_obs_restricted_unmute_microphone_4() {
+
+            operation_socket --client restricted input unmute "$input_device_microphone_4_name_obs"
+            exit_1=$?
+
+            operation_socket --client restricted_uncut input unmute "$input_device_microphone_4_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS restricted, microphone 4: unmuted."
+            else
+                echo_error "setting_update_input_obs_restricted_unmute_microphone_4."
+            fi
+
+        }
+
+    setting_update_input_obs_unrestricted_unmute() {
+
+        echo_info "Input OBS unrestricted unmute:"
+        position_right
+
+        status_check_profile_input_default
+        
+        # Ambient.
+        if [[ "$status_check_profile_input_default" == "ambient" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_2
+            setting_update_input_obs_unrestricted_unmute_microphone_3
+            setting_update_input_obs_unrestricted_unmute_microphone_4
+        # All.
+        elif [[ "$status_check_profile_input_default" == "all" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_1
+            setting_update_input_obs_unrestricted_unmute_microphone_2
+            setting_update_input_obs_unrestricted_unmute_microphone_3
+            setting_update_input_obs_unrestricted_unmute_microphone_4
+        # Rode.
+        elif [[ "$status_check_profile_input_default" == "rode_obs" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_1
+        # Desk.
+        elif [[ "$status_check_profile_input_default" == "desk_obs" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_2
+        # Kitchen.
+        elif [[ "$status_check_profile_input_default" == "kitchen_obs" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_3
+        # Bathroom.
+        elif [[ "$status_check_profile_input_default" == "bathroom_obs" ]]; then
+            setting_update_input_obs_unrestricted_unmute_microphone_4
+        # Error.
+        else
+            echo_error "setting_update_input_obs_unrestricted_unmute."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_obs_unrestricted_unmute_microphone_1() {
+
+            operation_socket --client unrestricted input unmute "$input_device_microphone_1_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_1_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 1: unmuted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_unmute_microphone_1."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_unmute_microphone_2() {
+
+            operation_socket --client unrestricted input unmute "$input_device_microphone_2_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_2_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 2: unmuted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_unmute_microphone_2."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_unmute_microphone_3() {
+
+            operation_socket --client unrestricted input unmute "$input_device_microphone_3_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_3_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 3: unmuted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_unmute_microphone_3."
+            fi
+
+        }
+        setting_update_input_obs_unrestricted_unmute_microphone_4() {
+
+            operation_socket --client unrestricted input unmute "$input_device_microphone_4_name_obs"
+            exit_1=$?
+
+            operation_socket --client unrestricted_uncut input unmute "$input_device_microphone_4_name_obs"
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "OBS unrestricted, microphone 4: unmuted."
+            else
+                echo_error "setting_update_input_obs_unrestricted_unmute_microphone_4."
+            fi
+
+        }
+
+    # Volume.
+
+    setting_update_input_device_volume() {
+
+        echo_info "Input device volume:"
+
+        position_right
+
+        status_check_input_device all
+
+        # Microphone 1.
+        if [[ ("$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1") || "$1" == "all" ]]; then
+            setting_update_input_device_volume_microphone_1
+        fi
+
+        # Microphone 1.
+        if [[ ("$1" == "2" || "$2" == "2" || "$3" == "2" || "$4" == "2") || "$1" == "all" ]]; then
+            setting_update_input_device_volume_microphone_2
+        fi
+
+        # Microphone 1.
+        if [[ ("$1" == "3" || "$2" == "3" || "$3" == "3" || "$4" == "3") || "$1" == "all" ]]; then
+            setting_update_input_device_volume_microphone_3
+        fi
+
+        # Microphone 1.
+        if [[ ("$1" == "4" || "$2" == "4" || "$3" == "4" || "$4" == "4") || "$1" == "all" ]]; then
+            setting_update_input_device_volume_microphone_4
+        fi 
+
+        # Error.
+        if [[ -z "$1" ]]; then
+            echo_error "setting_update_input_device_volume, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_input_device_volume_microphone_1() {
+
+            wpctl set-volume $microphone_1_ID 1
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_1_name}"
+            else
+                echo_error "setting_update_input_device_volume_microphone_1."
+            fi
+
+        }
+        setting_update_input_device_volume_microphone_2() {
+
+            wpctl set-volume $microphone_2_ID 1
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_2_name}"
+            else
+                echo_error "setting_update_input_device_volume_microphone_2."
+            fi
+        }
+        setting_update_input_device_volume_microphone_3() {
+
+            wpctl set-volume $microphone_3_ID 1
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_3_name}"
+            else
+                echo_error "setting_update_input_device_volume_microphone_3."
+            fi
+        }
+        setting_update_input_device_volume_microphone_4() {
+
+            wpctl set-volume $microphone_4_ID 1
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${input_device_microphone_4_name}"
+            else
+                echo_error "setting_update_input_device_volume_microphone_4."
+            fi
+        }
+
+# Output.
+
+    # Create.
+
+    setting_update_output_device_create_null_sink_1() {
+
+        echo_info "Create null sink:"
+
+        position_right
+
+        pactl load-module module-null-sink sink_name=null_sink_1 object.linger=1
+
+        position_left
+
+    }
+    
+    # Default.
+
+    setting_update_output_device_default_cycle() {
+
+        echo_info "Output cycle:"
+
+        position_right
+
+        status_check_output_device all
+
+        # Null sink.
+        if [[ "$output_device_default_ID" != "$output_device_null_sink_1_ID" ]]; then
+            setting_update_output_device_default_null_sink_1
+            
+        # Headphones.
+        elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "yes" ]]; then
+            setting_update_output_device_default_headphones_1
+
+        # Reset connections.
+        elif [[ "$output_device_default_ID" == "$output_device_null_sink_1_ID" && "$status_current_output_device_headphones_1_connection" == "" ]]; then
+            setting_update_output_device_default_null_sink_1
+
+        # Error.
+        else
+            echo_error "setting_update_output_device_default_cycle."
+        fi
+
+        position_left
+
+    }
+
+    setting_update_output_device_default() {
+
+        echo_debug "Output device default:"
+
+        position_right
+
+        translate_argument device $1
+        argument_current_device="$argument"
+
+        if [[ "$argument_current_device" == "null_sink_1" ]]; then
+            setting_update_output_device_default_null_sink_1
+        elif [[ "$argument_current_device" == "speaker_1" ]]; then
+            setting_update_output_device_default_speaker_1
+        elif [[ "$argument_current_device" == "headphones_1" ]]; then
+            setting_update_output_device_default_headphones_1
+        else
+            echo_error "setting_update_output_device_default, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_output_device_default_null_sink_1() {
+
+            # Unchanged.
+            if [[ "$status_current_output_device_default" == "$output_device_null_sink_1_name_long" ]]; then
+                status_previous_output_device_default="$status_current_output_device_default"
+                echo_debug "${output_device_null_sink_1_name_echo} (unchanged)."
+
+            # Changed.
+            elif [[ "$status_current_output_device_default" != "$output_device_null_sink_1_name_long" ]]; then
+                wpctl set-default $output_device_null_sink_1_ID
+                status_previous_output_device_default="$status_current_output_device_default"
+                status_current_output_device_default="$output_device_null_sink_1_name_long"
+                echo_debug "$output_device_null_sink_1_name_echo."
+
             # Error.
             else
-                echo_error "setting_update_streamdeck_page, invalid profile arguments."
+                echo_error "setting_update_output_device_default_null_sink_1."
             fi
 
-        # Streamdeck source.
-        if [[ "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" ]]; then
+        }
+        setting_update_output_device_default_speaker_1() {
 
-            # Update streamdeck pages.
-            if [[ "$source" == "streamdeck_bathroom" ]]; then
-                streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
-            elif [[ "$source" == "streamdeck_desk" ]]; then
-                streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
-            elif [[ "$source" == "streamdeck_bed" ]]; then
-                streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
-            elif [[ "$source" == "streamdeck_kitchen" ]]; then
-                streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
-                streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
+            # Unchanged.
+            if [[ "$status_current_output_device_default" == "speaker_1" ]]; then
+                status_previous_output_device_default="$status_current_output_device_default"
+                echo_debug "${output_device_speaker_1_name_echo} (unchanged)."
+
+            # Changed.
+            elif [[ "$status_current_output_device_default" != "speaker_1" ]]; then
+                wpctl set-default $output_device_speaker_1_ID
+                status_previous_output_device_default="$status_current_output_device_default"
+                status_current_output_device_default="speaker_1"
+                echo_debug "$output_device_speaker_1_name_echo."
+
+            # Error.
             else
-                echo_error "setting_update_streamdeck_page, invalid source."
+                echo_error "setting_update_output_device_default_speaker_1."
             fi
 
-        # Other sources.
+        }
+        setting_update_output_device_default_headphones_1() {
+
+            # Unchanged.
+            if [[ "$status_current_output_device_default" == "$output_device_headphones_1_script_name" ]]; then
+                status_previous_output_device_default="$status_current_output_device_default"
+                echo_debug "${output_device_headphones_1_name} (unchanged)."
+            
+            # Changed.
+            elif [[ "$status_current_output_device_default" != "$output_device_headphones_1_script_name" ]]; then
+                wpctl set-default $output_device_headphones_1_ID
+                status_previous_output_device_default="$status_current_output_device_default"
+                status_current_output_device_default="$output_device_headphones_1_script_name"
+                echo_debug "$output_device_headphones_1_name."
+
+            # Error.
+            else
+                echo_error "setting_update_output_device_default_headphones_1."
+            fi
+
+        }
+
+    # Mute.
+
+    setting_update_output_device_mute() {
+
+        echo_info "Output device mute:"
+
+        position_right
+
+        # All.
+        if [[ "$1" == "all" ]]; then
+            setting_update_output_device_mute_all
+        fi
+
+        # Microphone 1.
+        if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
+            setting_update_output_device_mute_microphone_1
+        fi
+
+        # Microphone 1.
+        if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
+            setting_update_output_device_mute_microphone_2
+        fi
+
+        # Microphone 1.
+        if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
+            setting_update_output_device_mute_microphone_3
+        fi
+
+        # Microphone 1.
+        if [[ "$1" == "1" || "$2" == "1" || "$3" == "1" || "$4" == "1" ]]; then
+            setting_update_output_device_mute_microphone_4
+        fi 
+
+        # Error.
+        if [[ -z "$1" ]]; then
+            echo_error "setting_update_output_device_mute, invalid argument: ${1}."
+        fi
+
+        position_left
+
+    }
+        setting_update_output_device_mute_all() {
+
+            # Get output device IDs.
+            output_IDs=($(awk '/^ ├─ Sinks:/ && !found {found=1; next} /^ ├─ Sources:/ && found {exit} found {match($0, /[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' <<< "$(wpctl status)"))
+
+            echo_debug "Volume:"
+
+            position_right
+
+            for output_ID in "${output_IDs[@]}"; do
+                wpctl set-volume $output_ID 0
+                echo_debug "$output_ID"
+            done
+
+            position_left
+
+            echo_debug "Mute:"
+
+            position_right
+
+            for output_ID in "${output_IDs[@]}"; do
+                wpctl set-mute $output_ID 1
+                echo_debug "$output_ID"
+            done
+
+            # Check mute statuses of output devices.
+            muted_count=0
+
+            for output_ID in "${output_IDs[@]}"; do
+                if wpctl get-volume $output_ID | grep -q 'MUTED'; then
+                    ((muted_count++))
+                fi
+            done
+
+            position_left
+
+            # Check if all output devices are muted.
+            if [ "$muted_count" -eq "${#output_IDs[@]}" ]; then
+                echo_info "Check: success."
+            else
+                echo_error "setting_update_output_mute."
+            fi
+
+        }
+
+    setting_update_output_obs_restricted_mute() {
+
+        # ydotool key 125:1 68:1 68:0 125:0
+
+        operation_socket --client restricted hotkey trigger key OBS_KEY_F10
+        exit_1=$?
+        operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F10
+        exit_2=$?
+
+        if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+            echo_info "Output: muted (restricted OBS)."
+        elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
+            echo_error "setting_update_output_obs_restricted_mute."
+        fi
+
+    }
+    setting_update_output_obs_unrestricted_mute() {
+
+        # ydotool key 125:1 88:1 88:0 125:0
+        operation_socket --client unrestricted hotkey trigger key OBS_KEY_F12
+        exit_1=$?
+        operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F12
+        exit_2=$?
+
+        if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+            echo_info "Output: muted (unrestricted OBS)."
+        elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
+            echo_error "setting_update_output_obs_unrestricted_mute."
+        fi
+
+    }
+
+    # Link.
+
+    setting_update_output_device_link() {
+
+        echo_info "Link output devices:"
+
+        position_right
+
+        # Speaker 1.
+        if [[ ("$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1") || "$1" == "all" ]]; then
+            setting_update_output_device_link_speaker_1
+        fi
+
+        # Speaker 2.
+        if [[ ("$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2") || "$1" == "all" ]]; then
+            setting_update_output_device_link_speaker_2
+        fi
+
+        # Speaker 3.
+        if [[ ("$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3") || "$1" == "all" ]]; then
+            setting_update_output_device_link_speaker_3
+        fi
+
+        position_left
+
+    }
+        setting_update_output_device_link_speaker_1() {
+
+            pw-link null_sink_1:monitor_FR $output_device_speaker_1_name_node:playback_FR
+            exit_1=$?
+            pw-link null_sink_1:monitor_FL $output_device_speaker_1_name_node:playback_FL
+            exit_2=$?
+
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_1_name_echo}: linked."
+            else
+                echo_debug "${output_device_speaker_1_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_link_speaker_2() {
+
+            pw-link null_sink_1:monitor_FR $output_device_speaker_2_name_node:playback_FR
+            exit_1=$?
+            pw-link null_sink_1:monitor_FL $output_device_speaker_2_name_node:playback_FL
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_2_name_echo}: linked."
+            else
+                echo_debug "${output_device_speaker_2_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_link_speaker_3() {
+
+            pw-link null_sink_1:monitor_FR $output_device_speaker_3_name_node:playback_FR
+            exit_1=$?
+            pw-link null_sink_1:monitor_FL $output_device_speaker_3_name_node:playback_FL
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_3_name_echo}: linked."
+            else
+                echo_debug "${output_device_speaker_3_name_echo}: failed."
+            fi
+
+        }
+
+    setting_update_output_device_unlink() {
+
+        echo_info "Unlink output devices:"
+
+        position_right
+
+        # Speaker 1.
+        if [[ ("$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1") || "$1" == "all" ]]; then
+            setting_update_output_device_unlink_speaker_1
+        fi
+
+        # Speaker 2.
+        if [[ ("$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2") || "$1" == "all" ]]; then
+            setting_update_output_device_unlink_speaker_2
+        fi
+
+        # Speaker 3.
+        if [[ ("$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3") || "$1" == "all" ]]; then
+            setting_update_output_device_unlink_speaker_3
+        fi
+
+        position_left
+
+    }
+        setting_update_output_device_unlink_speaker_1() {
+
+            pw-link -d null_sink_1:monitor_FR $output_device_speaker_1_name_node:playback_FR
+            exit_1=$?
+            pw-link -d null_sink_1:monitor_FL $output_device_speaker_1_name_node:playback_FL
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_1_name_echo}: unlinked."
+            else
+                echo_debug "${output_device_speaker_1_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_unlink_speaker_2() {
+
+            pw-link -d null_sink_1:monitor_FR $output_device_speaker_2_name_node:playback_FR
+            exit_1=$?
+            pw-link -d null_sink_1:monitor_FL $output_device_speaker_2_name_node:playback_FL
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_2_name_echo}: unlinked."
+            else
+                echo_debug "${output_device_speaker_2_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_unlink_speaker_3() {
+
+            pw-link -d null_sink_1:monitor_FR $output_device_speaker_3_name_node:playback_FR
+            exit_1=$?
+            pw-link -d null_sink_1:monitor_FL $output_device_speaker_3_name_node:playback_FL
+            exit_2=$?
+
+            if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+                echo_info "${output_device_speaker_3_name_echo}: unlinked."
+            else
+                echo_debug "${output_device_speaker_3_name_echo}: failed."
+            fi
+
+        }
+
+    # Unmute.
+
+    setting_update_output_device_unmute() {
+
+        echo_info "Unmute output devices:"
+
+        position_right
+
+        # Null sink.
+        if [[ "$1" == "null_sink_1" || "$2" == "null_sink_1" || "$3" == "null_sink_1" || "$4" == "null_sink_1" ]]; then
+            setting_update_output_device_unmute_null_sink
+        fi
+
+        # Speaker 1.
+        if [[ "$1" == "speaker_1" || "$2" == "speaker_1" || "$3" == "speaker_1" || "$4" == "speaker_1" ]]; then
+            setting_update_output_device_unmute_speaker_1
+        fi
+
+        # Speaker 2.
+        if [[ "$1" == "speaker_2" || "$2" == "speaker_2" || "$3" == "speaker_2" || "$4" == "speaker_2" ]]; then
+            setting_update_output_device_unmute_speaker_2
+        fi
+
+        # Speaker 3.
+        if [[ "$1" == "speaker_3" || "$2" == "speaker_3" || "$3" == "speaker_3" || "$4" == "speaker_3" ]]; then
+            setting_update_output_device_unmute_speaker_3
+        fi
+
+        position_left
+
+    }
+        setting_update_output_device_unmute_null_sink() {
+
+            wpctl set-mute $output_device_null_sink_1_ID 0
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "Null sink: unmuted."
+            else
+                echo_debug "Null sink: failed."
+            fi
+
+        }
+        setting_update_output_device_unmute_speaker_1() {
+
+            wpctl set-mute $output_device_speaker_1_ID 0
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${output_device_speaker_1_name_echo}: unmuted."
+            else
+                echo_debug "${output_device_speaker_1_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_unmute_speaker_2() {
+
+            wpctl set-mute $output_device_speaker_2_ID 0
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${output_device_speaker_2_name_echo}: unmuted."
+            else
+                echo_debug "${output_device_speaker_2_name_echo}: failed."
+            fi
+
+        }
+        setting_update_output_device_unmute_speaker_3() {
+
+            wpctl set-mute $output_device_speaker_3_ID 0
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "${output_device_speaker_3_name_echo}: unmuted."
+            else
+                echo_debug "${output_device_speaker_3_name_echo}: failed."
+            fi
+
+        }
+
+    setting_update_output_obs_restricted_unmute() {
+
+        # ydotool key 125:1 67:1 67:0 125:0
+        operation_socket --client restricted hotkey trigger key OBS_KEY_F9
+        exit_1=$?
+
+        operation_socket --client restricted_uncut hotkey trigger key OBS_KEY_F9
+        exit_2=$?
+
+        if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+            echo_info "Output: unmuted (restricted OBS)."
+        elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
+            echo_error "Output: unmuting (restricted OBS) failed."
+        fi
+
+    }
+    setting_update_output_obs_unrestricted_unmute() {
+
+        # ydotool key 125:1 87:1 87:0 125:0
+        operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
+        exit_1=$?
+
+        operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F11
+        exit_2=$?
+
+        if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+            echo_info "Output: unmuted (unrestricted OBS)."
+        elif [[ $exit_1 -ne 0 || $exit_2 -ne 0 ]]; then
+            echo_error "Output: unmuting (unrestricted OBS) failed."
+        fi
+
+    }
+
+
+    setting_update_output_obs_unrestricted_unmute_obs_cli() {
+
+        echo_info "Output OBS unrestricted unmute:"
+
+        position_right
+
+        setting_update_output_obs_unrestricted_unmute_output_1
+
+        position_left
+
+    }
+        setting_update_output_obs_unrestricted_unmute_output_1() {
+
+            operation_socket --client unrestricted_uncut output list "$input_device_output_1_name_obs"
+            exit_1=$?
+
+            if [[ $exit_1 -eq 0 ]]; then
+                echo_info "OBS unrestricted, output 1: unmuted."
+            else
+                echo_error "setting_update_output_obs_unrestricted_unmute_output_1."
+            fi
+
+        }
+
+    # Volume.
+    setting_update_output_device_volume() {
+
+        echo_info "Volume output devices:"
+
+        position_right
+
+        if [[ -n $1 && -n $2 ]]; then
+            temp_output_device_ID="output_device_${1}_ID"
+            wpctl set-volume ${!temp_output_device_ID} $2
+            echo_info "Device 1: $1: $2."
         else
-            streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+            error_kill "setting_update_output_device_volume, arguments 1 and 2."
+        fi
+
+        if [[ -n $3 && -n $4 ]]; then
+            temp_output_device_ID="output_device_${3}_ID"
+            wpctl set-volume ${!temp_output_device_ID} $4
+            echo_info "$3: $4."
+        else
+            echo_info "Device 2: not requested."
+        fi
+
+        if [[ -n $5 && -n $6 ]]; then
+            temp_output_device_ID="output_device_${5}_ID"
+            wpctl set-volume ${!temp_output_device_ID} $6
+            echo_info "$5: $6."
+        else
+            echo_info "Device 3: not requested."
+        fi
+
+        if [[ -n $7 && -n $8 ]]; then
+            temp_output_device_ID="output_device_${7}_ID"
+            wpctl set-volume ${!temp_output_device_ID} $8
+            echo_info "$7: $8."
+        else
+            echo_info "Device 4: not requested."
+        fi
+
+        position_left
+
+    }
+    setting_update_output_device_volume_default() {
+
+        echo_info "Volume default output devices:"
+        position_right
+
+        temp_output_device_default_ID=$(wpctl inspect @DEFAULT_AUDIO_SINK@ | awk '/^id [0-9]+,/ {gsub("[^0-9]", "", $arg_2); print $arg_2}')
+        temp_output_device_volume=$(wpctl get-volume $temp_output_device_default_ID)
+        temp_output_device_volume_numerical=$(echo "$temp_output_device_volume" | grep -oP 'Volume: \K\d+(\.\d+)?')
+        wpctl set-volume $temp_output_device_default_ID $1
+        
+        echo_info "Default output device volume: $1."
+        position_left
+
+    }
+
+
+# Playback.
+
+setting_update_playback_playback() {
+
+    echo_info "Playback: ${1}"
+
+    position_right
+
+    systemctl --user stop playback_monitor
+    echo_info "Playback monitor stopped."
+
+    temp_setting_update_playback_playback="setting_update_playback_playback_$1"
+    ${temp_setting_update_playback_playback}
+
+    systemctl --user start playback_monitor
+    echo_info "Playback monitor started."
+
+    position_left
+
+}
+    setting_update_playback_playback_play() {
+
+        playerctl --player playerctld play
+        exit_1=$?
+
+        error_check 1 info "Resumed."
+
+    }
+    setting_update_playback_playback_pause() {
+
+        playerctl --player playerctld pause
+        exit_1=$?
+
+        error_check 1 info "Paused."
+
+    }
+    setting_update_playback_playback_toggle() {
+
+        playerctl --player playerctld play-pause
+        exit_1=$?
+
+        error_check 1 info "Toggled."
+
+    }
+
+setting_update_playback_seek_back() {
+
+    playerctl --player playerctld position 10-
+    echo_info "Seek back 10 seconds."
+
+}
+setting_update_playback_seek_forward() {
+
+    playerctl --player playerctld position 10+
+    echo_info "Seek forward 10 seconds."
+
+}
+setting_update_playback_skip_previous() {
+
+    playerctl --player playerctld previous
+    echo_info "Skip to previous track."
+
+}
+setting_update_playback_skip_next() {
+
+    playerctl --player playerctld next
+    echo_info "Skip to next track."
+
+}
+
+setting_update_streamdeck_page() {
+
+    echo_info "Streamdeck page updates:"
+
+    position_right
+
+        # Interpret page.
+        if [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
+            streamdeck_page="2"
+        elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="17"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
+            streamdeck_page="32"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="46"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "restricted" && "$arg_profile_input" == "unmuted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="60"
+        elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
+            streamdeck_page="75"
+        elif [[ "$argument_current_censor_1" == "censored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="91"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "muted" ]]; then
+            streamdeck_page="106"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "muted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="120"
+        elif [[ "$argument_current_censor_1" == "uncensored" && "$arg_profile_restriction" == "unrestricted" && "$arg_profile_input" == "unmuted" && "$arg_profile_output" == "unmuted" ]]; then
+            streamdeck_page="134"
+        # Error.
+        else
+            echo_error "setting_update_streamdeck_page, invalid profile arguments."
+        fi
+
+    # Streamdeck source.
+    if [[ "$source" == "streamdeck_bathroom" || "$source" == "streamdeck_bed" || "$source" == "streamdeck_desk" || "$source" == "streamdeck_kitchen" ]]; then
+
+        # Update streamdeck pages.
+        if [[ "$source" == "streamdeck_bathroom" ]]; then
             streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
             streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
             streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
+        elif [[ "$source" == "streamdeck_desk" ]]; then
+            streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
+        elif [[ "$source" == "streamdeck_bed" ]]; then
+            streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
+        elif [[ "$source" == "streamdeck_kitchen" ]]; then
+            streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
+            streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
+        else
+            echo_error "setting_update_streamdeck_page, invalid source."
         fi
 
-        position_left
+    # Other sources.
+    else
+        streamdeckc -a SET_PAGE -d 0 -p $streamdeck_page
+        streamdeckc -a SET_PAGE -d 1 -p $streamdeck_page
+        streamdeckc -a SET_PAGE -d 2 -p $streamdeck_page
+        streamdeckc -a SET_PAGE -d 3 -p $streamdeck_page
+    fi
 
-    }
+    position_left
+
+}
 
 ##################
 ## STATUS CHECK ##
