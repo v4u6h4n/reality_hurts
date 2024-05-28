@@ -212,8 +212,11 @@
                 update_window_position_hide_up $chat
                 update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
 
-                configurator loopback_desk_vaughan none stop
-                configurator loopback_desk_vaughan none start_obs
+                if [[ "$current_window_layout" != "stream_quad_desk" ]]; then
+                    configurator loopback_desk_vaughan none stop
+                    sleep 0.5
+                    configurator loopback_desk_vaughan none start_obs
+                fi
                 configurator loopback_bed_overhead none stop
                 configurator loopback_bed_tripod none stop
 
@@ -259,8 +262,12 @@
             elif [[ "$new_window_layout" == "stream_quad_desk" ]]; then
                 update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
 
-                configurator loopback_desk_vaughan none stop
-                configurator loopback_desk_vaughan none start_obs
+                if [[ "$current_window_layout" != "default" ]]; then
+                    configurator loopback_desk_vaughan none stop
+                    sleep 0.5
+                    configurator loopback_desk_vaughan none start_obs
+                fi
+
                 configurator loopback_bed_overhead none stop
                 configurator loopback_bed_tripod none stop
 
@@ -296,6 +303,7 @@
                 update_window_position_hide_down $camera_bed_overhead $camera_bed_tripod
 
                 configurator loopback_desk_vaughan none stop
+                sleep 0.5
                 configurator loopback_desk_vaughan none start_player
                 configurator loopback_bed_overhead none stop
                 configurator loopback_bed_tripod none stop
