@@ -1084,7 +1084,7 @@ command() {
 
         sleep 5
 
-        #command system window_manager window_layout default startup
+        # command system window_manager window_layout default startup
 
         # Start OBS.
         operation_sleep 20

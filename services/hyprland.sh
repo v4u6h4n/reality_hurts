@@ -209,17 +209,6 @@
             # Default.
             elif [[ "$new_window_layout" == "default" ]]; then
 
-                update_window_position_hide_up $chat
-                update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
-
-                if [[ "$current_window_layout" != "stream_quad_desk" ]]; then
-                    configurator loopback_desk_vaughan none stop
-                    sleep 0.5
-                    configurator loopback_desk_vaughan none start_obs
-                fi
-                configurator loopback_bed_overhead none stop
-                configurator loopback_bed_tripod none stop
-
                 # None.
                 if [[ "$new_window_order" == "none" || "$new_window_order" == "startup" ]]; then
                     new_window_order="default_default"
@@ -231,15 +220,23 @@
                 # Default.
                 if [[ "$new_window_order" == "default_default" ]]; then
                     echo_info "Default."
+                    
+                    update_window_position_hide_up $chat
+                    update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+
+                    if [[ "$current_window_layout" != "stream_quad_desk" ]]; then
+                        configurator loopback_desk_vaughan none stop
+                        sleep 0.5
+                        configurator loopback_desk_vaughan none start_obs
+                    fi
+                    configurator loopback_bed_overhead none stop
+                    configurator loopback_bed_tripod none stop
+                    
                     for application_title in "${application_titles[@]}"; do
                         temp_workspace_id=$(window_workspace_id $application_title)
                         update_window_tile $application_title
                         update_window_workspace_silent $temp_workspace_id $application_title
                     done
-                    # for application_title in "${application_titles[@]}"; do
-                    #     temp_workspace_id=$(window_workspace_id $application_title)
-                    #     update_window_tile_toggle $application_title
-                    # done
 
                 #Swap.
                 elif [[ "$new_window_order" == "next" ]]; then
@@ -262,15 +259,6 @@
             elif [[ "$new_window_layout" == "stream_quad_desk" ]]; then
                 update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
 
-                if [[ "$current_window_layout" != "default" ]]; then
-                    configurator loopback_desk_vaughan none stop
-                    sleep 0.5
-                    configurator loopback_desk_vaughan none start_obs
-                fi
-
-                configurator loopback_bed_overhead none stop
-                configurator loopback_bed_tripod none stop
-
                 # None.
                 if [[ "$new_window_order" == "none" ]]; then
                     new_window_order="stream_quad_desk_window_chat"
@@ -291,6 +279,15 @@
                     # Chat.
                     update_window_size 470 1347 Chatterino
                     update_window_position_exact 4634 16 Chatterino
+
+                    if [[ "$current_window_layout" != "default" ]]; then
+                        configurator loopback_desk_vaughan none stop
+                        sleep 0.5
+                        configurator loopback_desk_vaughan none start_obs
+                    fi
+
+                    configurator loopback_bed_overhead none stop
+                    configurator loopback_bed_tripod none stop
 
                 # Error.
                 else
@@ -456,7 +453,16 @@
                     # Camera bed tripod.
                     update_window_position_exact 4234 874 $camera_bed_tripod
                     update_window_size 870 489 $camera_bed_tripod
-                
+                                    update_window_position_hide_up $chat
+                    update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+
+                    if [[ "$current_window_layout" != "stream_quad_desk" ]]; then
+                        configurator loopback_desk_vaughan none stop
+                        sleep 0.5
+                        configurator loopback_desk_vaughan none start_obs
+                    fi
+                    configurator loopback_bed_overhead none stop
+                    configurator loopback_bed_tripod none stop
                 # Window, camera, chat.
                 elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
                     echo_info "Window, camera, chat."
