@@ -375,13 +375,11 @@
             # Stream therapy.
             elif [[ "$new_window_layout" == "stream_therapy" ]]; then
 
-                if [[ "$current_window_layout" != "stream_therapy" ]]; then
-                    update_window_position_hide_down $camera_desk_vaughan
+                update_window_position_hide_down $camera_desk_vaughan
 
-                    configurator loopback_desk_vaughan none stop
-                    configurator loopback_bed_overhead none start
-                    configurator loopback_bed_tripod none start
-                fi
+                configurator loopback_desk_vaughan none stop
+                configurator loopback_bed_overhead none start
+                configurator loopback_bed_tripod none start
 
                 # None.
                 if [[ "$new_window_order" == "none" ]]; then
