@@ -4205,6 +4205,63 @@ interpret_source_permission() {
                         echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
                     fi
 
+                # Loopback: desk Vaughan.
+                elif [[ "$arg_system_application" == "loopback_desk_vaughan" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_loopback_start_desk_vaughan
+                    # Start OBS.
+                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                        setting_update_system_loopback_start_desk_vaughan_obs
+                    # Start player.
+                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                        setting_update_system_loopback_start_desk_vaughan_player
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_loopback_stop_desk_vaughan
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
+                # Loopback: bed overhead.
+                elif [[ "$arg_system_application" == "loopback_bed_overhead" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_loopback_start_bed_overhead
+                    # Start OBS.
+                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                        setting_update_system_loopback_start_bed_overhead_obs
+                    # Start player.
+                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                        setting_update_system_loopback_start_bed_overhead_player
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_loopback_stop_bed_overhead
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
+                # Loopback: bed tripod.
+                elif [[ "$arg_system_application" == "loopback_bed_tripod" ]]; then
+                    # Start.
+                    if [[ "$arg_system_application_action" == "start" ]]; then
+                        setting_update_system_loopback_start_bed_tripod
+                    # Start OBS.
+                    elif [[ "$arg_system_application_action" == "start_obs" ]]; then
+                        setting_update_system_loopback_start_bed_tripod_obs
+                    # Start player.
+                    elif [[ "$arg_system_application_action" == "start_player" ]]; then
+                        setting_update_system_loopback_start_bed_tripod_player
+                    # Stop.
+                    elif [[ "$arg_system_application_action" == "stop" ]]; then
+                        setting_update_system_loopback_stop_bed_tripod
+                    # Error.
+                    else
+                        echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
+                    fi
+
                 # Error.
                 else
                     echo_error "setting_update_system, arg_system_application: $arg_system_application."
@@ -4226,51 +4283,104 @@ interpret_source_permission() {
         }
             setting_update_system_loopback_start() {
 
-                # Desk Vaughan.
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-                ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-                
-                # Bed overhead.
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video8 \
-                #     -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                #     -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
-                #     -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
-                #     & disown
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                    -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
-                    -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
-                    & disown
-
-                # Bed tripod.
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 30 -video_size 1920x1080 -input_format mjpeg -i /dev/video10 \
-                #        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                #        -filter_complex "[0:v]vflip[vflipped]; \
-                #                      [vflipped]hflip[hflipped]; \
-                #                      [hflipped]colorkey=0x00FF00:0.3:0.2[ckout]; \
-                #                      [1:v][ckout]overlay[out1]; \
-                #                      [out1]split=2[out2][out3]" \
-                #        -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
-                #        -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
-                #        & disown
-
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                       -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
-                       -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                       -map "[out2]" -f v4l2 /dev/video60 \
-                       -map "[out3]" -f v4l2 /dev/video61 \
-                       & disown
-
+                setting_update_system_loopback_start_desk_vaughan
+                setting_update_system_loopback_start_bed_overhead
+                setting_update_system_loopback_start_bed_tripod
 
             }
+                setting_update_system_loopback_start_desk_vaughan() {
+
+                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+
+                }
+                setting_update_system_loopback_start_desk_vaughan_obs() {
+
+                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
+
+                }
+                setting_update_system_loopback_start_desk_vaughan_player() {
+
+                    ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+
+                }
+                setting_update_system_loopback_start_bed_overhead() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                           -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
+                           -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
+                           & disown
+
+                }
+                setting_update_system_loopback_start_bed_overhead_obs() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
+                           & disown
+
+                }
+                setting_update_system_loopback_start_bed_overhead_player() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
+                           & disown
+
+                }
+                setting_update_system_loopback_start_bed_tripod() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                        -map "[out2]" -f v4l2 /dev/video60 \
+                        -map "[out3]" -f v4l2 /dev/video61 \
+                        & disown
+
+                }
+                setting_update_system_loopback_start_bed_tripod_obs() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
+                           & disown
+
+                }
+                setting_update_system_loopback_start_bed_tripod_player() {
+
+                    ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                           -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                           -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
+                           -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
+                           & disown
+
+                }
             setting_update_system_loopback_stop() {
 
-                kill $(pgrep ffmpeg)
+                setting_update_system_loopback_stop_desk_vaughan
+                setting_update_system_loopback_stop_bed_overhead
+                setting_update_system_loopback_stop_bed_tripod
 
             }
+                setting_update_system_loopback_stop_desk_vaughan() {
+
+                    kill $(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
+
+                }
+                setting_update_system_loopback_stop_bed_overhead() {
+
+                    kill $(ps aux | grep ffmpeg | grep video8 | awk '{print $2}')
+
+                }
+                setting_update_system_loopback_stop_bed_tripod() {
+
+                    kill $(ps aux | grep ffmpeg | grep video10 | awk '{print $2}')
+
+                }
             setting_update_pipeware_restart() {
 
                 setting_update_system_obs_stream_stop unrestricted
