@@ -375,12 +375,6 @@
             # Stream therapy.
             elif [[ "$new_window_layout" == "stream_therapy" ]]; then
 
-                update_window_position_hide_down $camera_desk_vaughan
-
-                configurator loopback_desk_vaughan none stop
-                configurator loopback_bed_overhead none start
-                configurator loopback_bed_tripod none start
-
                 # None.
                 if [[ "$new_window_order" == "none" ]]; then
                     new_window_order="stream_therapy_tripod_chat"
@@ -438,6 +432,13 @@
                     update_window_size 2042 1347 $camera_bed_tripod
                     update_window_position_exact 2576 16 $camera_bed_tripod
 
+                    if [[ "$current_window_layout" != "stream_therapy" ]]; then
+                        update_window_position_hide_down $camera_desk_vaughan
+                        configurator loopback_desk_vaughan none stop
+                        configurator loopback_bed_overhead none start
+                        configurator loopback_bed_tripod none start
+                    fi
+
                 # Window, chat, camera.
                 elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod" ]]; then
                     echo_info "Window, chat, camera."
@@ -455,16 +456,9 @@
                     # Camera bed tripod.
                     update_window_position_exact 4234 874 $camera_bed_tripod
                     update_window_size 870 489 $camera_bed_tripod
-                                    update_window_position_hide_up $chat
-                    update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead $camera_bed_tripod
+                    # update_window_position_hide_up $chat
+                    update_window_position_hide_down $camera_desk_vaughan $camera_bed_overhead # $camera_bed_tripod
 
-                    if [[ "$current_window_layout" != "stream_quad_desk" ]]; then
-                        configurator loopback_desk_vaughan none stop
-                        sleep 0.5
-                        configurator loopback_desk_vaughan none start_obs
-                    fi
-                    configurator loopback_bed_overhead none stop
-                    configurator loopback_bed_tripod none stop
                 # Window, camera, chat.
                 elif [[ "$new_window_order" == "stream_therapy_window_chat_tripod_large" ]]; then
                     echo_info "Window, camera, chat."
