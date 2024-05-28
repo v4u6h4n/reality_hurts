@@ -4363,7 +4363,7 @@ setting_update() {
 
                 loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
 
-                if [[ -n "$loopback_desk_vaughan_pid"]]; then
+                if [[ -n "$loopback_desk_vaughan_pid" ]]; then
                     kill $loopback_desk_vaughan_pid
                 fi
 
@@ -4372,7 +4372,7 @@ setting_update() {
 
                 loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep video8 | awk '{print $2}')
 
-                if [[ -n "$loopback_bed_overhead_pid"]]; then
+                if [[ -n "$loopback_bed_overhead_pid" ]]; then
                     kill $loopback_bed_overhead_pid
                 fi
 
@@ -4381,7 +4381,7 @@ setting_update() {
 
                 loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep video10 | awk '{print $2}')
 
-                if [[ -n "$loopback_bed_tripod_pid"]]; then
+                if [[ -n "$loopback_bed_tripod_pid" ]]; then
                     kill $loopback_bed_tripod_pid
                 fi
 
