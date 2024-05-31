@@ -4,10 +4,12 @@ import shlex
 import logging
 import threading
 from logging.handlers import TimedRotatingFileHandler
-from rgbprint import gradient_scroll, Color
 import time
 from datetime import datetime
 from twitchio.ext import commands
+
+from terminaltexteffects.effects.effect_colorshift import ColorShift
+from terminaltexteffects.utils.graphics import Gradient, Color
 import sys
 import os
 
@@ -32,6 +34,9 @@ class Bot(commands.Bot):
         # Load permissions from separate files
         self.load_permissions()
 
+        # Initialize banner task
+        self.banner_task = None
+
     def setup_logging(self):
         log_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', datefmt='%Y-%m-%d | %H:%M:%S')
 
@@ -53,18 +58,15 @@ class Bot(commands.Bot):
         script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'configurator.sh')
         subprocess.run([script_path, "--source", "roboty_hurts_owner", "--verbose", "--stream", "refresh", "twitch", "roboty_hurts"])
 
-
     def get_access_token(self):
         print("Getting access token...")
         token_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data', 'stream_twitch_roboty_hurts_access_token.txt')
         with open(token_file, "r") as file:
             return file.read().strip()
 
-
     async def event_ready(self):
         self.log_message(f'Logged in as {self.nick}')
         self.loop.create_task(self.run_refresh_access_token_periodically())
-
 
     async def event_message(self, message):
         if message.echo:
@@ -78,12 +80,10 @@ class Bot(commands.Bot):
         self.log_message(log_message)
         await self.handle_commands(message)
 
-        
     async def run_refresh_access_token_periodically(self):
         while True:
             await asyncio.sleep(1800)
             self.refresh_access_token()
-
 
     @commands.command(aliases=['b'])
     async def banner(self, ctx: commands.Context, *, banner_message: str = None):
@@ -93,10 +93,10 @@ class Bot(commands.Bot):
 
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_banner]:
             if permission_banner == 'owner':
-                    response_message = "Banner command locked."
-                    await ctx.send(response_message)
-                    self.log_message(f"RESPONSE | {response_message}")
-            if permission_banner != 'owner':
+                response_message = "Banner command locked."
+                await ctx.send(response_message)
+                self.log_message(f"RESPONSE | {response_message}")
+            else:
                 response_message = "Permission denied."
                 await ctx.send(response_message)
                 self.log_message(f"RESPONSE | {response_message}")
@@ -104,13 +104,13 @@ class Bot(commands.Bot):
 
         banner_type = banner_message.split()[0]
         banner_types = ["normal", "alert"]
-        
+
         if banner_type not in banner_types:
             response_message = "Invalid banner type."
             await ctx.send(response_message)
             self.log_message(f"RESPONSE | {response_message}")
             return
-        elif banner_type in banner_types:
+        else:
             banner_message = ' '.join(banner_message.split()[1:])
 
         if banner_message is None:
@@ -119,55 +119,49 @@ class Bot(commands.Bot):
         if len(banner_message) > 70:
             banner_message = banner_message[:70]
             banner_padding = ""
-        elif len(banner_message) == 70:
-            banner_padding = ""
-        elif len(banner_message) < 69:
+        else:
             banner_padding_amount = (70 - len(banner_message)) // 2
             banner_padding = " " * banner_padding_amount
 
-        if hasattr(self, 'banner_task') and not self.banner_task.done():
+        # Cancel any existing banner task
+        if self.banner_task and not self.banner_task.done():
             self.banner_task.cancel()
 
         async def animate_banner():
-            while True:
-                print("\033c", end="")
-                sys.stdout.write("\x1b[?25l")
-                sys.stdout.flush()
-                if banner_type == 'normal':
-                    gradient_scroll(
-                        banner_padding + banner_message, 
-                        start_color=0x4BBEE3, 
-                        end_color=Color.medium_violet_red,
-                        delay=0.05,
-                        times=1
-                    )
-                elif banner_type == 'alert':
-                    gradient_scroll(
-                        banner_padding + banner_message, 
-                        start_color="ff5349",
-                        end_color="e32227",
-                        delay=0.02,
-                        times=1
-                    )
-                await asyncio.sleep(0.001)
+            try:
+                effect = ColorShift(banner_padding + banner_message)
+                effect.effect_config.travel = True
+                effect.effect_config.travel_direction = Gradient.Direction.HORIZONTAL
+                effect.effect_config.loop_gradient = True
+                effect.effect_config.cycles = 0
+                effect.effect_config.gradient_frames = 3
+                effect.effect_config.reverse_travel_direction = True
+                effect.effect_config.final_gradient_stops = (Color('e81416'), Color('ffa500'), Color('faeb36'), Color('79c314'), Color('487de7'), Color('4b369d'), Color('70369d'))
+                effect.terminal_config.canvas_height = 1
+
+                with effect.terminal_output() as terminal:
+                    for frame in effect:
+                        if self.banner_task.cancelled():
+                            break
+                        terminal.print(frame)
+                        await asyncio.sleep(0.01)  # Adjust sleep duration as needed
+            except asyncio.CancelledError:
+                # Handle the task being cancelled if needed
+                pass
 
         self.banner_task = asyncio.create_task(animate_banner())
-
 
     @commands.command(aliases=['info', 'guide', 'settings', 'options', 'h', 'commands', 'menu'])
     async def help(self, ctx: commands.Context):
         await ctx.send("Commands: v4u6h4n.github.io/reality_hurts/viewer_commands")
 
-
     @commands.command(aliases=['social', 'links', 'link', 'discord'])
     async def socials(self, ctx: commands.Context):
         await ctx.send("Rules: https://lnk.bio/reality_hurts")
 
-
     @commands.command(aliases=['r'])
     async def rules(self, ctx: commands.Context):
         await ctx.send("Rules: v4u6h4n.github.io/reality_hurts/rules")
-
 
     @commands.command(aliases=['a'])
     @commands.cooldown(1, 10, commands.Bucket.channel)
@@ -179,10 +173,10 @@ class Bot(commands.Bot):
 
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
             if permission_scene == 'owner':
-                    response_message = "Activity command locked."
-                    await ctx.send(response_message)
-                    self.log_message(f"RESPONSE | {response_message}")
-            if permission_scene != 'owner':
+                response_message = "Activity command locked."
+                await ctx.send(response_message)
+                self.log_message(f"RESPONSE | {response_message}")
+            else:
                 response_message = "Permission denied."
                 await ctx.send(response_message)
                 self.log_message(f"RESPONSE | {response_message}")
@@ -193,7 +187,7 @@ class Bot(commands.Bot):
         number_arguments_chat = len(arguments_chat)
 
         if number_arguments_chat == 1 and arguments_chat[0] in ["admin", "chores", "chilling", "coding", "cooking_breakfast", "cooking_lunch", "cooking_dinner", "crafts", "dancing", "eating_breakfast", "eating_lunch", "eating_dinner", "fitness", "morning", "painting", "relationship", "sewing", "socialising", "therapy_informal", "waking_up"]:
-                pass
+            pass
         else:
             response_message = "Invalid command."
             await ctx.send(response_message)
@@ -219,7 +213,6 @@ class Bot(commands.Bot):
         self.log_message("EXECUTE  | " + ' '.join(command))
         subprocess.run(command)
 
-
     @commands.command(aliases=['s'])
     @commands.cooldown(1, 2, commands.Bucket.channel)
     async def scene(self, ctx: commands.Context):
@@ -229,10 +222,10 @@ class Bot(commands.Bot):
 
         if self.get_permission_level(ctx.author.name) < self.permission_levels[permission_scene]:
             if permission_scene == 'owner':
-                    response_message = "Scene command locked."
-                    await ctx.send(response_message)
-                    self.log_message(f"RESPONSE | {response_message}")
-            if permission_scene != 'owner':
+                response_message = "Scene command locked."
+                await ctx.send(response_message)
+                self.log_message(f"RESPONSE | {response_message}")
+            else:
                 response_message = "Permission denied."
                 await ctx.send(response_message)
                 self.log_message(f"RESPONSE | {response_message}")
@@ -243,9 +236,9 @@ class Bot(commands.Bot):
         number_arguments_chat = len(arguments_chat)
 
         if number_arguments_chat == 2 and arguments_chat[0] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
-                pass
+            pass
         elif number_arguments_chat == 4 and arguments_chat[0] in ["a", "v"] and arguments_chat[2] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"] and arguments_chat[3] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
-                pass
+            pass
         else:
             response_message = "Invalid command."
             await ctx.send(response_message)
