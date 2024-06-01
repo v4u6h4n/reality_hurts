@@ -1082,12 +1082,8 @@ command() {
         command system application camera_bed_overhead none start
         command system application camera_bed_tripod none start
 
-        sleep 5
-
-        # command system window_manager window_layout default startup
-
         # Start OBS.
-        operation_sleep 20
+        operation_sleep 25
         command system application obs_studio unrestricted_uncut start
 
         operation_sleep 5
@@ -1100,6 +1096,10 @@ command() {
 
         command camera quad_1 desk_vaughan quad_2 studio quad_3 screen_vaughan_1 quad_4 window
         command profile uc ur m m
+
+        sleep 5
+
+        command system window_manager window_layout default startup
 
     }
     command_stream() {
