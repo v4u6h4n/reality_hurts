@@ -48,7 +48,7 @@ prerequisite() {
 
             # OBS.
 
-            input_device_output_1_name_obs="Desktop Audio"
+            output_device_output_1_name_obs="output"
 
             # Speakers.
 
@@ -6064,7 +6064,6 @@ setting_update_stream_info() {
 
     setting_update_output_obs_restricted_unmute() {
 
-        # ydotool key 125:1 67:1 67:0 125:0
         operation_socket --client restricted hotkey trigger key OBS_KEY_F9
         exit_1=$?
 
@@ -6080,7 +6079,6 @@ setting_update_stream_info() {
     }
     setting_update_output_obs_unrestricted_unmute() {
 
-        # ydotool key 125:1 87:1 87:0 125:0
         operation_socket --client unrestricted hotkey trigger key OBS_KEY_F11
         exit_1=$?
 
@@ -6109,7 +6107,7 @@ setting_update_stream_info() {
     }
         setting_update_output_obs_unrestricted_unmute_output_1() {
 
-            operation_socket --client unrestricted_uncut output list "$input_device_output_1_name_obs"
+            operation_socket --client unrestricted_uncut output list "$output_device_output_1_name_obs"
             exit_1=$?
 
             if [[ $exit_1 -eq 0 ]]; then
