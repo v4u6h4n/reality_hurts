@@ -4299,7 +4299,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_overhead() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                         -map "[out2]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
                         -map "[out3]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
@@ -4309,7 +4309,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_overhead_obs() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video70 \
                         & disown
@@ -4318,7 +4318,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_overhead_player() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
                         & disown
@@ -4327,7 +4327,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_tripod() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                    -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                    -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -f v4l2 /dev/video60 \
                     -map "[out3]" -f v4l2 /dev/video61 \
@@ -4337,7 +4337,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_tripod_obs() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video60 \
                         & disown
@@ -4346,7 +4346,7 @@ setting_update() {
             setting_update_system_loopback_start_bed_tripod_player() {
 
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                        -i "/media/archive/Social Media/Stock/Stock Footage/Still/Waterfall.mkv" \
+                        -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video61 \
                         & disown
