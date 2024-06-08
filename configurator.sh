@@ -4508,7 +4508,7 @@ setting_update() {
             if [[ $exit_1 -eq 0 ]]; then
                 echo_info "OBS $1: stream stopped."
             else
-                echo_error "setting_update_system_obs_stream_stop."
+                echo_info "OBS client process not running, skipping."
             fi
 
         }
