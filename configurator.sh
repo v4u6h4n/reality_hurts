@@ -1054,7 +1054,7 @@ command() {
         status_check_input_device 1 2 3 4
         setting_update_input_device_mute all
         setting_update_input_device_default 2
-        setting_update_input_device_unmute 1 2 3 4
+        setting_update_input_device_unmute input_device_1 input_device_2 input_device_3 input_device_4
         setting_update_input_device_volume 1 2 3 4
 
         # Output.
