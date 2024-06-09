@@ -26,7 +26,7 @@ prerequisite() {
             input_device_microphone_2_name="Microphone Desk"
             input_device_microphone_2_name_obs="mic_desk"
             microphone_2="desk"
-            input_device_microphone_2_node_name="alsa_input.usb-POROSVOC_POROSVOC_UAC_Dongle_88156088-00.6.mono-fallback" # "alsa_input.usb-046d_Logitech_StreamCam_11536225-02.analog-stereo"
+            input_device_microphone_2_node_name="alsa_input.usb-046d_Logitech_StreamCam_11536225-02.analog-stereo"
 
             input_device_microphone_3_name="Microphone Kitchen"
             input_device_microphone_3_name_obs="mic_kitchen"
@@ -4285,9 +4285,16 @@ setting_update() {
 
                 # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
+                #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                #     -map "[out2]" -f v4l2 /dev/video50 \
+                #     -map "[out3]" -f v4l2 /dev/video51 \
+                #     & disown
+
+                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
-                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                    -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -f v4l2 /dev/video50 \
                     -map "[out3]" -f v4l2 /dev/video51 \
                     & disown
@@ -4297,10 +4304,16 @@ setting_update() {
 
                 # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
                 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
+                #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                #     -map "[out2]" -f v4l2 /dev/video50 \
+                #     & disown
+
+                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
-                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                    -map "[out2]" -f v4l2 /dev/video50 \
+                    -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1]" \
+                    -map "[out1]" -f v4l2 /dev/video50 \
                     & disown
 
             }
@@ -4308,10 +4321,16 @@ setting_update() {
 
                 # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
+                #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
+                #     -map "[out2]" -f v4l2 /dev/video51 \
+                #     & disown
+
+                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
-                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                    -map "[out2]" -f v4l2 /dev/video51 \
+                    -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1]" \
+                    -map "[out1]" -f v4l2 /dev/video51 \
                     & disown
 
             }
