@@ -235,9 +235,9 @@ class Bot(commands.Bot):
 
         number_arguments_chat = len(arguments_chat)
 
-        if number_arguments_chat == 2 and arguments_chat[0] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
+        if number_arguments_chat == 2 and arguments_chat[0] in ["a", "anja", "v", "vaughan"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
             pass
-        elif number_arguments_chat == 4 and arguments_chat[0] in ["a", "v"] and arguments_chat[2] in ["a", "v"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"] and arguments_chat[3] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
+        elif number_arguments_chat == 4 and arguments_chat[0] in ["a", "anja", "v", "vaughan"] and arguments_chat[2] in ["a", "anja", "v", "vaughan"] and arguments_chat[1] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"] and arguments_chat[3] in ["ba", "bathroom", "be", "bed", "d", "desk", "k", "kitchen", "s", "studio"]:
             pass
         else:
             response_message = "Invalid command."
