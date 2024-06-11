@@ -438,6 +438,52 @@ update_window_layout() {
                 loopback_stop_bed_overhead
                 loopback_stop_bed_tripod
 
+            # Window, chat, therapy, overhead.
+            elif [[ "$new_window_order" == "stream_quad_therapy_overhead" ]]; then
+                echo_info "Window, chat."
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 2042 1347 $application_title
+                done
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+
+                if [[ "$current_window_layout" != "default" ]]; then
+                    loopback_stop_desk_vaughan
+                    sleep 0.5
+                    loopback_start_desk_vaughan_obs
+                fi
+
+                loopback_stop_bed_overhead
+                loopback_stop_bed_tripod
+                loopback_start_bed_overhead_obs
+
+            # Window, chat, therapy, tripod.
+            elif [[ "$new_window_order" == "stream_quad_therapy_tripod" ]]; then
+                echo_info "Window, chat."
+                # Applications.
+                for application_title in "${application_titles[@]}"; do
+                    update_window_float $application_title
+                    update_window_position_exact 2576 16 $application_title
+                    update_window_size 2042 1347 $application_title
+                done
+                # Chat.
+                update_window_size 470 1347 Chatterino
+                update_window_position_exact 4634 16 Chatterino
+
+                if [[ "$current_window_layout" != "default" ]]; then
+                    loopback_stop_desk_vaughan
+                    sleep 0.5
+                    loopback_start_desk_vaughan_obs
+                fi
+
+                loopback_stop_bed_overhead
+                loopback_stop_bed_tripod
+                loopback_start_bed_tripod_obs
+
             # Error.
             else
                 echo_error "update_window_layout, new_window_order, stream_quad_desk."
