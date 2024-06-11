@@ -134,7 +134,7 @@ loopback_start() {
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
         # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
         v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -152,7 +152,7 @@ loopback_start() {
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
         # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
         v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -168,7 +168,7 @@ loopback_start() {
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
         # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
         v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -224,7 +224,6 @@ loopback_start() {
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                 -map "[out]" -f v4l2 /dev/video60 \
                 & disown
-                # -pix_fmt yuv420p
 
     }
     loopback_start_bed_tripod_player() {
@@ -459,6 +458,7 @@ update_window_layout() {
 
                 loopback_stop_bed_overhead
                 loopback_stop_bed_tripod
+                sleep 0.5
                 loopback_start_bed_overhead_obs
 
             # Window, chat, therapy, tripod.
@@ -482,6 +482,7 @@ update_window_layout() {
 
                 loopback_stop_bed_overhead
                 loopback_stop_bed_tripod
+                sleep 0.5
                 loopback_start_bed_tripod_obs
 
             # Error.
@@ -630,6 +631,7 @@ update_window_layout() {
                 if [[ "$current_window_layout" != "stream_therapy" ]]; then
                     update_window_position_hide_down $camera_desk_vaughan
                     loopback_stop_desk_vaughan
+                    sleep 0.5
                     loopback_start_bed_overhead
                     loopback_start_bed_tripod
                 fi
