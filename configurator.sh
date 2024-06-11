@@ -4405,14 +4405,7 @@ setting_update() {
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -f v4l2 /dev/video60 \
                     -map "[out3]" -f v4l2 /dev/video61 \
-                    & disown
-
-            ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
-                    -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
-                    -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
-                    -map "[out2]" -f v4l2 /dev/video60 \
-                    -map "[out3]" -f v4l2 /dev/video61          
-
+                    & disown       
 
             }
             setting_update_system_loopback_start_bed_tripod_obs() {
