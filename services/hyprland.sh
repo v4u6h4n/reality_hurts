@@ -631,9 +631,11 @@ update_window_layout() {
                 if [[ "$current_window_layout" != "stream_therapy" ]]; then
                     update_window_position_hide_down $camera_desk_vaughan
                     loopback_stop_desk_vaughan
+                    loopback_stop_bed_overhead
+                    loopback_stop_bed_tripod
                     sleep 0.5
-                    loopback_start_bed_overhead
-                    loopback_start_bed_tripod
+                    loopback_start_bed_overhead_player
+                    loopback_start_bed_tripod_player
                 fi
 
             # Window, chat, camera.
