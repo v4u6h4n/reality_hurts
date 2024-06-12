@@ -4533,7 +4533,9 @@ setting_update() {
         }
         setting_update_system_camera_desk_vaughan_start() {
 
-            mpv av://v4l2:/dev/video51 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
+            # --untimed or --no-correct-pts  --fps=60
+
+            mpv av://v4l2:/dev/video51 --no-cache --untimed --input-test --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
 
         }
         setting_update_system_camera_desk_vaughan_stop() {
@@ -4544,7 +4546,7 @@ setting_update() {
         setting_update_system_camera_bed_overhead_start() {
 
             # kitty --title camera_bed_overhead & disown
-            mpv av://v4l2:/dev/video71 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
+            mpv av://v4l2:/dev/video71 --no-cache --input-test --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
 
         }
         setting_update_system_camera_bed_overhead_stop() {
@@ -4554,7 +4556,7 @@ setting_update() {
         }
         setting_update_system_camera_bed_tripod_start() {
 
-            mpv av://v4l2:/dev/video61 --no-cache --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-cache --no-config --title="camera_bed_tripod" & disown
+            mpv av://v4l2:/dev/video61 --no-cache --input-test --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-cache --no-config --title="camera_bed_tripod" & disown
 
         }
         setting_update_system_camera_bed_tripod_stop() {
