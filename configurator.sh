@@ -79,6 +79,12 @@ prerequisite() {
             output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
             output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
+        # Web cameras.
+            
+            path_camera_desk_vaughan="/dev/video2"
+            path_camera_bed_overhead="/dev/video10"
+            path_camera_bed_tripod="/dev/video12"
+
     }
     prerequisite_directory () {
 
@@ -216,7 +222,7 @@ lock_check() {
 
     echo_debug "Checking lock file..."
 
-    while [ -e /tmp/configurator.lock ]; do
+    while [[ -e /tmp/configurator.lock ]]; do
         sleep 0.01
     done
 
@@ -4022,7 +4028,7 @@ setting_update() {
                     # Restricted uncut.
                     if [[ "$arg_system_application_profile" == "restricted" ]]; then
                         status_check_obs_websocket 4
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted" --collection "restricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4034,7 +4040,7 @@ setting_update() {
                     # Restricted uncut.
                     elif [[ "$arg_system_application_profile" == "restricted_uncut" ]]; then
                         status_check_obs_websocket 2
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "restricted_uncut" --collection "restricted_uncut" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4046,7 +4052,7 @@ setting_update() {
                     # Unrestricted.
                     elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
                         status_check_obs_websocket 3
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4058,7 +4064,7 @@ setting_update() {
                     # Unrestricted uncut.
                     elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
                         status_check_obs_websocket 1
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4283,24 +4289,24 @@ setting_update() {
         }
             setting_update_system_loopback_start_desk_vaughan() {
 
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
 
-                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                 #     -map "[out2]" -f v4l2 /dev/video50 \
                 #     -map "[out3]" -f v4l2 /dev/video51 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                # v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                # v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                 #     -map "[out2]" -f v4l2 /dev/video50 \
                 #     -map "[out3]" -f v4l2 /dev/video51 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4310,28 +4316,28 @@ setting_update() {
                                      [out4]split=2[out5][out6]" \
                     -map "[out5]" -f v4l2 /dev/video50 \
                     -map "[out6]" -f v4l2 /dev/video51 \
-                    & disown
+                    > /dev/null 2>&1 & disown
 
 
             }
             setting_update_system_loopback_start_desk_vaughan_obs() {
 
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
+                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
                 
-                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                 #     -map "[out2]" -f v4l2 /dev/video50 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                # v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                # v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1]" \
                 #     -map "[out1]" -f v4l2 /dev/video50 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4339,27 +4345,27 @@ setting_update() {
                                      [out3]crop=1920:800:0:280[cropped]; \
                                      [greenscreen][cropped]overlay=0:280[out4]" \
                     -map "[out4]" -f v4l2 /dev/video50 \
-                    & disown
+                    > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_desk_vaughan_player() {
 
-                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
+                # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
 
-                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video0 \
+                # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                 #     -map "[out2]" -f v4l2 /dev/video51 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                # v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                # v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0; ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                 #     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 #     -filter_complex "[0:v]eq=gamma=1.0, colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1]" \
                 #     -map "[out1]" -f v4l2 /dev/video51 \
-                #     & disown
+                #     > /dev/null 2>&1 & disown
 
-                v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4367,63 +4373,63 @@ setting_update() {
                                      [out3]crop=1920:800:0:280[cropped]; \
                                      [greenscreen][cropped]overlay=0:280[out4]" \
                     -map "[out4]" -f v4l2 /dev/video51 \
-                    & disown
+                    > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_bed_overhead() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                         -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                         -map "[out2]" -f v4l2 /dev/video70 \
                         -map "[out3]" -f v4l2 /dev/video71 \
-                        & disown
+                        > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_bed_overhead_obs() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                         -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -f v4l2 /dev/video70 \
-                        & disown
+                        > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_bed_overhead_player() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                         -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -pix_fmt yuv420p -f v4l2 /dev/video71 \
-                        & disown
+                        > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_bed_tripod() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                     -map "[out2]" -f v4l2 /dev/video60 \
                     -map "[out3]" -f v4l2 /dev/video61 \
-                    & disown       
+                    > /dev/null 2>&1 & disown       
 
             }
             setting_update_system_loopback_start_bed_tripod_obs() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
                         -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -f v4l2 /dev/video60 \
-                        & disown
+                        > /dev/null 2>&1 & disown
 
             }
             setting_update_system_loopback_start_bed_tripod_player() {
 
-                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
                         -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                         -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                         -map "[out]" -f v4l2 /dev/video61 \
-                        & disown
+                        > /dev/null 2>&1 & disown
 
             }
         setting_update_system_loopback_stop() {
@@ -4535,7 +4541,7 @@ setting_update() {
 
             # --untimed or --no-correct-pts  --fps=60
 
-            mpv av://v4l2:/dev/video51 --no-cache --no-input-cursor --untimed --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" & disown
+            mpv av://v4l2:/dev/video51 --no-cache --no-input-cursor --untimed --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_desk_vaughan" > /dev/null 2>&1 & disown
 
         }
         setting_update_system_camera_desk_vaughan_stop() {
@@ -4546,7 +4552,7 @@ setting_update() {
         setting_update_system_camera_bed_overhead_start() {
 
             # kitty --title camera_bed_overhead & disown
-            mpv av://v4l2:/dev/video71 --no-cache --no-input-cursor --untimed --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" & disown
+            mpv av://v4l2:/dev/video71 --no-cache --no-input-cursor --untimed --osc=no --stop-screensaver=no --panscan=1 --profile=low-latency --no-config --title="camera_bed_overhead" > /dev/null 2>&1 & disown
 
         }
         setting_update_system_camera_bed_overhead_stop() {
