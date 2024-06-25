@@ -7,6 +7,10 @@
         directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
         directory_data_private="${directory_script}../../../data/"
 
+        path_camera_desk_vaughan="/dev/video2"
+        path_camera_bed_overhead="/dev/video10"
+        path_camera_bed_tripod="/dev/video12"
+
     }
     variables() {
 
@@ -131,10 +135,10 @@ loopback_start() {
 }
     loopback_start_desk_vaughan() {
 
-        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-        v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
+        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -144,15 +148,15 @@ loopback_start() {
                                 [out4]split=2[out5][out6]" \
             -map "[out5]" -f v4l2 /dev/video50 \
             -map "[out6]" -f v4l2 /dev/video51 \
-            & disown
+            > /dev/null 2>&1 & disown
 
     }
     loopback_start_desk_vaughan_obs() {
 
-        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
-        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video50 & disown
-        v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
+        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -160,15 +164,15 @@ loopback_start() {
                                 [out3]crop=1920:800:0:280[cropped]; \
                                 [greenscreen][cropped]overlay=0:280[out4]" \
             -map "[out4]" -f v4l2 /dev/video50 \
-            & disown
+            > /dev/null 2>&1 & disown
 
     }
     loopback_start_desk_vaughan_player() {
 
-        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video0 -pix_fmt yuv420p -f v4l2 /dev/video51 & disown
-        v4l2-ctl -d /dev/video0 -c focus_automatic_continuous=0
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i /dev/video0 \
+        # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
+        # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
                                 [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -176,63 +180,63 @@ loopback_start() {
                                 [out3]crop=1920:800:0:280[cropped]; \
                                 [greenscreen][cropped]overlay=0:280[out4]" \
             -map "[out4]" -f v4l2 /dev/video51 \
-            & disown
+            > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_overhead() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                 -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
                 -map "[out2]" -f v4l2 /dev/video70 \
                 -map "[out3]" -f v4l2 /dev/video71 \
-                & disown
+                > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_overhead_obs() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                 -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                 -map "[out]" -f v4l2 /dev/video70 \
-                & disown
+                > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_overhead_player() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video8 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_overhead \
                 -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                 -map "[out]" -f v4l2 /dev/video71 \
-                & disown
+                > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_tripod() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out1];[out1]split=2[out2][out3]" \
             -map "[out2]" -f v4l2 /dev/video60 \
             -map "[out3]" -f v4l2 /dev/video61 \
-            & disown
+            > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_tripod_obs() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
                 -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                 -map "[out]" -f v4l2 /dev/video60 \
-                & disown
+                > /dev/null 2>&1 & disown
 
     }
     loopback_start_bed_tripod_player() {
 
-        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i /dev/video10 \
+        ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_bed_tripod \
                 -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                 -filter_complex "[0:v]colorkey=0x00FF00:0.3:0.2[ckout];[1:v][ckout]overlay[out]" \
                 -map "[out]" -f v4l2 /dev/video61 \
-                & disown
+                > /dev/null 2>&1 & disown
 
     }
 loopback_stop() {
@@ -244,7 +248,7 @@ loopback_stop() {
 }
     loopback_stop_desk_vaughan() {
 
-        loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
+        loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep video2 | awk '{print $2}')
 
         if [[ -n "$loopback_desk_vaughan_pid" ]]; then
             kill $loopback_desk_vaughan_pid
