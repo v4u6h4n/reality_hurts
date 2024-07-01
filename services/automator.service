@@ -1,9 +1,0 @@
-[Unit]
-Description=Automator
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c '/media/storage/Streaming/Software/scripts/main/configurator.sh -s s -v -au'
-
-[Install]
-WantedBy=default.target
