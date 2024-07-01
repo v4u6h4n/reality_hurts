@@ -17,7 +17,6 @@ prerequisite() {
         # Input.
 
             # Microphones.
-
             input_device_microphone_1_name="Rode"
             input_device_microphone_1_name_obs="mic_mobile"
             microphone_1="rode"
@@ -41,17 +40,14 @@ prerequisite() {
         # Output.
 
             # Null sink.
-
             output_device_null_sink_1_name_echo="Null Sink"
             output_device_null_sink_1_name_short="n1"
             output_device_null_sink_1_name_long="null_sink_1"
 
             # OBS.
-
             output_device_output_1_name_obs="output"
 
             # Speakers.
-
             default_speaker_1_volume="0.35"
             output_device_speaker_1_name_echo="Speaker Desk"
             output_device_speaker_1_name_short="s1"
@@ -71,19 +67,19 @@ prerequisite() {
             output_device_speaker_3_name_node="alsa_output.usb-Generic_Modern_USB-C_Speaker_0V33FRW211801X-00.analog-stereo"
 
             # Headphones.
-
             output_device_headphones_1_name="Headset"
             output_device_headphones_1_script_name="headphones_1"
-            # output_device_headphones_1_node_name="bluez_output.94_DB_56_03_17_D5.1"
-            # output_device_headphones_1_address="94:DB:56:03:17:D5"
             output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
             output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
         # Web cameras.
             
-            path_camera_desk_vaughan="/dev/video2"
+            path_camera_desk_vaughan="/dev/video0"
             path_camera_bed_overhead="/dev/video10"
             path_camera_bed_tripod="/dev/video12"
+            path_camera_desk_vaughan_short="video0"
+            path_camera_bed_overhead_short="video10"
+            path_camera_bed_tripod_short="video12"
 
     }
     prerequisite_directory () {
@@ -488,40 +484,21 @@ command() {
     command_automation() {
 
         echo_info "Automation:"
-
         position_right
-        
         current_hour=$(date +%H)
 
         # Morning.
         if [[ $current_hour -eq 5 ]]; then
-            
-            # command permission stream select couchsurfer
-            # command permission scene select couchsurfer
-
             command stream refresh twitch reality_hurts
-
             command stream info all all unrestricted under_construction under_construction under_construction
-
             command scene quad anja studio vaughan desk
 
         # Sleeping.
         elif [[ $current_hour -eq 21 ]]; then
-
-            # command permission stream select owner
-            # command permission scene select owner
-
             command stream refresh twitch reality_hurts
-
             command stream info twitch reality_hurts unrestricted sleeping sleeping sleeping
-
             command scene quad anja bed vaughan studio
-
             command profile uncensored unrestricted muted muted
-
-        # Debug.
-        # elif [[ $current_hour -eq 14 ]]; then
-        #     :
 
         # Error.
         else
@@ -4306,7 +4283,7 @@ setting_update() {
                 #     > /dev/null 2>&1 & disown
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4337,7 +4314,7 @@ setting_update() {
                 #     > /dev/null 2>&1 & disown
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4365,7 +4342,7 @@ setting_update() {
                 #     > /dev/null 2>&1 & disown
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
-                ffmpeg  -loglevel debug -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
+                ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
                                      [out2]eq=gamma=1.0,colorkey=0x00FF00:0.3:0.2[ckout]; \
@@ -4441,7 +4418,7 @@ setting_update() {
         }
             setting_update_system_loopback_stop_desk_vaughan() {
 
-                loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep video0 | awk '{print $2}')
+                loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep $path_camera_desk_vaughan_short | awk '{print $2}')
 
                 if [[ -n "$loopback_desk_vaughan_pid" ]]; then
                     kill $loopback_desk_vaughan_pid
@@ -4450,7 +4427,7 @@ setting_update() {
             }
             setting_update_system_loopback_stop_bed_overhead() {
 
-                loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep video8 | awk '{print $2}')
+                loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_overhead_short | awk '{print $2}')
 
                 if [[ -n "$loopback_bed_overhead_pid" ]]; then
                     kill $loopback_bed_overhead_pid
@@ -4459,7 +4436,7 @@ setting_update() {
             }
             setting_update_system_loopback_stop_bed_tripod() {
 
-                loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep video10 | awk '{print $2}')
+                loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_tripod_short | awk '{print $2}')
 
                 if [[ -n "$loopback_bed_tripod_pid" ]]; then
                     kill $loopback_bed_tripod_pid
