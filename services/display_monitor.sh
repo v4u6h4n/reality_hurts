@@ -43,6 +43,48 @@ lock_release() {
 }
 
 
+monitor_brightness() {
+
+    log "Monitor brightness:"
+
+    new_brightness_level="$1"
+    length=${#monitor_ids[@]}
+
+    for (( i=0; i<length; i++ )); do
+
+        monitor_id=${monitor_ids[$i]}
+        monitor_name=${monitor_names[$i]}
+        monitor_serial_number=${monitor_serial_numbers[$i]}
+        monitor_power_state=${monitor_power_states[$i]}
+        monitor_power_preference=${monitor_power_preferences[$i]}
+
+        if [[ "$monitor_power_state" == "on" ]]; then
+            log " ├─ $monitor_name: changing brightness level to $new_brightness_level..."
+            sleep 0.1
+            ddcutil setvcp 10 $new_brightness_level --sn $monitor_serial_number
+        
+        elif [[ "$monitor_power_state" == "off" ]]; then
+            log " ├─ $monitor_name: turning on..."
+            sleep 0.1
+            ddcutil setvcp D6 01 --sn $monitor_serial_number
+            jq --arg monitor_id "$monitor_id" --arg new_power_state "on" '.[$monitor_id][0].power_state = $new_power_state' "$path_config" > tmp.$$.json && mv tmp.$$.json "$path_config"
+            log " ├─ $monitor_name: changing brightness level to $new_brightness_level..."
+            sleep 1
+            ddcutil setvcp 10 $new_brightness_level --sn $monitor_serial_number
+            log " ├─ $monitor_name: turning off..."
+            sleep 0.1
+            ddcutil setvcp D6 04 --noverify --sn $monitor_serial_number
+            jq --arg monitor_id "$monitor_id" --arg new_power_state "off" '.[$monitor_id][0].power_state = $new_power_state' "$path_config" > tmp.$$.json && mv tmp.$$.json "$path_config"
+
+        else
+            log " ├─ Error: invalid power state: '$monitor_power_state'."
+        fi
+
+    done
+
+}
+
+
 monitor_power() {
 
     log "Monitor power:"
@@ -135,7 +177,9 @@ monitor_status() {
             monitor_ids+=($(jq -r ". | keys[$i]" "$path_config"))
         done
     else
-        monitor_ids=("$1")
+        for arg in "$@"; do
+            monitor_ids+=("$arg")
+        done
     fi
 
     monitor_names=()
@@ -176,12 +220,23 @@ while [[ $# -gt 0 ]]; do
             log "Logging enabled."
             ;;
         --monitor)
-            monitor_status "$2"
             shift
+            monitor_args=()
+            while [[ $# -gt 0 && $1 != --* ]]; do
+                monitor_args+=("$1")
+                shift
+            done
+            monitor_status "${monitor_args[@]}"
+            continue
             ;;
         --power)
             shift
             monitor_power "$@"
+            break
+            ;;
+        --brightness)
+            shift
+            monitor_brightness "$@"
             break
             ;;
         *)

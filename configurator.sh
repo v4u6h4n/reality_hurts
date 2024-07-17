@@ -4086,6 +4086,10 @@ setting_update() {
                 elif [[ "$arg_system_application_action" == "stream_stop" ]]; then
                     setting_update_system_obs_stream_stop $arg_system_application_profile
 
+                # Record chapter.
+                elif [[ "$arg_system_application_action" == "record_chapter" ]]; then
+                    setting_update_record_obs_chapter
+
                 # Error.
                 else
                     echo_error  "setting_update_system, arg_system_application_action: $arg_system_application_action."
@@ -4283,6 +4287,7 @@ setting_update() {
                 #     > /dev/null 2>&1 & disown
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
@@ -4300,6 +4305,7 @@ setting_update() {
             setting_update_system_loopback_start_desk_vaughan_obs() {
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
                 ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
 
                 # ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 30 -input_format mjpeg -i $path_camera_desk_vaughan \
@@ -4345,6 +4351,7 @@ setting_update() {
                 #     > /dev/null 2>&1 & disown
 
                 v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+                v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
                 ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
                     -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
                     -filter_complex "[0:v]split=2[out2][out3]; \
@@ -6379,6 +6386,24 @@ setting_update_streamdeck_page() {
     fi
 
     position_left
+
+}
+
+# Record.
+
+setting_update_record_obs_chapter() {
+
+    operation_socket --client unrestricted hotkey trigger key OBS_KEY_F10
+    exit_1=$?
+
+    operation_socket --client unrestricted_uncut hotkey trigger key OBS_KEY_F10
+    exit_2=$?
+
+    if [[ $exit_1 -eq 0 && $exit_2 -eq 0 ]]; then
+        echo_info "OBS unrestricted and unrestricted_uncut: chapter added."
+    else
+        echo_error "setting_update_record_obs_chapter."
+    fi
 
 }
 

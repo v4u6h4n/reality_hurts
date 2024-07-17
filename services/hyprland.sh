@@ -141,6 +141,7 @@ loopback_start() {
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
         # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
         v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
         ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
@@ -157,6 +158,7 @@ loopback_start() {
     loopback_start_desk_vaughan_obs() {
 
         v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
         ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
 
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video50 > /dev/null 2>&1 & disown
@@ -186,6 +188,7 @@ loopback_start() {
         # ffmpeg -hwaccel vaapi -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
         # ffmpeg -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i $path_camera_desk_vaughan -pix_fmt yuv420p -f v4l2 /dev/video51 > /dev/null 2>&1 & disown
         v4l2-ctl -d $path_camera_desk_vaughan -c focus_automatic_continuous=0
+        v4l2-ctl -d $path_camera_desk_vaughan -c focus_absolute=0
         ffmpeg -vaapi_device /dev/dri/renderD128 -f v4l2 -video_size 1920x1080 -framerate 60 -input_format mjpeg -i $path_camera_desk_vaughan \
             -i "/media/storage/Streaming/Video/flowers/flowers_looped.mp4" \
             -filter_complex "[0:v]split=2[out2][out3]; \
