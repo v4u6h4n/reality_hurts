@@ -276,6 +276,9 @@ def record_stop(client):
 def record_toggle(client):
     return client.toggle_record()
 
+# def record_chapter(client, chapter):
+#    return client.create_chapter_record(chapter)
+
 @logger.catch(reraise=True)
 def hotkey_trigger_key(client, key):
     return client.trigger_hot_key_by_key_sequence(key, pressShift=False, pressCtrl=False, pressAlt=False, pressCmd=False)
@@ -310,8 +313,15 @@ def handle_command(command, clients):
         scene_parser.add_argument('scene', type=str, help='Scene name.')
 
 
+        record_parser = subparsers.add_parser('record', help='Record subcommand.')
+        record_parser.add_argument('subcommand', choices=['status', 'stop', 'start', 'chapter'], help='Subcommand')
+        record_parser.add_argument('chapter', type=str, help='Chapter name.')
+
+
         stream_parser = subparsers.add_parser('stream', help='Stream subcommand.')
         stream_parser.add_argument('subcommand', choices=['status', 'stop', 'start'], help='Subcommand')
+
+
 
 
         hotkey_parser = subparsers.add_parser('hotkey', help='Hotkey subcommand.')
@@ -366,6 +376,18 @@ def handle_command(command, clients):
                     stream_start(client)
                 else:
                     print("Invalid stream subcommand: " + args.subcommand)
+            elif args.operation == 'record':
+                if args.subcommand == 'status':
+                    print("Not implemented.")
+                elif args.subcommand == 'stop':
+                    print("Not implemented.")
+                elif args.subcommand == 'start':
+                    print("Not implemented.")
+                elif args.subcommand == 'chapter':
+                    print("Not implemented.")
+                    # record_chapter(client, args.chapter)
+                else:
+                    print("Invalid record subcommand: " + args.subcommand)
             else:
                 print("Invalid argument.")
                 return
