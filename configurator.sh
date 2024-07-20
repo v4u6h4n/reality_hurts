@@ -74,10 +74,10 @@ prerequisite() {
 
         # Web cameras.
             
-            path_camera_desk_vaughan="/dev/video2"
+            path_camera_desk_vaughan="/dev/video0"
             path_camera_bed_overhead="/dev/video10"
             path_camera_bed_tripod="/dev/video12"
-            path_camera_desk_vaughan_short="video2"
+            path_camera_desk_vaughan_short="video0"
             path_camera_bed_overhead_short="video10"
             path_camera_bed_tripod_short="video12"
 
