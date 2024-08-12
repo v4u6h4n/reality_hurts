@@ -7,6 +7,8 @@
         directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
         directory_data_private="${directory_script}../../../data/"
 
+        path_settings="/media/storage/Streaming/Software/config/settings.yaml"
+
         path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
         path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
         path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")

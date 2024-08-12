@@ -96,7 +96,7 @@ prerequisite() {
         directory_alerts="${directory_script}alerts/"
 
         directory_config="${directory_script}../../config/"
-        path_settings="${directory_config}setting.json"
+        path_settings="/media/storage/Streaming/Software/config/settings.yaml"
 
         directory_data_private="${directory_script}../../data/"
         directory_data_public="${directory_script}data/"
