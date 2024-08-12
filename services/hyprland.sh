@@ -7,12 +7,16 @@
         directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
         directory_data_private="${directory_script}../../../data/"
 
-        path_camera_desk_vaughan="/dev/video2"
-        path_camera_bed_overhead="/dev/video10"
-        path_camera_bed_tripod="/dev/video12"
-        path_camera_desk_vaughan_short="video2"
-        path_camera_bed_overhead_short="video10"
-        path_camera_bed_tripod_short="video12"
+        path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
+        path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
+        path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
+
+        # path_camera_desk_vaughan="/dev/video2"
+        # path_camera_bed_overhead="/dev/video10"
+        # path_camera_bed_tripod="/dev/video12"
+        # path_camera_desk_vaughan_short="video2"
+        # path_camera_bed_overhead_short="video10"
+        # path_camera_bed_tripod_short="video12"
 
     }
     variables() {
@@ -271,7 +275,7 @@ loopback_stop() {
 }
     loopback_stop_desk_vaughan() {
 
-        loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep $path_camera_desk_vaughan_short | awk '{print $2}')
+        loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_desk_vaughan") | awk '{print $2}')
 
         if [[ -n "$loopback_desk_vaughan_pid" ]]; then
             kill $loopback_desk_vaughan_pid
@@ -280,7 +284,7 @@ loopback_stop() {
     }
     loopback_stop_bed_overhead() {
 
-        loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_overhead | awk '{print $2}')
+        loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_bed_overhead") | awk '{print $2}')
 
         if [[ -n "$loopback_bed_overhead_pid" ]]; then
             kill $loopback_bed_overhead_pid
@@ -289,7 +293,7 @@ loopback_stop() {
     }
     loopback_stop_bed_tripod() {
 
-        loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_tripod | awk '{print $2}')
+        loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_bed_tripod") | awk '{print $2}')
 
         if [[ -n "$loopback_bed_tripod_pid" ]]; then
             kill $loopback_bed_tripod_pid
