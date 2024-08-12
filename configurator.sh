@@ -83,6 +83,10 @@ prerequisite() {
             path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
             path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
             path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
+            echo_info $path_camera_desk_vaughan
+            echo_info $path_camera_bed_overhead
+            echo_info $path_camera_bed_tripod
+
 
     }
     prerequisite_directory () {
@@ -1785,12 +1789,12 @@ operation_devices() {
                 fi
             done
 
-            echo "Location: $location"
-            echo "Camera: $camera"
-            echo "Name: $camera_name"
-            echo "Serial: $camera_serial"
-            echo "Bus: $camera_bus"
-            echo "Path: $camera_path"
+            echo_info "Location: $location"
+            echo_info "Camera: $camera"
+            echo_info "Name: $camera_name"
+            echo_info "Serial: $camera_serial"
+            echo_info "Bus: $camera_bus"
+            echo_info "Path: $camera_path"
             echo
         done
     done
