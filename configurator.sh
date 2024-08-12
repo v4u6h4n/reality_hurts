@@ -73,13 +73,16 @@ prerequisite() {
             output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
         # Web cameras.
+            # path_camera_desk_vaughan="/dev/video2"
+            # path_camera_bed_overhead="/dev/video10"
+            # path_camera_bed_tripod="/dev/video12"
+            # path_camera_desk_vaughan_short="video2"
+            # path_camera_bed_overhead_short="video10"
+            # path_camera_bed_tripod_short="video12"
             
-            path_camera_desk_vaughan="/dev/video2"
-            path_camera_bed_overhead="/dev/video10"
-            path_camera_bed_tripod="/dev/video12"
-            path_camera_desk_vaughan_short="video2"
-            path_camera_bed_overhead_short="video10"
-            path_camera_bed_tripod_short="video12"
+            path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
+            path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
+            path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
 
     }
     prerequisite_directory () {
@@ -87,6 +90,10 @@ prerequisite() {
         directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
 
         directory_alerts="${directory_script}alerts/"
+
+        directory_config="${directory_script}../../config/"
+        path_settings="${directory_config}setting.json"
+
         directory_data_private="${directory_script}../../data/"
         directory_data_public="${directory_script}data/"
         directory_log="${directory_script}../../logs/"
@@ -1034,6 +1041,12 @@ command() {
 
         # Input.
         operation_sleep 10
+
+        operation_devices
+        prerequisite_device
+        
+        operation_sleep 5
+
         status_check_input_device 1 2 3 4
         setting_update_input_device_mute all
         setting_update_input_device_default 2
@@ -1738,6 +1751,49 @@ operation_speak() {
     espeak "${1}"
 
     position_left
+
+}
+operation_devices() {
+
+    camera_names=()
+    camera_paths=()
+    camera_serials=()
+    camera_buses=()
+
+    # camera locations
+    for location in $(yq -r '.device.camera | keys | .[]' "$path_settings"); do
+        # cameras
+        for camera in $(yq -r ".device.camera.$location | keys | .[]" "$path_settings"); do
+            camera_name=$(yq -r ".device.camera.$location.$camera.name" "$path_settings")
+            camera_serial=$(yq -r ".device.camera.$location.$camera.serial" "$path_settings")
+            camera_bus=$(yq -r ".device.camera.$location.$camera.bus" "$path_settings")
+
+            camera_names+=("$camera_name")
+            camera_serials+=("$camera_serial")
+            camera_buses+=("$camera_bus")
+
+            for camera_path in /dev/video*; do
+                
+                # camera_serial_temp=$(v4l2-ctl --device="$camera_path" --all | grep "Serial" | awk -F': ' '{print $2}')
+                camera_bus_temp=$(v4l2-ctl --device="$camera_path" --all | grep "Bus info" | awk -F': ' 'NR==1 {print $2}')
+
+                if [[ "$camera_bus_temp" == "$camera_bus" ]]; then
+                    # camera_path=$(basename "$camera_path")
+                    yq_expression=".device.camera.$location.$camera.path = \"$camera_path\""
+                    yq -y -i "$yq_expression" "$path_settings"
+                    break
+                fi
+            done
+
+            echo "Location: $location"
+            echo "Camera: $camera"
+            echo "Name: $camera_name"
+            echo "Serial: $camera_serial"
+            echo "Bus: $camera_bus"
+            echo "Path: $camera_path"
+            echo
+        done
+    done
 
 }
 
@@ -4434,7 +4490,7 @@ setting_update() {
         }
             setting_update_system_loopback_stop_desk_vaughan() {
 
-                loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep $path_camera_desk_vaughan_short | awk '{print $2}')
+                loopback_desk_vaughan_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_desk_vaughan") | awk '{print $2}')
 
                 if [[ -n "$loopback_desk_vaughan_pid" ]]; then
                     kill $loopback_desk_vaughan_pid
@@ -4443,7 +4499,7 @@ setting_update() {
             }
             setting_update_system_loopback_stop_bed_overhead() {
 
-                loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_overhead_short | awk '{print $2}')
+                loopback_bed_overhead_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_bed_overhead") | awk '{print $2}')
 
                 if [[ -n "$loopback_bed_overhead_pid" ]]; then
                     kill $loopback_bed_overhead_pid
@@ -4452,7 +4508,7 @@ setting_update() {
             }
             setting_update_system_loopback_stop_bed_tripod() {
 
-                loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep $path_camera_bed_tripod_short | awk '{print $2}')
+                loopback_bed_tripod_pid=$(ps aux | grep ffmpeg | grep $(basename "$path_camera_bed_tripod") | awk '{print $2}')
 
                 if [[ -n "$loopback_bed_tripod_pid" ]]; then
                     kill $loopback_bed_tripod_pid
