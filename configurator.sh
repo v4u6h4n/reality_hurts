@@ -72,22 +72,10 @@ prerequisite() {
             output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1"
             output_device_headphones_1_address="74:2A:8A:40:AD:0E"
 
-        # Web cameras.
-            # path_camera_desk_vaughan="/dev/video2"
-            # path_camera_bed_overhead="/dev/video10"
-            # path_camera_bed_tripod="/dev/video12"
-            # path_camera_desk_vaughan_short="video2"
-            # path_camera_bed_overhead_short="video10"
-            # path_camera_bed_tripod_short="video12"
-            
-            path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
-            path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
-            path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
-            echo_info $path_camera_desk_vaughan
-            echo_info $path_camera_bed_overhead
-            echo_info $path_camera_bed_tripod
-
-
+        # cameras
+        path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
+        path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
+        path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
     }
     prerequisite_directory () {
 
@@ -95,8 +83,7 @@ prerequisite() {
 
         directory_alerts="${directory_script}alerts/"
 
-        directory_config="${directory_script}../../config/"
-        path_settings="/media/storage/Streaming/Software/config/settings.yaml"
+        path_settings="${directory_script}../../config/settings.yaml"
 
         directory_data_private="${directory_script}../../data/"
         directory_data_public="${directory_script}data/"
