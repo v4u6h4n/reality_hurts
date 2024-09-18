@@ -15,12 +15,12 @@
     }
     variables() {
 
-        application_titles=("browser_tasks" "terminal_public" "ide_public" "Kasts" "browser_research" ".*Obsidian.*" ".*Zotero" "Lutris")  
+        application_titles=("browser_media" "browser_tasks" "terminal_public" "ide_public" "browser_research" "E-book" "Obsidian" "Lutris" "Kasts" "Zotero")
         camera_bed_overhead="camera_bed_overhead"
         camera_bed_tripod="camera_bed_tripod"
         camera_desk_vaughan="camera_desk_vaughan"
         banner="roboty_hurts"
-        chat="Chatterino.*"
+        chat="Chatterino"
 
     }
     lock_check() {
