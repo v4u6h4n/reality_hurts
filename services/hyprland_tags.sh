@@ -15,12 +15,12 @@
     }
     variables() {
 
-        application_titles=("browser_tasks" "terminal_public" "ide_public" "Kasts" "browser_research" ".*Obsidian.*" ".*Zotero" "Lutris")  
+        application_titles=("browser_tasks" "terminal_public" "ide_public" "podcast_public" "browser_research" "knowledge_public" "reference_public" "gaming_public")  
         camera_bed_overhead="camera_bed_overhead"
         camera_bed_tripod="camera_bed_tripod"
         camera_desk_vaughan="camera_desk_vaughan"
         banner="roboty_hurts"
-        chat="Chatterino.*"
+        chat="chat_public"
 
     }
     lock_check() {
@@ -578,7 +578,7 @@ update_window_layout() {
             elif [[ "$new_window_order" == "stream_single_desk_camera_chat" ]]; then
                 echo_info "Camera chat."
                 status_workspace_active_id
-                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_active_id" -A 4 | grep "title:" | awk '$2 != "camera_desk_vaughan" && $2 != "camera_bed_overhead" && $2 != "camera_bed_tripod" && $2 != "roboty_hurts" && $2 != "Chatterino" {print $2; exit}')"
+                window_title_temp="$(hyprctl clients | grep "workspace: $workspace_active_id" -A 4 | grep "tag:" | awk '$2 != "camera_desk_vaughan" && $2 != "camera_bed_overhead" && $2 != "camera_bed_tripod" && $2 != "roboty_hurts" && $2 != "Chatterino" {print $2; exit}')"
                 update_window_position_exact 905 16 $window_title_temp
                 sleep 0.1
                 # Camera desk Vaughan.
@@ -767,7 +767,7 @@ update_window_pin() {
         echo_info "Window pin, already pinned: $1."
     elif [[ "$(status_window_pinned $1)" == "no" ]]; then
         echo_info "Window pin: $1."
-        hyprctl dispatch pin title:$1 >/dev/null 2>&1
+        hyprctl dispatch pin tag:$1 >/dev/null 2>&1
     else
         echo_error "update_window_pin."
     fi
@@ -776,7 +776,7 @@ update_window_pin() {
 update_window_float() {
 
     echo_info "Window float: $1."
-    hyprctl dispatch setfloating title:$1 >/dev/null 2>&1
+    hyprctl dispatch setfloating tag:$1 >/dev/null 2>&1
 
 }
 update_window_float_toggle() {
@@ -784,7 +784,7 @@ update_window_float_toggle() {
     status_window_floating $1
 
     if [[ $status_window_floating -eq 0 ]]; then
-        hyprctl dispatch togglefloating title:$1 >/dev/null 2>&1
+        hyprctl dispatch togglefloating tag:$1 >/dev/null 2>&1
     fi
 
 }
@@ -793,25 +793,25 @@ update_window_tile_toggle() {
     status_window_floating $1
 
     if [[ $status_window_floating -eq 1 ]]; then
-        hyprctl dispatch togglefloating title:$1 >/dev/null 2>&1
+        hyprctl dispatch togglefloating tag:$1 >/dev/null 2>&1
     fi
 
 }
 update_window_opacity() {
 
-    hyprctl keyword windowrule opacity $2,title:$1
+    hyprctl keyword windowrule opacity $2,tag:$1
 
 }
 update_window_tile() {
 
     echo_info "Window tile: $1."
-    hyprctl dispatch settiled title:$1 >/dev/null 2>&1
+    hyprctl dispatch settiled tag:$1 >/dev/null 2>&1
 
 }
 update_window_position_exact() {
 
     echo_info "Window position: ${3}, ${1}x${2}."
-    hyprctl dispatch "movewindowpixel exact $1 $2,title:$3" >/dev/null 2>&1
+    hyprctl dispatch "movewindowpixel exact $1 $2,tag:$3" >/dev/null 2>&1
 
 }
 update_window_position_hide() {
@@ -819,9 +819,9 @@ update_window_position_hide() {
     for window in "$@"; do
         echo_info "Window position hide: $window."
         if [[ "$(status_window_position_vertical $window)" == "16" ]]; then
-            hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) "-1424",title:$window" >/dev/null 2>&1
+            hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) "-1424",tag:$window" >/dev/null 2>&1
         elif [[ "$(status_window_position_vertical $window)" != "16" ]]; then
-            hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) 1456,title:$window" >/dev/null 2>&1
+            hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) 1456,tag:$window" >/dev/null 2>&1
         fi
     done
 
@@ -830,7 +830,7 @@ update_window_position_hide_down() {
 
     for window in "$@"; do
         echo_info "Window position hide down: $window."
-        hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) 1456,title:$window" >/dev/null 2>&1
+        hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) 1456,tag:$window" >/dev/null 2>&1
     done
 
 }
@@ -838,20 +838,20 @@ update_window_position_hide_up() {
 
     for window in "$@"; do
         echo_info "Window position hide up: $window."
-        hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) "-1424",title:$window" >/dev/null 2>&1
+        hyprctl dispatch "movewindowpixel exact $(status_window_position_horizontal $window) "-1424",tag:$window" >/dev/null 2>&1
     done
 
 }
 update_window_size() {
 
     echo_info "Window size: ${3}, ${1}x${2}."
-    hyprctl dispatch resizewindowpixel exact $1 $2,title:$3 >/dev/null 2>&1
+    hyprctl dispatch resizewindowpixel exact $1 $2,tag:$3 >/dev/null 2>&1
 
 }
 update_window_workspace_silent() {
 
     echo_info "Move $2 to workspace $1."
-    hyprctl dispatch movetoworkspacesilent $1,title:"$2" >/dev/null 2>&1
+    hyprctl dispatch movetoworkspacesilent $1,tag:"$2" >/dev/null 2>&1
 
 }
 update_workspace_active() {
