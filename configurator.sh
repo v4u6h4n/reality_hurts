@@ -69,8 +69,8 @@ prerequisite() {
             # Headphones.
             output_device_headphones_1_name="Headset"
             output_device_headphones_1_script_name="headphones_1"
-            output_device_headphones_1_node_name="bluez_output.74_2A_8A_D4_CC_42.1" # "bluez_output.74_2A_8A_40_AD_0E.1"
-            output_device_headphones_1_address="74:2A:8A:D4:CC:42" # "74:2A:8A:40:AD:0E"
+            output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1" # "bluez_output.74_2A_8A_D4_CC_42.1"
+            output_device_headphones_1_address="74:2A:8A:40:AD:0E" # "74:2A:8A:D4:CC:42"
 
         # cameras
         path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
