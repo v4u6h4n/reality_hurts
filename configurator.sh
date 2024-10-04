@@ -84,13 +84,13 @@ prerequisite() {
             # Headphones.
             output_device_headphones_1_name="Headset"
             output_device_headphones_1_script_name="headphones_1"
-            output_device_headphones_1_node_name="bluez_output.74_2A_8A_40_AD_0E.1" # "$(yq -r ".device.audio_output.headset.node" "$path_settings") # "bluez_output.89_88_1F_FD_47_F7.1" # 
-            output_device_headphones_1_address="74:2A:8A:40:AD:0E" # $(yq -r ".device.audio_output.headset.address" "$path_settings") # "89:88:1F:FD:47:F7" # headset: 
+            output_device_headphones_1_node_name="bluez_output.94_DB_56_03_17_D5.1" # "bluez_output.74_2A_8A_40_AD_0E.1" # "$(yq -r ".device.audio_output.headset.node" "$path_settings") # "bluez_output.89_88_1F_FD_47_F7.1" # 
+            output_device_headphones_1_address="94:DB:56:03:17:D5" # "74:2A:8A:40:AD:0E" # $(yq -r ".device.audio_output.headset.address" "$path_settings") # "89:88:1F:FD:47:F7" # headset: 
 
         # cameras
-        path_camera_desk_vaughan=$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")
-        path_camera_bed_overhead=$(yq -r ".device.camera.bed.overhead.path" "$path_settings")
-        path_camera_bed_tripod=$(yq -r ".device.camera.bed.tripod.path" "$path_settings")
+        path_camera_desk_vaughan="$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")"
+        path_camera_bed_overhead="$(yq -r ".device.camera.bed.overhead.path" "$path_settings")"
+        path_camera_bed_tripod="$(yq -r ".device.camera.bed.tripod.path" "$path_settings")"
     }
     prerequisite_permission() {
 
