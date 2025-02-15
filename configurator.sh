@@ -85,8 +85,8 @@ prerequisite() {
             output_device_headphones_1_name="Headset"
             output_device_headphones_1_script_name="headphones_1"
 
-            output_device_headphones_1_node_name="bluez_output.57_6F_BB_B0_16_8E.1" # "bluez_output.74_2A_8A_40_AD_0E.1" # "bluez_output.94_DB_56_03_17_D5.1" "$(yq -r ".device.audio_output.headset.node" "$path_settings") # "bluez_output.89_88_1F_FD_47_F7.1" # 
-            output_device_headphones_1_address="57:6F:BB:B0:16:8E" # "74:2A:8A:40:AD:0E" # "94:DB:56:03:17:D5" $(yq -r ".device.audio_output.headset.address" "$path_settings") # "89:88:1F:FD:47:F7" # headset: 
+            output_device_headphones_1_node_name="bluez_card.E4_61_F4_4C_4D_0A" # "bluez_output.57_6F_BB_B0_16_8E.1" # "bluez_output.74_2A_8A_40_AD_0E.1" # "bluez_output.94_DB_56_03_17_D5.1" "$(yq -r ".device.audio_output.headset.node" "$path_settings") # "bluez_output.89_88_1F_FD_47_F7.1" # 
+            output_device_headphones_1_address="E4:61:F4:4C:4D:0A" # "57:6F:BB:B0:16:8E" # "74:2A:8A:40:AD:0E" # "94:DB:56:03:17:D5" $(yq -r ".device.audio_output.headset.address" "$path_settings") # "89:88:1F:FD:47:F7" # headset: 
 
         # cameras
         path_camera_desk_vaughan="$(yq -r ".device.camera.desk.vaughan.path" "$path_settings")"
