@@ -1075,9 +1075,9 @@ command() {
         command system application obs_studio unrestricted_uncut start
 
         operation_sleep 5
-        command system application obs_studio restricted_uncut start
-        command system application obs_studio unrestricted start
-        command system application obs_studio restricted start
+        # command system application obs_studio restricted_uncut start
+        command system application obs_studio security start
+        # command system application obs_studio restricted start
 
         # Mute OBS.
         operation_sleep 10
@@ -4077,7 +4077,7 @@ setting_update() {
                     # Unrestricted.
                     elif [[ "$arg_system_application_profile" == "unrestricted" ]]; then
                         status_check_obs_websocket 3
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted" --collection "unrestricted" --startrecording --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4086,10 +4086,20 @@ setting_update() {
                             echo_error_urgent "OBS failed to launch (unrestricted)."
                         fi
 
+                    # security
+                    elif [[ "$arg_system_application_profile" == "security" ]]; then
+                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "security" --collection "security" --startrecording > /dev/null 2>&1 & disown
+                        exit_1=$?
+                        if [[ $1 -eq 0 ]]; then
+                            echo_info "obs studio launched: security"
+                        else
+                            echo_error_urgent "obs studio failed to launch: security"
+                        fi
+
                     # Unrestricted uncut.
                     elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
                         status_check_obs_websocket 1
-                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
+                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4535,15 +4545,15 @@ setting_update() {
             echo_info "Restarting portal..."
             /usr/lib/xdg-desktop-portal & disown
 
-            sleep 1
+            sleep 2
 
             command system application obs_studio unrestricted_uncut start
-            sleep 0.5
-            command system application obs_studio unrestricted start
-            sleep 0.5
-            command system application obs_studio restricted_uncut start
-            sleep 0.5
-            command system application obs_studio restricted start
+            sleep 2
+            command system application obs_studio security start
+            # sleep 0.5
+            #command system application obs_studio restricted_uncut start
+            #sleep 0.5
+            #command system application obs_studio restricted start
             
             sleep 1
 
