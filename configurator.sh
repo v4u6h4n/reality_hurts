@@ -4118,7 +4118,7 @@ setting_update() {
                     # Restricted uncut.
                     if [[ "$arg_system_application_profile" == "all" ]]; then
 
-                        obs_clients=("Profile: unrestricted -" "Profile: unrestricted_uncut -" "Profile: restricted -" "Profile: restricted_uncut -")
+                        obs_clients=("Profile: unrestricted -" "Profile: unrestricted_uncut -" "Profile: restricted -" "Profile: restricted_uncut -" "Profile: security -")
 
                         for obs_client in "${obs_clients[@]}"; do
                             temp_pid=$(hyprctl clients | grep "$obs_client" -A 12 | grep "pid:" | awk '{print $2}' | cut -d',' -f1)
