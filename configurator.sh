@@ -6,8 +6,8 @@
 
 prerequisite() {
 
-    prerequisite_device
     prerequisite_directory
+    prerequisite_device
     prerequisite_permission
     prerequisite_position
 
@@ -15,11 +15,8 @@ prerequisite() {
     prerequisite_directory () {
 
         directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
-        
         directory_alerts="${directory_script}alerts/"
-
-        path_settings="${directory_script}../../config/settings.yaml"
-        echo "$(realpath "$path_settings")"
+        path_settings=$(realpath "${directory_script}../../config/settings.yaml")
         directory_data_private="${directory_script}../../data/"
         directory_data_public="${directory_script}data/"
         directory_log="${directory_script}../../logs/"
@@ -1772,7 +1769,7 @@ operation_devices() {
                 if [[ "$camera_bus_temp" == "$camera_bus" ]]; then
                     # camera_path=$(basename "$camera_path")
                     yq_expression=".device.camera.$location.$camera.path = \"$camera_path\""
-                    yq -y -i "$yq_expression" "$path_settings"
+                    yq "$yq_expression" -i "$path_settings"
                     break
                 fi
             done
