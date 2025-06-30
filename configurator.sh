@@ -1062,7 +1062,7 @@ command() {
         sleep 5
 
         command system application bot none start
-        command system application chat none start
+        # command system application chat none start
         command system application camera_desk_vaughan none start
         command system application camera_bed_overhead none start
         command system application camera_bed_tripod none start
