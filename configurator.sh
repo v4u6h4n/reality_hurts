@@ -1057,7 +1057,7 @@ command() {
 
         setting_update_system_loopback_start
 
-        cp "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout copy.json" "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout.json"
+        # cp "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout copy.json" "/home/v4u6h4n/.var/app/com.chatterino.chatterino/data/chatterino/Settings/window-layout.json"
 
         sleep 5
 
@@ -1071,7 +1071,7 @@ command() {
         operation_sleep 25
         command system application obs_studio unrestricted_uncut start
 
-        operation_sleep 5
+        operation_sleep 10
         # command system application obs_studio restricted_uncut start
         command system application obs_studio security start
         # command system application obs_studio restricted start
@@ -1084,7 +1084,7 @@ command() {
 
         sleep 5
 
-        command system window_manager window_layout default startup
+        # command system window_manager window_layout default startup
 
     }
     command_stream() {
@@ -4085,7 +4085,7 @@ setting_update() {
 
                     # security
                     elif [[ "$arg_system_application_profile" == "security" ]]; then
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "security" --collection "security" --startrecording > /dev/null 2>&1 & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "security" --collection "security" --startrecording > /dev/null 2>&1 & disown
                         exit_1=$?
                         if [[ $1 -eq 0 ]]; then
                             echo_info "obs studio launched: security"
@@ -4096,7 +4096,7 @@ setting_update() {
                     # Unrestricted uncut.
                     elif [[ "$arg_system_application_profile" == "unrestricted_uncut" ]]; then
                         status_check_obs_websocket 1
-                        flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
+                        mullvad-exclude flatpak run com.obsproject.Studio --multi --disable-shutdown-check --profile "unrestricted_uncut" --collection "unrestricted_uncut" --scene "unrestricted" --startstreaming --startvirtualcam --websocket_port $obs_websocket_port --websocket_password $obs_websocket_password > /dev/null 2>&1 & disown
                         exit_1=$?
                         systemctl --user restart obs_cli
                         if [[ $1 -eq 0 ]]; then
@@ -4545,14 +4545,14 @@ setting_update() {
             sleep 2
 
             command system application obs_studio unrestricted_uncut start
-            sleep 2
+            sleep 10
             command system application obs_studio security start
             # sleep 0.5
             #command system application obs_studio restricted_uncut start
             #sleep 0.5
             #command system application obs_studio restricted start
             
-            sleep 1
+            sleep 10
 
             setting_update_output_device_create_null_sink_1
 
